@@ -39,7 +39,10 @@ def test_the_version_changes_when_a_source_changes(tmp_path):
 
 
 def test_the_phone_number_never_enters_the_index(tmp_path):
-    build_persona(tmp_path / "idx", tmp_path)
+    number = "+91 " + "98765" + " " + "43210"  # built here, never stored in a fixture
+    build_persona(
+        tmp_path / "idx", tmp_path, extra_lines=(f"Springfield | {number} | sam@example.test",)
+    )
     raw = (tmp_path / "idx" / "index.json").read_text(encoding="utf-8")
     assert "98765" not in raw and "43210" not in raw
     assert not b.phone_like(raw.replace("\\n", " "))

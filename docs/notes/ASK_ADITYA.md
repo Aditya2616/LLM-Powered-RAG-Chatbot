@@ -99,12 +99,13 @@ never reach a model and never spend a budget.
 
 Model ids live only in the environment; these are the values the evaluation used. The tables are in the README.
 
-- `GROQ_MODEL=qwen/qwen3.8-27b` (primary): fastest and most accurate in the screening and the full run, mean first token
-  under 0.3 s, no reasoning-token overhead.
+- `GROQ_MODEL=qwen/qwen3.8-27b` (primary): fastest and most accurate in the screening and the full run, with no
+  reasoning-token overhead.
 - `GROQ_MODEL_BACKUP=openai/gpt-oss-120b` with `GROQ_BACKUP_REASONING_EFFORT=low`: a reasoning model, so it needs the low
   effort and a completion allowance of 400 tokens to leave room for the reasoning; slower and a little less accurate.
-- `GEMINI_MODEL=gemini-3.5-flash-lite` (last resort): slowest of the three (mean first token about 1.3 s, p95 about 5 s),
-  and it answered as accurately as the others.
+- `GEMINI_MODEL=gemini-3.5-flash-lite` (last resort): slowest of the three, and it answered as accurately as the others. The
+  latency columns of the README table give both the mean and p95 over all questions (fixed replies included) and, in
+  brackets, over only the answers that reached a model; the two are never mixed.
 - `openai/gpt-oss-20b` was screened on three questions only (1 to 2 s each, one wrong "UNKNOWN") and not evaluated fully.
 - `ASK_MAX_NEW_TOKENS=400` for all three; it caps the completion only and no longer inflates the budgets.
 

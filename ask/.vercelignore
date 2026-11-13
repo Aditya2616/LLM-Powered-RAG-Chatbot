@@ -7,3 +7,7 @@ __pycache__/
 private/platform_name.txt
 private/index/dense.npy
 .env.example
+.env
+.env.*
+.env*.local
+*.local

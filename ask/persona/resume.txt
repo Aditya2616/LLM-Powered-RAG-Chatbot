@@ -1,5 +1,5 @@
 SAM RIVERA
-Springfield | +91 98765 43210 | sam.rivera@example.test | linkedin.com/in/sam-rivera-example | github.com/sam-rivera-example
+Springfield | phone omitted | sam.rivera@example.test | linkedin.com/in/sam-rivera-example | github.com/sam-rivera-example
 Data Engineer, Northwind Labs | B.Sc Statistics, Lakeside University
 SUMMARY
 Statistics graduate working on data pipelines and forecasting. Builds small analytics projects end to end.

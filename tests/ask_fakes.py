@@ -33,20 +33,23 @@ class ScriptedProvider:
         return r
 
 
-def make_resume_pdf(path: Path) -> None:
+def make_resume_pdf(path: Path, extra_lines: tuple[str, ...] = ()) -> None:
     from fpdf import FPDF
 
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Helvetica", size=11)
-    for line in (PERSONA / "resume.txt").read_text(encoding="utf-8").splitlines():
+    lines = (PERSONA / "resume.txt").read_text(encoding="utf-8").splitlines() + list(extra_lines)
+    for line in lines:
         pdf.cell(0, 6, line.replace("–", "-"), new_x="LMARGIN", new_y="NEXT")
     pdf.output(str(path))
 
 
-def build_persona(out: Path, work: Path, platform: str | None = None) -> dict:
+def build_persona(
+    out: Path, work: Path, platform: str | None = None, extra_lines: tuple[str, ...] = ()
+) -> dict:
     pdf = work / "resume.pdf"
-    make_resume_pdf(pdf)
+    make_resume_pdf(pdf, extra_lines)
     return build(
         pdf,
         PERSONA / "corpus.md",
