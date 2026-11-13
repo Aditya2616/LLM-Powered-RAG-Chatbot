@@ -1,0 +1,119 @@
+{
+ "note": "2026-11-13, GPU float16 for generation, bundled corpus",
+ "tables": [
+  {
+   "title": "Retrieval, 500-character chunks (75 answerable questions)",
+   "head": [
+    "Retriever",
+    "Recall@1",
+    "Recall@3",
+    "MRR"
+   ],
+   "rows": [
+    [
+     "dense",
+     "77.3%",
+     "97.3%",
+     "0.874"
+    ],
+    [
+     "bm25",
+     "78.7%",
+     "97.3%",
+     "0.869"
+    ],
+    [
+     "hybrid",
+     "85.3%",
+     "98.7%",
+     "0.920"
+    ],
+    [
+     "hybrid+rerank",
+     "92.0%",
+     "96.0%",
+     "0.947"
+    ]
+   ],
+   "hl": 2
+  },
+  {
+   "title": "Answers (75 answerable, 25 unanswerable)",
+   "head": [
+    "Setup",
+    "Correct",
+    "False \"I don't know\"",
+    "\"I don't know\" on unanswerable"
+   ],
+   "rows": [
+    [
+     "extractive: extractive baseline (no model)",
+     "52.0%",
+     "10.7%",
+     "44.0%"
+    ],
+    [
+     "Qwen2.5-0.5B: no retrieval (question only)",
+     "2.7%",
+     "0.0%",
+     "0.0%"
+    ],
+    [
+     "Qwen2.5-0.5B: no retrieval (question only)",
+     "2.7%",
+     "0.0%",
+     "0.0%"
+    ],
+    [
+     "Qwen2.5-0.5B: rag, plain prompt",
+     "69.3%",
+     "14.7%",
+     "56.0%"
+    ],
+    [
+     "Qwen2.5-0.5B: rag, two worked examples in the prompt",
+     "70.7%",
+     "1.3%",
+     "20.0%"
+    ],
+    [
+     "Qwen2.5-0.5B: rag + retrieval-score gate",
+     "44.0%",
+     "45.3%",
+     "88.0%"
+    ],
+    [
+     "Qwen2.5-1.5B: no retrieval (question only)",
+     "8.0%",
+     "0.0%",
+     "0.0%"
+    ],
+    [
+     "Qwen2.5-1.5B: rag, plain prompt",
+     "93.3%",
+     "0.0%",
+     "72.0%"
+    ],
+    [
+     "Qwen2.5-1.5B: rag, two worked examples in the prompt",
+     "92.0%",
+     "1.3%",
+     "48.0%"
+    ],
+    [
+     "Qwen2.5-1.5B: rag + retrieval-score gate",
+     "62.7%",
+     "33.3%",
+     "88.0%"
+    ]
+   ],
+   "hl": 3
+  }
+ ],
+ "notes": [
+  "The corpus is 11 invented documents of about 5,400 words and the questions are written by me, so scores are high and the set is small: a 1-point difference is under one question in the retrieval table.",
+  "Answer correctness is a word-match against the facts the answer must contain. It is strict about wording and blind to meaning, in both directions.",
+  "The model is a 0.5B-parameter open model. It follows the instruction to decline imperfectly, and the numbers above are that, not a tuned best case.",
+  "This page replays a recorded run. Run the service locally to ask your own questions of your own documents."
+ ]
+}
