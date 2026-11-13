@@ -1,28 +1,60 @@
 # LLM-Powered RAG Chatbot
 
+[![ci](https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot/actions/workflows/ci.yml) [![licence: MIT](https://img.shields.io/badge/licence-MIT-d7ff3f.svg)](LICENSE)
+
 Question answering over your own documents, with the answer tied to the text it came from. It ingests PDF, TXT and DOCX files, splits them into chunks, embeds them into a FAISS index, retrieves the best chunks for a question (dense, BM25 or a fusion of both), and has a language model answer from those chunks only, saying "I don't know" when they do not contain the answer. Python, LangChain, FAISS, FastAPI, Streamlit and Docker. It runs with no API key: the default embedder and generator are small open models that run on a laptop.
 
-I rebuilt this from a small Gemini-only wrapper into something I can measure. The part I care about is the "I don't know" path, so the repository ships a small corpus and a question set (answerable and unanswerable) and reports how often the system answers correctly, how often it declines when it should, and how often it declines when it should not.
+<!-- BEGIN lead -->
+Headline result, on the 100 questions bundled with the repository (a small invented corpus): Qwen2.5-0.5B-Instruct answers 52/75 (69.3%) of the answerable questions correctly and says "I don't know" on 14/25 (56.0%) of the unanswerable ones; Qwen2.5-1.5B-Instruct answers 70/75 (93.3%) and declines 18/25 (72.0%). Declining reliably is the weak spot, and the results below say where.
+<!-- END lead -->
 
-![The viewer: chunks of the documents as points in embedding space, a question, and the four chunks retrieved for it](docs/assets/desktop-static-answered.png)
+The part I care about is the "I don't know" path, so the repository ships a small corpus and a question set (answerable and unanswerable) and reports how often the system answers correctly, declines when it should, and declines when it should not.
+
+![The viewer: chunks of the documents as points in embedding space, a question, and the four chunks retrieved for it, with their scores](docs/assets/desktop-answered-map.png)
+
+| An answerable question | A question the documents cannot answer |
+|---|---|
+| <img width="260" alt="Phone view of the answer card: the answer, four citation buttons with the share of the answer found in each chunk, and retrieval and generation timings" src="docs/assets/phone-answered.png"> | <img width="260" alt="Phone view of the answer card showing the orange declined state, I don't know, and the retrieved chunks with the question words underlined" src="docs/assets/phone-declined.png"> |
+
+![Desktop view of a declined question: the answer card says I don't know and three retrieved chunks sit beside it with scores](docs/assets/desktop-declined.png)
+
+![Desktop view of an answered question: the answer card with citations beside three retrieved chunks, matching words highlighted](docs/assets/desktop-answered.png)
+
+## How it works
 
 The interface in `docs/` walks the pipeline step by step (ingest, chunk, embed, retrieve, generate) with real data: the bars are the documents, the points are their chunks projected from the embedding space, and the lime points are what the retriever returned for the question, with their scores. The static page replays queries recorded from a real run (it says so in the page); run the service locally and the same page talks to your own documents.
 
-| Desktop: a question the documents cannot answer | Phone (390 px) |
-|---|---|
-| ![](docs/assets/desktop-static-declined-answer.png) | ![](docs/assets/phone-static-declined-answer.png) |
+```mermaid
+flowchart LR
+    D[PDF / TXT / DOCX] --> L[Loaders + RecursiveCharacterTextSplitter]
+    L --> C[Chunks with source, id, char offsets]
+    C --> E[Embedder: MiniLM, OpenAI or Gemini]
+    E --> F[(FAISS exact index + chunks.jsonl)]
+    Q[Question] --> R{Retriever}
+    F --> R
+    C --> B[BM25]
+    B --> R
+    R -->|top-k chunks with scores| G{Gate: best cosine below threshold?}
+    G -->|no| M[Generator: local Qwen, OpenAI-compatible or Gemini]
+    G -->|yes| X["I don't know"]
+    M --> A[Answer + citations + timings]
+    M -->|declines| X
+    A --> U[FastAPI: /query, /query/stream, /upload, /health]
+    X --> U
+    U --> W[Web viewer and Streamlit client]
+```
 
-## Read this before trusting any number
+Everything is in `src/rag_chatbot/`: `loaders.py` (loading, chunking, upload checks), `embeddings.py` and `llm.py` (provider adapters), `store.py` (FAISS and persistence), `retrieval.py` (dense, BM25, fusion, optional reranker), `pipeline.py` (prompt, gate, cache, history, query log, citations), `api.py` (service), `evaluation.py` (metrics), `cli.py`.
+
+## Results
+
+### Caveats
 
 - **The corpus is small and invented.** 11 documents about a fictional outdoor-gear retailer, written by me so that they are licence-clean and so that no model has seen them. The questions are also mine. Retrieval scores are high partly because the corpus is easy: the documents are short and cleanly sectioned. This measures whether the pipeline works and which options help, not how it will do on your messy PDFs.
 - **Small samples.** 75 answerable and 25 unanswerable questions. Tables give counts as k/n; at 75 questions a 95% Wilson interval is roughly plus or minus 10 percentage points (the intervals are in the `results/*.json` files), and a difference of one or two questions is noise.
 - **Answer correctness is a word match.** An answer counts as correct if it contains every required fact (a number, a name) after normalising currency and punctuation. It is strict about wording and blind to meaning, so it can fail a right answer phrased differently and pass a wrong answer that happens to include the right words. "Grounded" is likewise lexical: the share of the answer's words that appear in the retrieved text. Neither is a human judgement.
 - **The generator is tiny.** The default model has 0.5 billion parameters. It follows "answer only from the context, otherwise say I don't know" only partly, and the tables show where it does not.
-- **Hosted providers were not run.** The OpenAI-compatible and Gemini adapters are tested against a stubbed HTTP transport. I have no keys, so they have never called a real service. The Docker image was not built here either (no Docker on the machine I developed on).
-
-## Results
-
-Reproduce with the commands under "Reproduce", then `python scripts/check_numbers.py --write`. Every table in this section is generated from `results/*.json`, and a fast test fails if the README is out of sync.
+- **Hosted providers were not run.** The OpenAI-compatible and Gemini adapters are tested against a stubbed HTTP transport. They have not been run against a real service, because I have no keys. The Docker image has not been built (no Docker on the machine I developed on).
 
 <!-- BEGIN setup -->
 The corpus is 11 invented policy documents (5,403 words, 30,830 characters) for a fictional outdoor-gear retailer. The question set has 100 questions: 75 answerable (42 worded close to the text, 33 reworded) and 25 that the documents cannot answer (17 on a topic the documents cover but a detail they do not, 8 off topic). Retrieval ran on cuda with all-MiniLM-L6-v2 embeddings (revision `1110a243`); generation ran on cuda in float16 with greedy decoding and at most 160 new tokens, retrieving the top 4 chunks with the hybrid retriever at 1000-character chunks unless a row says otherwise. Dates: retrieval 2026-11-13, generation 2026-11-13.
@@ -185,30 +217,6 @@ GPU generation time per question during the runs above (not a CPU claim):
 | Qwen2.5-1.5B-Instruct (float16, 500-char chunks) | cuda | 566 | 1060 | 100 |
 <!-- END gpu_latency -->
 
-## Architecture
-
-```mermaid
-flowchart LR
-    D[PDF / TXT / DOCX] --> L[Loaders + RecursiveCharacterTextSplitter]
-    L --> C[Chunks with source, id, char offsets]
-    C --> E[Embedder: MiniLM, OpenAI or Gemini]
-    E --> F[(FAISS exact index + chunks.jsonl)]
-    Q[Question] --> R{Retriever}
-    F --> R
-    C --> B[BM25]
-    B --> R
-    R -->|top-k chunks with scores| G{Gate: best cosine below threshold?}
-    G -->|no| M[Generator: local Qwen, OpenAI-compatible or Gemini]
-    G -->|yes| X["I don't know"]
-    M --> A[Answer + citations + timings]
-    M -->|declines| X
-    A --> U[FastAPI: /query, /query/stream, /upload, /health]
-    X --> U
-    U --> W[Web viewer and Streamlit client]
-```
-
-Everything is in `src/rag_chatbot/`: `loaders.py` (loading, chunking, upload checks), `embeddings.py` and `llm.py` (provider adapters), `store.py` (FAISS and persistence), `retrieval.py` (dense, BM25, fusion, optional reranker), `pipeline.py` (prompt, gate, cache, history, query log, citations), `api.py` (service), `evaluation.py` (metrics), `cli.py`.
-
 ## Quickstart
 
 Offline, no key. The first run downloads two small models (about 90 MB for MiniLM, about 1 GB for Qwen2.5-0.5B-Instruct) from the Hugging Face hub; after that it is offline.
@@ -243,7 +251,7 @@ On Windows PowerShell set the variables with `$env:EMBEDDINGS_PROVIDER = "hashin
 
 Hosted model ids are never defaulted: set `OPENAI_MODEL`, `OPENAI_EMBEDDING_MODEL`, `GEMINI_MODEL` and `GEMINI_EMBEDDING_MODEL` yourself. Pointing `OPENAI_BASE_URL` at another provider's compatible endpoint is how to use one that is not named here; that path is untested beyond the stubs. Use another local model with `LOCAL_LLM_MODEL` or `HF_EMBEDDING_MODEL`. An index records which embedder built it and is refused if you change embedders; run `rag-chatbot reindex`.
 
-## API
+### API
 
 `rag-chatbot serve` starts the service (interactive docs at `/docs`).
 
@@ -287,35 +295,7 @@ A source is a chunk that was put in the prompt; `support` is the share of the an
 
 Streamlit client (the original UI, updated to show scores and the reason for a refusal): start the service, then `pip install -e ".[streamlit]"` and `streamlit run frontend/streamlit_app.py`.
 
-Docker: `docker build -t rag-chatbot .` then `docker run -p 8000:8000 -v rag-data:/data -v rag-models:/models rag-chatbot`. The image installs CPU PyTorch and downloads the models on first use. I did not build it here.
-
-## The static demo
-
-`docs/` is a static site: serve it with any file server (`python -m http.server -d docs`) or GitHub Pages. It replays `docs/data/demo.json`, which `scripts/record_demo.py` wrote from a real run (chunk layout, 2-D projection, retrieved chunks and scores, the token stream with its real timing, the final answers), including a question on a topic the documents cover but a detail they do not, and an off-topic one. When the same page is served by the service it switches to live mode and sends your questions to it.
-
-## Design decisions and limitations
-
-Short version; the longer notes are in `docs/notes/DESIGN.md`.
-
-- Exact FAISS search over normalised vectors (cosine). Fine for thousands of chunks; for millions you would want an approximate index, which I have not built or measured.
-- BM25 is my own small implementation with a plural-stripping stemmer, so it is English only.
-- Chunking is by characters, with 15% overlap in the experiments. Tables, scanned PDFs (no OCR) and layout are not handled.
-- Chat history is pasted into the prompt as text; there is no question rewriting, so follow-up questions that depend on earlier turns retrieve poorly.
-- The cache and the history are in memory and per process; the service is meant to run as a single worker.
-- There is no authentication, rate limiting or per-user isolation. It is a local tool, not a hosted product.
-- The abstention gate depends on one threshold tuned on a small question set; the results above show how far to trust it.
-
-## Layout
-
-```
-src/rag_chatbot/   the package (see Architecture)
-corpus/docs/       the 11 bundled documents; corpus/questions.jsonl the gold questions
-scripts/           run_eval.py, record_demo.py, check_numbers.py, check_ui.py
-results/           measured results (JSON), the source of every table above
-docs/              the static viewer, data/ (recorded run), assets/ (screenshots), notes/
-frontend/          the Streamlit client
-tests/             fast offline suite; the model test is marked slow
-```
+Docker: `docker build -t rag-chatbot .` then `docker run -p 8000:8000 -v rag-data:/data -v rag-models:/models rag-chatbot`. The image installs CPU PyTorch and downloads the models on first use. It has not been built or run.
 
 ## Reproduce
 
@@ -336,7 +316,35 @@ ruff check .
 
 The fast suite uses a hashing embedder and scripted generators, so it needs neither torch nor a download; that is what CI runs. The interface check (`python scripts/check_ui.py --live --shots docs/assets`, needs `pip install -e ".[check]"` and `playwright install chromium`) loads the page at 1440x900 and 390x844 and fails on console errors, horizontal scroll or touch targets under 44 px.
 
-## Credits and licence
+## Layout
+
+```
+src/rag_chatbot/   the package (see How it works)
+corpus/docs/       the 11 bundled documents; corpus/questions.jsonl the gold questions
+scripts/           run_eval.py, record_demo.py, check_numbers.py, check_ui.py
+results/           measured results (JSON), the source of every table above
+docs/              the static viewer, data/ (recorded run), assets/ (screenshots), notes/
+frontend/          the Streamlit client
+tests/             fast offline suite; the model test is marked slow
+```
+
+## Static demo
+
+`docs/` is a static site: serve it with any file server (`python -m http.server -d docs`) or GitHub Pages. It replays `docs/data/demo.json`, which `scripts/record_demo.py` wrote from a real run (chunk layout, 2-D projection, retrieved chunks and scores, the token stream with its real timing, the final answers), including a question on a topic the documents cover but a detail they do not, and an off-topic one. When the same page is served by the service it switches to live mode and sends your questions to it.
+
+## Limitations
+
+Short version; the longer notes are in `docs/notes/DESIGN.md`.
+
+- Exact FAISS search over normalised vectors (cosine). Fine for thousands of chunks; for millions you would want an approximate index, which I have not built or measured.
+- BM25 is my own small implementation with a plural-stripping stemmer, so it is English only.
+- Chunking is by characters, with 15% overlap in the experiments. Tables, scanned PDFs (no OCR) and layout are not handled.
+- Chat history is pasted into the prompt as text; there is no question rewriting, so follow-up questions that depend on earlier turns retrieve poorly.
+- The cache and the history are in memory and per process; the service is meant to run as a single worker.
+- There is no authentication, rate limiting or per-user isolation. It is a local tool, not a hosted product.
+- The abstention gate depends on one threshold tuned on a small question set; the results above show how far to trust it.
+
+## Licence and credits
 
 MIT, copyright Aditya Jain (see `LICENSE`). Models: `sentence-transformers/all-MiniLM-L6-v2`, `Qwen/Qwen2.5-0.5B-Instruct`, `Qwen/Qwen2.5-1.5B-Instruct` and `cross-encoder/ms-marco-MiniLM-L-6-v2`, all Apache-2.0 per their model cards; they are downloaded, not bundled. The corpus and questions are my own work, covered by the same MIT licence.
 

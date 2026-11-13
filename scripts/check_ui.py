@@ -1,4 +1,4 @@
-"""Load the interface in headless Chromium and check it, then capture the README screenshots.
+"""Load the interface in headless Chromium and check it, then capture the README screenshots of the static demo.
 
     python scripts/check_ui.py [--shots docs/assets] [--live]
 
@@ -98,6 +98,23 @@ SMALL = """() => {
 }"""
 
 
+def shoot(page, path: Path, scroll_sel: str, last_sel: str, pad: int = 12) -> None:
+    """Scroll an element to just under the sticky bar and capture down to the bottom of another element,
+    so the picture ends on a card boundary and nothing is clipped or hidden under the bar."""
+    page.evaluate("document.documentElement.style.scrollBehavior = 'auto'")
+    page.evaluate(
+        "(s) => { const e = document.querySelector(s); window.scrollTo(0, e.getBoundingClientRect().top + scrollY - 76); }",
+        scroll_sel,
+    )
+    page.wait_for_timeout(1500)
+    vp = page.viewport_size
+    bottom = page.evaluate(
+        "(s) => document.querySelector(s).getBoundingClientRect().bottom", last_sel
+    )
+    height = min(vp["height"], int(bottom) + pad)
+    page.screenshot(path=str(path), clip={"x": 0, "y": 0, "width": vp["width"], "height": height})
+
+
 def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -> list[str]:
     problems: list[str] = []
     browser = p.chromium.launch()
@@ -130,13 +147,16 @@ def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -
             "document.querySelector('#stateChip').textContent === 'answered'", timeout=60000
         )
     page.wait_for_timeout(1200)
-    if shots:
-        page.locator("#lab").scroll_into_view_if_needed()
-        page.screenshot(path=str(shots / f"{size}-{name}-answered.png"), full_page=False)
-        page.evaluate("document.querySelector('#answerCard').scrollIntoView()")
-        page.wait_for_timeout(1500)
-        page.screenshot(path=str(shots / f"{size}-{name}-answered-chunks.png"), full_page=False)
-        page.evaluate("document.querySelector('#lab').scrollIntoView()")
+    chunk = "#chunk-1" if size == "phone" else "#chunk-3"
+    if shots and not live:
+        if size == "desktop":
+            shoot(page, shots / "desktop-answered-map.png", "#rail", ".ask")
+        shoot(
+            page,
+            shots / f"{size}-answered.png",
+            "#answerCard",
+            "#answerCard" if size == "phone" else chunk,
+        )
     # a question the documents cannot answer
     if not live:
         idx = page.evaluate(
@@ -146,23 +166,15 @@ def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -
         page.wait_for_function(
             "document.querySelector('#stateChip').textContent === 'declined'", timeout=60000
         )
-        page.wait_for_timeout(1200)
-        if shots:
-            page.screenshot(path=str(shots / f"{size}-{name}-declined.png"), full_page=False)
-        page.evaluate("document.querySelector('#answerCard').scrollIntoView()")
         page.wait_for_timeout(1500)
         if shots:
-            page.screenshot(path=str(shots / f"{size}-{name}-declined-answer.png"), full_page=False)
+            shoot(page, shots / f"{size}-declined.png", "#answerCard", chunk)
     overflow = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
     if overflow > 0:
         problems.append(f"horizontal overflow by {overflow}px")
     small = page.evaluate(SMALL)
     if small:
         problems.append("targets under 44px: " + "; ".join(small[:6]))
-    if shots and not live:
-        page.evaluate("document.querySelector('#results').scrollIntoView()")
-        page.wait_for_timeout(1500)
-        page.screenshot(path=str(shots / f"{size}-{name}-results.png"), full_page=False)
     for entry in logs:
         problems.append(entry)
     browser.close()
@@ -191,7 +203,7 @@ def main() -> int:
                 for size in SIZES:
                     if args.only in (None, size):
                         print("served", size, flush=True)
-                        report[f"served/{size}"] = run_one(p, "served", url, size, shots, True)
+                        report[f"served/{size}"] = run_one(p, "served", url, size, None, True)
     print(json.dumps(report, indent=1))
     return 1 if any(report.values()) else 0
 

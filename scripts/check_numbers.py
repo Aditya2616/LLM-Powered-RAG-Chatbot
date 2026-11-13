@@ -261,7 +261,21 @@ def b_headline(d: dict) -> str:
     return "\n".join(lines)
 
 
+def b_lead(d: dict) -> str:
+    h = headline_facts(d)
+    r05 = h["g05"]["rag"]["summary"]
+    r15 = h["g15"]["rag"]["summary"]
+    return (
+        "Headline result, on the 100 questions bundled with the repository (a small invented corpus): "
+        f"Qwen2.5-0.5B-Instruct answers {rate(r05['correct_on_answerable'])} of the answerable questions correctly and says "
+        f'"I don\'t know" on {rate(r05["abstained_on_unanswerable"])} of the unanswerable ones; Qwen2.5-1.5B-Instruct '
+        f"answers {rate(r15['correct_on_answerable'])} and declines {rate(r15['abstained_on_unanswerable'])}. "
+        "Declining reliably is the weak spot, and the results below say where."
+    )
+
+
 BLOCKS = {
+    "lead": b_lead,
     "setup": b_setup,
     "retrieval": b_retrieval,
     "retrieval_kind": b_retrieval_kind,
