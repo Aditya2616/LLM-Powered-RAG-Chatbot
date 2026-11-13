@@ -171,7 +171,9 @@ class AskPipeline:
             r = self._unknown("model", "model declined")
             r.provider, r.timings = gen.provider, timings
             return r
-        verdict = safety.verify_output(raw, [f"{h.chunk['section']}. {h.chunk['text']}" for h in hits], question)
+        verdict = safety.verify_output(
+            raw, [f"{h.chunk['section']}. {h.chunk['text']}" for h in hits], question
+        )
         if not verdict.ok:
             if trap:
                 src = [_src(f"{trap.project} README", f"{GITHUB}/{trap.project.replace(' ', '-')}")]

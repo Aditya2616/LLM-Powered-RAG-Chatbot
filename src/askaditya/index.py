@@ -9,22 +9,35 @@ from pathlib import Path
 
 from rag_chatbot.bm25 import BM25Index, rrf_fuse
 
-from .build import DEFAULT_PLATFORM_NAME  # noqa: F401  (re-exported for callers that build indexes)
-
-
 PROJECTS = {
-    "evalbench": "EvalBench", "agentflow": "AgentFlow", "promptlab": "PromptLab", "sft forge": "SFT-Forge",
-    "sft-forge": "SFT-Forge", "sftforge": "SFT-Forge", "diffuselab": "DiffuseLab", "visionlens": "VisionLens",
-    "voicescribe": "VoiceScribe", "sentinel": "Sentinel", "modelrouter": "ModelRouter", "model router": "ModelRouter",
-    "rag chatbot": "LLM-Powered-RAG-Chatbot", "rag-chatbot": "LLM-Powered-RAG-Chatbot",
+    "evalbench": "EvalBench",
+    "agentflow": "AgentFlow",
+    "promptlab": "PromptLab",
+    "sft forge": "SFT-Forge",
+    "sft-forge": "SFT-Forge",
+    "sftforge": "SFT-Forge",
+    "diffuselab": "DiffuseLab",
+    "visionlens": "VisionLens",
+    "voicescribe": "VoiceScribe",
+    "sentinel": "Sentinel",
+    "modelrouter": "ModelRouter",
+    "model router": "ModelRouter",
+    "rag chatbot": "LLM-Powered-RAG-Chatbot",
+    "rag-chatbot": "LLM-Powered-RAG-Chatbot",
 }
 
 # Words a visitor uses -> the words the documents use for the same thing (appended to the query).
 EXPANSIONS = [
     (r"\b(email|e-mail|contact|reach|linkedin|github|get in touch|message)\b", "Contact"),
-    (r"\b(work(s|ing)? (now|currently|right now)|currently|current job|employer|intern(ship)?)\b", "Experience"),
+    (
+        r"\b(work(s|ing)? (now|currently|right now)|currently|current job|employer|intern(ship)?)\b",
+        "Experience",
+    ),
     (r"\b(certif\w*|courses?|credentials?)\b", "Certifications"),
-    (r"\b(study|studies|studied|education|degree|university|college|graduat\w*|b\.?tech)\b", "Education"),
+    (
+        r"\b(study|studies|studied|education|degree|university|college|graduat\w*|b\.?tech)\b",
+        "Education",
+    ),
     (r"\b(skills?|tech stack|technolog\w*|tools?|languages?|frameworks?|libraries)\b", "Skills"),
     (r"\b(open to|looking for|hiring|opportunit\w*)\b", "About"),
     (r"\b(based|located|where does he live|city|country)\b", "About"),
@@ -44,7 +57,10 @@ def named_project(query: str) -> str | None:
     return None
 
 
-_ANAPHORA = re.compile(r"(it|its|they|them|their|this|that|those|these|there|the same|too|also|and)|^(and|what about|how about)", re.I)
+_ANAPHORA = re.compile(
+    r"\b(it|its|they|them|their|this|that|those|these|there|the same|too|also|and)\b|^(and|what about|how about)\b",
+    re.I,
+)
 
 
 def contextual_query(question: str, history: list[dict]) -> str:

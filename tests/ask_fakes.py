@@ -47,7 +47,14 @@ def make_resume_pdf(path: Path) -> None:
 def build_persona(out: Path, work: Path, platform: str | None = None) -> dict:
     pdf = work / "resume.pdf"
     make_resume_pdf(pdf)
-    return build(pdf, PERSONA / "corpus.md", [PERSONA / "projects"], out, platform=platform, today=dt.date(2026, 1, 2))
+    return build(
+        pdf,
+        PERSONA / "corpus.md",
+        [PERSONA / "projects"],
+        out,
+        platform=platform,
+        today=dt.date(2026, 1, 2),
+    )
 
 
 def persona_index(tmp: Path) -> AskIndex:

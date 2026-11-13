@@ -210,7 +210,7 @@ _META = re.compile(
     re.I,
 )
 _OFFTOPIC = re.compile(
-    r"\b(weather|forecast|temperature outside|joke|poem|song|lyrics|recipe|horoscope|stock price|bitcoin|crypto price|exchange rate|football|cricket score|world cup|election|president of|prime minister of|capital of|population of|translate|write (me )?(a |an |some |the )?(code|function|script|program|essay|story|email|poem|song|cover letter)|(fix|debug) (my|this|the) (code|bug|error)|solve (this|the|my)|what is \d+ ?[+*/x-] ?\d+|calculate|derivative of|integral of|who won|latest news|movie|netflix|restaurant|travel plan|how to (cook|bake|lose weight|invest|fix|install|center)|meaning of life|tell me about (yourself|the universe)|best (phone|laptop|programming language|framework))\b",
+    r"\b(weather|forecast|temperature outside|joke|poem|song|lyrics|recipe|horoscope|stock price|bitcoin|crypto price|exchange rate|football|cricket score|world cup|election|president of|prime minister of|capital of|population of|translate|(write|generate|create|code|implement)\b.{0,25}\b(code|function|script|program|essay|story|email|poem|song|cover letter|class|sql query|regex)|(fix|debug) (my|this|the) (code|bug|error)|solve (this|the|my)|what is \d+ ?[+*/x-] ?\d+|calculate|derivative of|integral of|who won|latest news|movie|netflix|restaurant|travel plan|how to (cook|bake|lose weight|invest|fix|install|center)|meaning of life|tell me about (yourself|the universe)|best (phone|laptop|programming language|framework))\b",
     re.I,
 )
 _ABOUT_HIM = re.compile(
