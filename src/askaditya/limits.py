@@ -28,13 +28,19 @@ class Limiter(Protocol):
 
     def take_provider(self, name: str, cap: int) -> bool: ...
 
-    def take_tokens(
-        self, name: str, n: int, per_minute: int | None, per_day: int | None
-    ) -> bool: ...
+    def tokens_window(self, name: str, now: float) -> list[tuple[int, int]]: ...
 
-    def adjust_tokens(self, name: str, delta: int) -> None: ...
+    def tokens_today(self, name: str, now: float) -> int: ...
+
+    def add_tokens(self, name: str, n: int, now: float) -> int: ...
+
+    def correct_tokens(self, name: str, delta: int, bucket_start: int, now: float) -> None: ...
 
     def check_ip(self, ip: str, per_minute: int, per_day: int) -> tuple[bool, int]: ...
+
+
+WINDOW_BUCKET = 10
+WINDOW_BUCKETS = 6
 
 
 def _day(now: float) -> str:
@@ -69,35 +75,36 @@ class _Base:
     def take_provider(self, name: str, cap: int) -> bool:
         return self.hit(f"p:{name}:{_day(self.clock())}", 90000) <= cap
 
-    def take_tokens(self, name: str, n: int, per_minute: int | None, per_day: int | None) -> bool:
-        """Reserve an estimated ``n`` tokens against the model's per-minute and per-day budgets. When either
-        is over, the reservation is given back and False is returned, so the chain moves on before the
-        provider would answer 429."""
-        now = self.clock()
-        keys = [
-            (f"t:{name}:m:{int(now // 60)}", 90, per_minute),
-            (f"t:{name}:d:{_day(now)}", 90000, per_day),
-        ]
-        totals = [self.hit(k, ttl, n) for k, ttl, _ in keys]
-        self.last_block = ""
-        if any(
-            cap is not None and total > cap for total, (_, _, cap) in zip(totals, keys, strict=True)
-        ):
-            self.last_block = (
-                "minute"
-                if totals[0] > (per_minute if per_minute is not None else 10**12)
-                else "day"
-            )
-            for k, ttl, _ in keys:
-                self.hit(k, ttl, -n)
-            return False
-        return True
+    # ---- token accounting: a sliding 60 s window made of 10 s buckets, and a daily total -------------------
+    def peek_many(self, keys: list[str]) -> list[int]:  # pragma: no cover - interface
+        raise NotImplementedError
 
-    def adjust_tokens(self, name: str, delta: int) -> None:
-        """Replace an estimate by the real usage once the provider has reported it."""
+    @staticmethod
+    def window_starts(now: float) -> list[int]:
+        """Start times of the six 10-second buckets that make up the last minute, oldest first."""
+        cur = int(now // WINDOW_BUCKET) * WINDOW_BUCKET
+        return [cur - WINDOW_BUCKET * i for i in range(WINDOW_BUCKETS - 1, -1, -1)]
+
+    def tokens_window(self, name: str, now: float) -> list[tuple[int, int]]:
+        """(bucket start, tokens) for the last minute: real usage plus the reservations of calls in flight."""
+        starts = self.window_starts(now)
+        counts = self.peek_many([f"t:{name}:w:{s}" for s in starts])
+        return list(zip(starts, counts, strict=True))
+
+    def tokens_today(self, name: str, now: float) -> int:
+        return self.peek_many([f"t:{name}:d:{_day(now)}"])[0]
+
+    def add_tokens(self, name: str, n: int, now: float) -> int:
+        """Add ``n`` tokens (negative to correct) to the bucket of ``now`` and to the day; returns the bucket start."""
+        start = int(now // WINDOW_BUCKET) * WINDOW_BUCKET
+        self.hit(f"t:{name}:w:{start}", WINDOW_BUCKET * (WINDOW_BUCKETS + 1), n)
+        self.hit(f"t:{name}:d:{_day(now)}", 90000, n)
+        return start
+
+    def correct_tokens(self, name: str, delta: int, bucket_start: int, now: float) -> None:
+        """Replace a reservation by the real usage in the bucket it was made in."""
         if delta:
-            now = self.clock()
-            self.hit(f"t:{name}:m:{int(now // 60)}", 90, delta)
+            self.hit(f"t:{name}:w:{bucket_start}", WINDOW_BUCKET * (WINDOW_BUCKETS + 1), delta)
             self.hit(f"t:{name}:d:{_day(now)}", 90000, delta)
 
 
@@ -120,6 +127,11 @@ class MemoryLimiter(_Base):
             count += n
             self._d[key] = (count, exp)
             return count
+
+    def peek_many(self, keys: list[str]) -> list[int]:
+        now = self.clock()
+        with self._lock:
+            return [self._d[k][0] if k in self._d and self._d[k][1] > now else 0 for k in keys]
 
 
 class UpstashLimiter(_Base):
@@ -154,6 +166,18 @@ class UpstashLimiter(_Base):
             return self._fallback.hit(
                 key, ttl, n
             )  # Upstash unreachable: per-instance counting rather than none
+
+    def peek_many(self, keys: list[str]) -> list[int]:
+        try:
+            r = self._client.post(
+                f"{self.url}/pipeline",
+                json=[["GET", f"ask:{k}"] for k in keys],
+                headers=self._headers,
+            )
+            r.raise_for_status()
+            return [int(x["result"] or 0) for x in r.json()]
+        except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError):
+            return self._fallback.peek_many(keys)
 
 
 def make_limiter(

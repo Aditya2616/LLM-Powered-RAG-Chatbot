@@ -21,9 +21,10 @@ from .limits import Limiter
 class ProviderUnavailable(RuntimeError):
     """One provider could not answer; ``kind`` is rate_limit, error or empty."""
 
-    def __init__(self, message: str, kind: str = "error") -> None:
+    def __init__(self, message: str, kind: str = "error", retry_after: int = 0) -> None:
         super().__init__(message)
         self.kind = kind
+        self.retry_after = retry_after  # seconds, from the provider's Retry-After header on a 429
 
 
 class Unavailable(RuntimeError):
@@ -46,14 +47,16 @@ class Provider(Protocol):
     def complete(self, system: str, user: str, max_tokens: int) -> str: ...
 
 
+def _retry_after(response: httpx.Response, default: int) -> int:
+    """Seconds from a Retry-After header (plain seconds; anything else falls back to ``default``)."""
+    try:
+        return max(1, min(int(float(response.headers.get("retry-after", ""))), 3600))
+    except ValueError:
+        return default
+
+
 def _strip_thinking(text: str) -> str:
     return re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
-
-
-def estimate_tokens(system: str, user: str, max_tokens: int) -> int:
-    """A deliberately high estimate of what one call costs against a tokens-per-minute budget: about one
-    token per 3.5 characters of prompt, plus the whole completion allowance."""
-    return int((len(system) + len(user)) / 3.5) + max_tokens
 
 
 class GroqProvider:
@@ -91,7 +94,7 @@ class GroqProvider:
         except httpx.HTTPError as exc:
             raise ProviderUnavailable(f"{self.name}: {type(exc).__name__}") from exc
         if r.status_code == 429:
-            raise ProviderUnavailable(f"{self.name}: 429", "rate_limit")
+            raise ProviderUnavailable(f"{self.name}: 429", "rate_limit", _retry_after(r, 20))
         if r.status_code >= 400:
             raise ProviderUnavailable(f"{self.name}: HTTP {r.status_code}")
         try:
@@ -135,7 +138,7 @@ class GeminiProvider:
         except httpx.HTTPError as exc:
             raise ProviderUnavailable(f"gemini: {type(exc).__name__}") from exc
         if r.status_code == 429:
-            raise ProviderUnavailable("gemini: 429", "rate_limit")
+            raise ProviderUnavailable("gemini: 429", "rate_limit", _retry_after(r, 30))
         if r.status_code >= 400:
             raise ProviderUnavailable(f"gemini: HTTP {r.status_code}")
         try:
@@ -179,63 +182,124 @@ class Generation:
 
 
 class ProviderChain:
-    """Try each provider in order. A provider is skipped when its own daily request budget, its per-minute or
-    per-day token budget, or the global daily cap is spent, so the service stops asking before a free tier
-    would answer 429. Token budgets use ``estimate_tokens`` and are corrected with the provider's reported
-    usage after a call."""
+    """Try each provider in order, and move on before a free tier would answer 429.
+
+    Accounting is by what the providers actually report, not by worst-case guesses:
+
+    * a model's tokens in the last 60 seconds (a sliding window of ten-second buckets) and in the current day
+      are the sum of the real ``usage`` of finished calls plus a reservation for each call in flight;
+    * the reservation is the recent average real usage of that model (``DEFAULT_RESERVE`` until there is any),
+      and it is replaced by the real figure when the call returns, or removed if the call failed;
+    * a 429 from a provider takes that model out of the chain until the time its ``Retry-After`` names.
+
+    When nothing can answer, ``Unavailable.retry_after`` is the number of seconds until the earliest budget or
+    cooldown frees up (never less than one).
+    """
+
+    DEFAULT_RESERVE = 1000
 
     def __init__(self, providers: list[Provider], limiter: Limiter, settings: AskSettings) -> None:
         self.providers = providers
         self.limiter = limiter
         self.settings = settings
+        self._recent: dict[str, list[int]] = {}
+        self._cooldown: dict[str, float] = {}
 
     @property
     def names(self) -> list[str]:
         return [p.name for p in self.providers]
 
+    def _reserve(self, name: str) -> int:
+        recent = self._recent.get(name)
+        return int(sum(recent) / len(recent)) if recent else self.DEFAULT_RESERVE
+
+    def _token_wait(self, name: str, reserve: int, now: float) -> tuple[str, int] | None:
+        """None when the call fits; otherwise (reason code, seconds until it would fit)."""
+        cfg, lim = self.settings, self.limiter
+        tday = cfg.token_caps_day.get(name)
+        if tday is not None and lim.tokens_today(name, now) + reserve > tday:
+            return "budget_tokens_day", int(86400 - now % 86400) + 1
+        tmin = cfg.token_caps_minute.get(name)
+        if tmin is not None:
+            buckets = lim.tokens_window(name, now)
+            total = sum(c for _, c in buckets)
+            if total + reserve > tmin:
+                need, freed = total + reserve - tmin, 0
+                wait = 60
+                for (
+                    start,
+                    count,
+                ) in buckets:  # oldest first: the time at which enough of them has aged out
+                    freed += count
+                    if freed >= need:
+                        wait = int(start + 60 - now) + 1
+                        break
+                return "budget_tokens_minute", max(1, wait)
+        return None
+
     def generate(self, system: str, user: str, force_fail: bool = False) -> Generation:
         attempts: list[str] = []
+        waits: list[int] = []
         if force_fail or not self.providers:
             raise Unavailable(
-                "no provider available", ["chain: forced" if force_fail else "chain: no_providers"]
+                "no provider available",
+                ["chain: forced" if force_fail else "chain: no_providers"],
+                60,
             )
-        if not self.limiter.take_global(self.settings.global_daily_cap):
-            raise Unavailable("global daily cap reached", ["global: cap_day"])
-        cfg = self.settings
-        est = estimate_tokens(system, user, cfg.max_new_tokens)
-        minute_blocked: list[bool] = []
+        lim, cfg = self.limiter, self.settings
+        if not lim.take_global(cfg.global_daily_cap):
+            raise Unavailable(
+                "global daily cap reached",
+                ["global: cap_day"],
+                int(86400 - lim.clock() % 86400) + 1,
+            )
         for p in self.providers:
+            now = lim.clock()
+            cool = self._cooldown.get(p.name, 0.0)
+            if cool > now:
+                attempts.append(f"{p.name}: cooldown")
+                waits.append(int(cool - now) + 1)
+                continue
             cap = cfg.provider_daily_caps.get(p.name)
-            if cap is not None and not self.limiter.take_provider(p.name, cap):
+            if cap is not None and not lim.take_provider(p.name, cap):
                 attempts.append(f"{p.name}: budget_requests_day")
+                waits.append(int(86400 - now % 86400) + 1)
                 continue
-            tmin, tday = cfg.token_caps_minute.get(p.name), cfg.token_caps_day.get(p.name)
-            if (tmin is not None or tday is not None) and not self.limiter.take_tokens(
-                p.name, est, tmin, tday
-            ):
-                block = getattr(self.limiter, "last_block", "") or "day"
-                attempts.append(f"{p.name}: budget_tokens_{block}")
-                minute_blocked.append(block == "minute")
-                continue
+            tracked = p.name in cfg.token_caps_minute or p.name in cfg.token_caps_day
+            reserve = self._reserve(p.name)
+            if tracked:
+                blocked = self._token_wait(p.name, reserve, now)
+                if blocked:
+                    attempts.append(f"{p.name}: {blocked[0]}")
+                    waits.append(blocked[1])
+                    continue
+                bucket = lim.add_tokens(p.name, reserve, now)
             try:
                 text = p.complete(system, user, cfg.max_new_tokens)
             except ProviderUnavailable as exc:
                 attempts.append(str(exc))
-                if tmin is not None or tday is not None:
-                    self.limiter.adjust_tokens(p.name, -est)  # nothing was generated
+                if tracked:
+                    lim.correct_tokens(
+                        p.name, -reserve, bucket, lim.clock()
+                    )  # nothing was generated
+                if exc.kind == "rate_limit":
+                    ra = exc.retry_after or 20
+                    self._cooldown[p.name] = lim.clock() + ra
+                    waits.append(ra)
+                else:
+                    waits.append(5)
                 continue
             usage = dict(getattr(p, "last_usage", {}) or {})
             real = int(usage.get("total_tokens") or usage.get("totalTokenCount") or 0)
-            if real and (tmin is not None or tday is not None):
-                self.limiter.adjust_tokens(p.name, real - est)
+            if real:
+                self._recent.setdefault(p.name, []).append(real)
+                del self._recent[p.name][:-20]
+            if tracked and real:
+                lim.correct_tokens(p.name, real - reserve, bucket, lim.clock())
             return Generation(text, p.name, attempts, usage)
-        only_minute = (
-            bool(minute_blocked)
-            and all(minute_blocked)
-            and len(minute_blocked) == len(self.providers)
+        raise Unavailable(
+            "; ".join(attempts) or "no provider", attempts, max(1, min(waits) if waits else 60)
         )
-        retry = int(60 - self.limiter.clock() % 60) + 1 if only_minute else 0
-        raise Unavailable("; ".join(attempts) or "no provider", attempts, retry)
 
 
 def build_chain(

@@ -358,7 +358,7 @@ def b_ask_eval(d: dict) -> str:
     ]
     rows = []
     for tag, r in d["ask"].items():
-        if tag == "heldout":
+        if tag.endswith("heldout"):
             continue
         g = r["groups"]
         ft = r["first_token_ms"]
@@ -679,7 +679,7 @@ def claims(d: dict) -> list[tuple[str, bool]]:
             all(
                 {g: v["n"] for g, v in r["groups"].items()} == ev_counts
                 for tag, r in d["ask"].items()
-                if tag != "heldout"
+                if not tag.endswith("heldout")
             ),
         )
     )

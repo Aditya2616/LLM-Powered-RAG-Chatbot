@@ -69,7 +69,7 @@ No model id is in the repository; all three come from the environment. When none
   you enter your credit card, your database will be upgraded to the pay-as-you-go plan", so a database without a card
   stays on the free plan.
 - A question costs a handful of commands: the per-address counters (2), the global counter (1), the provider request
-  counter (1) and the token counters (2, plus 2 when a reservation is corrected), each an INCRBY with an EXPIRE in one
+  counter (1) and the token counters (2 to reserve, 2 to correct with the real usage), each an INCRBY with an EXPIRE in one
   pipeline request. That is at most about 20 commands a question, so the free monthly allowance covers about 25,000
   questions, far above the daily caps below.
 
@@ -77,13 +77,16 @@ No model id is in the repository; all three come from the environment. When none
 
 A question's prompt is the fixed instructions plus five retrieved chunks of at most 500 characters. The measured
 tokens per question (prompt and completion, from the providers' `usage`) are in the README's token table; the prompt stays
-well under 1,500 tokens. Budgets use a conservative estimate (one token per 3.5 characters plus the whole
-completion allowance) and are corrected with the reported usage after the call.
+well under 1,500 tokens. The budgets count what the provider reported, not a guess: each call adds its real `total_tokens`
+to 10-second buckets, and the per-minute check sums the last six buckets (a sliding 60 s window). The call in flight is
+reserved at the running average of the last 20 real calls of that model (1,000 until there is one), and the reservation is
+swapped for the real figure when the call returns or released when it fails. A worst-case estimate (prompt plus the whole
+completion allowance) is not used.
 
 | Cap | Default | Why |
 |---|---|---|
 | per address | 10 / minute, 60 / day | the contract |
-| Groq tokens per model | 6,500 / minute, 170,000 / day | below 8,000 and 200,000 |
+| Groq tokens per model | 7,500 / minute (sliding window), 170,000 / day | below 8,000 and 200,000 |
 | Groq requests per model | 150 / day | below 1,000; the tokens bind first |
 | Gemini requests | 100 / day | the exact free quota is in AI Studio |
 | global | 350 model calls / day | below the sum of the budgets; only calls that reach a model count |
@@ -103,8 +106,7 @@ Model ids live only in the environment; these are the values the evaluation used
 - `GEMINI_MODEL=gemini-3.5-flash-lite` (last resort): slowest of the three (mean first token about 1.3 s, p95 about 5 s),
   and it answered as accurately as the others.
 - `openai/gpt-oss-20b` was screened on three questions only (1 to 2 s each, one wrong "UNKNOWN") and not evaluated fully.
-- `ASK_MAX_NEW_TOKENS=400` for all three; the token budgets count that allowance in their estimate, so they are
-  conservative.
+- `ASK_MAX_NEW_TOKENS=400` for all three; it caps the completion only and no longer inflates the budgets.
 
 ## Evaluation expectations changed since the first version
 
@@ -133,10 +135,14 @@ are retrieval and model-declined cases and still count as failures.
 During the deployed run, nine consecutive questions answered 503 `limit` while Groq's own headers showed quota left.
 The service answers 503 only when every provider in the chain was skipped or failed, so the cause had to be one of:
 
-1. **The per-minute token budget.** The old minute cap was 6,500 estimated tokens per Groq model. Paced at 7 s a question
-   (about 8.5 a minute at roughly 800 real tokens each) the real usage is about 6,800 a minute, over that cap, so both
-   Groq models were skipped for the rest of the minute. The cap is now 7,500, still below Groq's 8,000 tokens a minute,
-   and a 429 from Groq is handled by falling through anyway, so the cap can sit close to the limit.
+1. **The per-minute token budget (the cause).** Each call was reserved at an estimate (prompt characters / 3.5 plus the
+   whole 400-token completion allowance), about 1,400 against a real usage of about 950, and the minute was a fixed
+   calendar minute. Six or seven questions a minute filled the 6,500 cap on the primary on paper while Groq had used
+   about 6,000, so the primary was skipped, the backup filled the same way, and the rest went to Gemini or to a 503. The
+   accounting now follows real usage in a sliding 60 s window plus a realistic reservation (see above): 6 a minute stay
+   100% on the primary, 8 a minute stay on it with at most the occasional backup, 12 a minute split between the two Groq
+   models, and Gemini serves only when both are really out (a 429, or the day budget). A 429 puts that model on cooldown
+   for its `Retry-After` and the chain falls through.
 2. **Gemini not answering.** With both Groq models skipped, the only remaining leg was Gemini. If `GEMINI_MODEL` or the key
    was not set in the Vercel project, or the call failed, the result is a 503. Locally the Gemini leg answers (evaluated
    alone), so this needs the new logs to confirm on Vercel.
@@ -147,8 +153,8 @@ Per-instance memory counters are not the cause of a streak (they would under-cou
 each instance counts separately.
 
 What the service does now:
-- A per-minute block is reported with an accurate `Retry-After` (seconds to the next minute) and recovers by itself at
-  the next minute; a daily block keeps 300.
+- A 503 carries a real `Retry-After`: the seconds until the earliest budget or cooldown frees (at least 1; for a day
+  budget, the seconds to UTC midnight).
 - Every 503, 429, 400 and every answer that needed a fallthrough or was refused by the verifier writes one JSON line to
   stderr (Vercel runtime logs): `{"ask":{"status":503,"stage":"unavailable","attempts":["groq: budget_tokens_minute",
   "groq-backup: budget_tokens_minute","gemini: 429"],"retry_after":23,...}}`. Reason codes only: no question, no answer

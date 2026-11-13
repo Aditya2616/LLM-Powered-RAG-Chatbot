@@ -340,65 +340,6 @@ def test_a_429_on_both_groq_models_with_gemini_off_is_the_limit_fallback():
         make_chain([g1, g2]).generate("s", "u")
 
 
-def test_the_estimate_is_conservative_and_counts_the_completion_allowance():
-    from askaditya.providers import estimate_tokens
-
-    assert estimate_tokens("a" * 350, "b" * 350, 200) == 400
-    assert estimate_tokens("", "", 220) == 220
-
-
-def test_the_per_minute_token_budget_moves_the_chain_on_before_a_429():
-    s = AskSettings(token_caps_minute={"groq": 1000, "groq-backup": 100000}, token_caps_day={})
-    a, b = ScriptedProvider("groq", ["g"]), ScriptedProvider("groq-backup", ["b"])
-    chain = make_chain([a, b], s, MemoryLimiter(Clock()))
-    big = "x" * 1750  # about 500 estimated prompt tokens plus the completion allowance
-    assert chain.generate("s", big).provider == "groq"
-    second = chain.generate("s", big)
-    assert second.provider == "groq-backup" and "groq: budget_tokens_minute" in second.attempts
-    assert len(a.calls) == 1
-
-
-def test_the_per_day_token_budget_resets_at_midnight():
-    clock = Clock()
-    s = AskSettings(token_caps_day={"groq": 1000}, token_caps_minute={})
-    p = ScriptedProvider("groq", ["ok"])
-    chain = make_chain([p], s, MemoryLimiter(clock))
-    chain.generate("s", "u" * 1000)
-    with pytest.raises(Unavailable, match="budget_tokens_day"):
-        chain.generate("s", "u" * 1000)
-    clock.t += 86400
-    assert chain.generate("s", "u" * 1000).provider == "groq"
-
-
-def test_a_failed_call_gives_its_token_reservation_back():
-    s = AskSettings(token_caps_day={"groq": 600}, token_caps_minute={})
-    p = ScriptedProvider("groq", [ProviderUnavailable("groq: 500"), "ok", "ok"])
-    chain = make_chain([p], s, MemoryLimiter(Clock()))
-    with pytest.raises(Unavailable):
-        chain.generate("s", "u")
-    assert (
-        chain.generate("s", "u").provider == "groq"
-    )  # would be refused if the first estimate were kept
-    assert chain.limiter.take_tokens("groq", 100, None, 600) is True
-
-
-def test_reported_usage_replaces_the_estimate():
-    class Reporting(ScriptedProvider):
-        last_usage = {"total_tokens": 10}
-
-    lim = MemoryLimiter(Clock())
-    chain = make_chain(
-        [Reporting("groq", ["ok"])],
-        AskSettings(token_caps_day={"groq": 100000}, token_caps_minute={}),
-        lim,
-    )
-    gen = chain.generate("s" * 3500, "u" * 3500)
-    assert gen.usage == {"total_tokens": 10}
-    assert (
-        lim.take_tokens("groq", 99985, None, 100000) is True
-    )  # only the 10 reported tokens were kept
-
-
 def test_groq_sends_the_reasoning_effort_only_when_configured_and_records_usage():
     seen = []
 
@@ -420,18 +361,3 @@ def test_groq_sends_the_reasoning_effort_only_when_configured_and_records_usage(
     q = GroqProvider("k", "m", "https://g.test", 5.0, httpx.MockTransport(handler))
     q.complete("s", "u", 50)
     assert "reasoning_effort" not in seen[1]
-
-
-def test_the_token_budget_works_through_the_upstash_pipeline():
-    seen = []
-
-    def handler(req):
-        body = json.loads(req.content)
-        seen.append(body[0])
-        return httpx.Response(200, json=[{"result": 5}, {"result": 1}])
-
-    lim = UpstashLimiter(
-        "https://u.test", "t", MemoryLimiter(), transport=httpx.MockTransport(handler)
-    )
-    assert lim.take_tokens("groq", 700, 6500, 170000) is True
-    assert all(c[0] == "INCRBY" and c[2] == 700 for c in seen) and len(seen) == 2

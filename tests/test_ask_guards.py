@@ -187,19 +187,17 @@ def test_unavailable_carries_reason_codes_and_a_retry_after_for_minute_budgets()
     with pytest.raises(Unavailable) as exc:
         chain.generate("s", "u" * 100)
     assert exc.value.attempts == ["groq: budget_tokens_minute", "groq-backup: budget_tokens_minute"]
-    assert 1 <= exc.value.retry_after <= 31
+    assert 1 <= exc.value.retry_after <= 60
 
 
-def test_failures_are_coded_and_a_daily_block_has_no_retry_after():
+def test_failures_are_coded_and_a_daily_block_waits_for_the_next_day():
     s = AskSettings(token_caps_day={"groq": 10}, token_caps_minute={})
     gemini = ScriptedProvider("gemini", [ProviderUnavailable("gemini: 429", "rate_limit")])
     chain = make_chain([ScriptedProvider("groq", ["x"]), gemini], s)
     with pytest.raises(Unavailable) as exc:
         chain.generate("s", "u" * 100)
-    assert (
-        exc.value.attempts == ["groq: budget_tokens_day", "gemini: 429"]
-        and exc.value.retry_after == 0
-    )
+    assert exc.value.attempts == ["groq: budget_tokens_day", "gemini: 429"]
+    assert exc.value.retry_after >= 1
 
 
 def test_a_503_and_a_fallthrough_are_logged_without_question_or_keys(capsys):
