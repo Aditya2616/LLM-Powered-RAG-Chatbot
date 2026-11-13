@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import hmac
 import json
+import logging
 import re
+import sys
 import time
 from collections.abc import Iterator
 
 import httpx
 from fastapi import FastAPI, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
@@ -24,6 +27,23 @@ from .limits import Limiter, make_limiter
 from .pipeline import AskPipeline
 from .providers import ProviderChain, Unavailable, build_chain
 from .safety import BadRequest, validate_request
+
+log = logging.getLogger("askaditya")
+
+
+class _StderrHandler(logging.StreamHandler):
+    """Writes to whatever sys.stderr is at the time of the call (serverless runtimes swap it)."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.stream = sys.stderr
+        super().emit(record)
+
+
+def emit(event: dict) -> None:
+    """One structured JSON line for an outcome that needs explaining in the runtime logs. It never carries the
+    question, the history, an answer or a key: only a status, the stage, the provider and reason codes."""
+    log.warning(json.dumps({"ask": event}, ensure_ascii=False, separators=(",", ":")))
+
 
 LIMIT_TEXT = "The assistant is busy right now. Please try again later, or email Aditya directly."
 
@@ -61,6 +81,13 @@ def create_app(
             )
         return state["pipeline"]
 
+    if not log.handlers:
+        handler = _StderrHandler()
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        log.addHandler(handler)
+        log.setLevel(logging.INFO)
+        log.propagate = False
+
     app = FastAPI(title="Ask Aditya", docs_url=None, redoc_url=None, openapi_url=None)
     app.add_middleware(
         CORSMiddleware,
@@ -85,10 +112,12 @@ def create_app(
         try:
             payload = await request.json()
         except (ValueError, UnicodeDecodeError):
+            emit({"status": 400, "stage": "validation", "reason": "invalid_json"})
             return JSONResponse({"error": "the body must be valid JSON"}, status_code=400)
         try:
             question, history = validate_request(payload)
         except BadRequest as exc:
+            emit({"status": 400, "stage": "validation", "reason": "bad_input"})
             return JSONResponse({"error": str(exc)}, status_code=400)
         hook = request.headers.get("x-ask-test", "") if cfg.test_hooks else ""
         # constant-time, on bytes (a non-ASCII header must not raise); ignored when no token is configured
@@ -102,6 +131,7 @@ def create_app(
             else lim.check_ip(client_ip(request), cfg.ip_per_minute, cfg.ip_per_day)
         )
         if not allowed:
+            emit({"status": 429, "stage": "ip_limit", "retry_after": retry})
             return JSONResponse(
                 {"error": "rate_limited", "retry_after": retry},
                 status_code=429,
@@ -109,8 +139,19 @@ def create_app(
             )
         t0 = time.perf_counter()
         try:
-            result = pipeline().answer(question, history, force_fail=hook == "limit")
-        except Unavailable:
+            result = await run_in_threadpool(
+                pipeline().answer, question, history, force_fail=hook == "limit"
+            )
+        except Unavailable as exc:
+            emit(
+                {
+                    "status": 503,
+                    "stage": "unavailable",
+                    "attempts": exc.attempts,
+                    "retry_after": exc.retry_after,
+                    "mem_limiter": lim.mode == "memory",
+                }
+            )
             body = {
                 "error": "unavailable",
                 "answer": LIMIT_TEXT,
@@ -118,8 +159,11 @@ def create_app(
                 "grounded": False,
                 "fallback": "limit",
             }
-            return JSONResponse(body, status_code=503, headers={"Retry-After": "300"})
-        except (OSError, ValueError, KeyError):
+            return JSONResponse(
+                body, status_code=503, headers={"Retry-After": str(exc.retry_after or 300)}
+            )
+        except (OSError, ValueError, KeyError) as exc:
+            emit({"status": 503, "stage": "internal", "reason": type(exc).__name__})
             return JSONResponse(
                 {
                     "error": "unavailable",
@@ -131,6 +175,21 @@ def create_app(
                 status_code=503,
             )
         total_ms = round((time.perf_counter() - t0) * 1000, 1)
+        if (
+            result.attempts
+            or result.stage in ("verify", "trap")
+            or (result.stage == "unknown" and result.provider)
+        ):
+            emit(
+                {
+                    "status": 200,
+                    "stage": result.stage,
+                    "provider": result.provider,
+                    "attempts": result.attempts,
+                    "reason": re.sub(r"[^ -~]", "?", result.reason)[:80],
+                    "ms": total_ms,
+                }
+            )
 
         def events() -> Iterator[str]:
             for piece in re.findall(r"\S+\s*", result.answer):
@@ -149,10 +208,10 @@ def create_app(
             "Cache-Control": "no-store",
             "X-Accel-Buffering": "no",
             "X-Ask-Ms": str(total_ms),
+            "X-Ask-Provider": result.provider or "",
         }
         if cfg.test_hooks:
             headers["X-Ask-Stage"] = result.stage
-            headers["X-Ask-Provider"] = result.provider or ""
             u = result.usage or {}
             headers["X-Ask-Tokens"] = (
                 f"{u.get('prompt_tokens', u.get('promptTokenCount', 0))}/{u.get('completion_tokens', u.get('candidatesTokenCount', 0))}"

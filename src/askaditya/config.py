@@ -23,7 +23,7 @@ CONTACT_EMAIL = "itsaditya1610@gmail.com"
 # token caps below stop the service asking before Groq would answer 429.
 DEFAULT_REQUEST_CAPS = {"groq": 150, "groq-backup": 150, "gemini": 100}
 DEFAULT_TOKEN_CAPS_DAY = {"groq": 170_000, "groq-backup": 170_000}
-DEFAULT_TOKEN_CAPS_MINUTE = {"groq": 6_500, "groq-backup": 6_500}
+DEFAULT_TOKEN_CAPS_MINUTE = {"groq": 7_500, "groq-backup": 7_500}
 
 
 def _int(env: Mapping[str, str], name: str, default: int) -> int:
@@ -69,7 +69,7 @@ class AskSettings:
     token_caps_minute: dict[str, int] = field(
         default_factory=lambda: dict(DEFAULT_TOKEN_CAPS_MINUTE)
     )
-    top_k: int = 5
+    top_k: int = 7
     max_new_tokens: int = 400
     provider_timeout_s: float = 12.0
     test_hooks: bool = False
@@ -115,7 +115,7 @@ class AskSettings:
             provider_daily_caps=caps,
             token_caps_day=tday,
             token_caps_minute=tmin,
-            top_k=_int(e, "ASK_TOP_K", 5),
+            top_k=_int(e, "ASK_TOP_K", 7),
             max_new_tokens=_int(e, "ASK_MAX_NEW_TOKENS", 400),
             provider_timeout_s=float(e.get("ASK_PROVIDER_TIMEOUT_S", "12") or 12),
             test_hooks=e.get("ASK_TEST_HOOKS", "") == "1",

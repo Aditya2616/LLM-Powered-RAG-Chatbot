@@ -79,9 +79,15 @@ class _Base:
             (f"t:{name}:d:{_day(now)}", 90000, per_day),
         ]
         totals = [self.hit(k, ttl, n) for k, ttl, _ in keys]
+        self.last_block = ""
         if any(
             cap is not None and total > cap for total, (_, _, cap) in zip(totals, keys, strict=True)
         ):
+            self.last_block = (
+                "minute"
+                if totals[0] > (per_minute if per_minute is not None else 10**12)
+                else "day"
+            )
             for k, ttl, _ in keys:
                 self.hit(k, ttl, -n)
             return False

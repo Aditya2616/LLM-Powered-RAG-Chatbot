@@ -335,7 +335,7 @@ The fast suite uses a hashing embedder and scripted generators, so it needs neit
 src/rag_chatbot/   the package (see How it works)
 src/askaditya/     the Ask-Aditya service (see Ask-Aditya): safety stages, providers, limits, API
 ask/               the deployable app (app.py, vercel.json) and a fictional persona for tests
-eval/              ask_aditya_eval.jsonl, the 84-question evaluation set
+eval/              ask_aditya_eval.jsonl, the 86-question evaluation set
 corpus/docs/       the 11 bundled documents; corpus/questions.jsonl the gold questions
 scripts/           run_eval.py, record_demo.py, check_numbers.py, check_ui.py, build_ask_index.py, run_ask_eval.py, ask_retrieval_eval.py
 results/           measured results (JSON), the source of every table above
@@ -371,7 +371,7 @@ flowchart LR
 
 Because verification has to come first, the answer is generated completely, checked, and only then streamed as `token` events followed by `done`. Time to first token is therefore the whole generation time, not the first word.
 
-**Retrieval.** The index is a few hundred 500-character chunks, built by this repository's own splitter. At runtime it is BM25 only (NumPy, no model, no download) plus a few query-side heuristics: section names such as Contact or Education are matched, a named project boosts its README (and its lead section, which holds the summary and the headline numbers), and a short follow-up inherits the previous question. BM25 was chosen over a hosted embedding call because it needs no key, sends no question to a third party and adds no latency or failure mode; the comparison below shows what dense vectors would add. The retrieval parameters were tuned on this same question set, so the retrieval figure is optimistic.
+**Retrieval.** The index is a few hundred 500-character chunks (seven are put in the prompt), built by this repository's own splitter. At runtime it is BM25 only (NumPy, no model, no download) plus a few query-side heuristics: section names such as Contact or Education are matched, a named project boosts its README (and its lead section, which holds the summary and the headline numbers), and a short follow-up inherits the previous question. BM25 was chosen over a hosted embedding call because it needs no key, sends no question to a third party and adds no latency or failure mode; the comparison below shows what dense vectors would add. The retrieval parameters were tuned on this same question set, so the retrieval figure is optimistic.
 
 <!-- BEGIN ask_retrieval -->
 | Retrieval (top 5 chunks) | Factual questions whose facts are all in the retrieved text |
@@ -421,6 +421,10 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 | groq-backup | 56 | 769 / 931 | 97 / 169 | 865 |
 | groq-primary | 56 | 740 / 914 | 53 / 128 | 792 |
 <!-- END ask_tokens -->
+
+<!-- BEGIN ask_heldout -->
+
+<!-- END ask_heldout -->
 
 <!-- BEGIN ask_probes -->
 - `gemini-last`: per-address limit [200, 200, 429] (200, 200, then 429 with a Retry-After header: ok); daily cap spent gives HTTP 503 with fallback `limit` and the test hook gives HTTP 503 with fallback `limit`, while deterministic answers still work: True; CORS preflight and origins ok.

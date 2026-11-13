@@ -7,7 +7,13 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from rag_chatbot.bm25 import BM25Index, rrf_fuse
+from rag_chatbot.bm25 import BM25Index, bm25_tokens, rrf_fuse
+
+
+def ask_tokens(text: str) -> list[str]:
+    """BM25 tokens with possessives removed, so "RouterBench's" matches a question about RouterBench."""
+    return bm25_tokens(re.sub(r"['’]s\b", "", text))
+
 
 PROJECTS = {
     "evalbench": "EvalBench",
@@ -76,6 +82,9 @@ LEAD_BOOST = 2.0  # README lead sections (no "A > B" path) hold the summary and 
 PROJECT_BOOST = 1.2  # other chunks of a README the visitor named
 PROFILE_BOOST = 1.5  # résumé and portfolio chunks when no project is named
 
+BOILERPLATE = re.compile(r"(Quickstart|Reproduce|Layout|Credits|Licen[cs]e)", re.I)
+BOILERPLATE_FACTOR = 0.6
+
 PROFILE_TITLES = {"Portfolio", "Résumé"}
 
 
@@ -97,7 +106,7 @@ class AskIndex:
         self.chunks = chunks
         self.version = version
         self.traps = traps or []
-        self._bm25 = BM25Index([self._search_text(c) for c in chunks])
+        self._bm25 = BM25Index([self._search_text(c) for c in chunks], tokenizer=ask_tokens)
         self.dense = dense  # optional (n, d) array of unit vectors, only used offline
 
     @staticmethod
@@ -126,7 +135,8 @@ class AskIndex:
         """BM25 (with a few query-side heuristics), fused with dense cosine by reciprocal rank when a
         query vector is given. ``heuristics=False`` gives plain BM25, for measuring what they add."""
         proj = named_project(query) if heuristics else None
-        scores = self._bm25.scores(expand_query(query) if heuristics else query)
+        scoring_query = expand_query(query) if heuristics else query
+        scores = self._bm25.scores(scoring_query)
         if heuristics:
             for i, c in enumerate(self.chunks):
                 if proj:
@@ -134,6 +144,12 @@ class AskIndex:
                         scores[i] *= LEAD_BOOST if " > " not in c["section"] else PROJECT_BOOST
                 elif c["title"] in PROFILE_TITLES:
                     scores[i] *= PROFILE_BOOST
+        if heuristics:
+            for i, c in enumerate(self.chunks):
+                if c["title"] not in PROFILE_TITLES and BOILERPLATE.search(c["section"]):
+                    scores[i] *= (
+                        BOILERPLATE_FACTOR  # commands and file listings rarely hold the answer
+                    )
         order = [int(i) for i in scores.argsort()[::-1] if scores[i] > 0][: max(20, 4 * k)]
         if query_vec is not None and self.dense is not None:
             cos = self.dense @ query_vec

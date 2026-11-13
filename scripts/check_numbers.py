@@ -358,6 +358,8 @@ def b_ask_eval(d: dict) -> str:
     ]
     rows = []
     for tag, r in d["ask"].items():
+        if tag == "heldout":
+            continue
         g = r["groups"]
         ft = r["first_token_ms"]
         cold = r["cold_start"]
@@ -393,6 +395,19 @@ def b_ask_tokens(d: dict) -> str:
             f"| {tag} | {n} | {sum(p for p, _ in pairs) / n:.0f} / {max(p for p, _ in pairs)} | {sum(q for _, q in pairs) / n:.0f} / {max(q for _, q in pairs)} | {sum(p + q for p, q in pairs) / n:.0f} |"
         )
     return "\n".join(rows) if len(rows) > 2 else "Not run."
+
+
+def b_ask_heldout(d: dict) -> str:
+    r = d["ask"].get("heldout")
+    if not r:
+        return "Not run."
+    g = r["groups"]["trap"]
+    ft = r["first_token_ms"]
+    return (
+        f"Held-out paraphrases of the six false claims (`eval/ask_aditya_heldout.jsonl`, {g['n']} questions, two per claim, "
+        f"written after the guards and not tuned on, run once on {r['meta']['date']} against the chain Groq, Groq backup, Gemini): "
+        f"**{g['passed']}/{g['n']} passed** (first token mean {ft['mean_all']:.0f} ms, p95 {ft['p95_all']:.0f} ms)."
+    )
 
 
 def b_ask_probes(d: dict) -> str:
@@ -443,6 +458,7 @@ BLOCKS = {
     "intro": b_intro,
     "ask_eval": b_ask_eval,
     "ask_probes": b_ask_probes,
+    "ask_heldout": b_ask_heldout,
     "ask_tokens": b_ask_tokens,
     "ask_retrieval": b_ask_retrieval,
     "chunk_bullet": b_chunk_bullet,
@@ -661,7 +677,9 @@ def claims(d: dict) -> list[tuple[str, bool]]:
         (
             "every recorded Ask-Aditya run covers exactly the questions in the eval file",
             all(
-                {g: v["n"] for g, v in r["groups"].items()} == ev_counts for r in d["ask"].values()
+                {g: v["n"] for g, v in r["groups"].items()} == ev_counts
+                for tag, r in d["ask"].items()
+                if tag != "heldout"
             ),
         )
     )

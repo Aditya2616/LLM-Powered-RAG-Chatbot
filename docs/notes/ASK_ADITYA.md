@@ -56,6 +56,7 @@ No model id is in the repository; all three come from the environment. When none
   bundle limit 500 MB uncompressed; by default all project files reachable at build time are included.
 - `vercel.json` `functions[...]` takes `maxDuration`, `includeFiles` and `excludeFiles` globs
   (https://vercel.com/docs/project-configuration/vercel-json).
+- Found on the first real deploy (2026-11-13): a `functions` pattern for `app.py` is rejected ("doesn't match any Serverless Functions inside the `api` directory"), and without a framework the project deploys as static files (404 on every route). `ask/vercel.json` therefore sets only `"framework": "fastapi"`; the whole project directory, including `private/index`, is bundled with the function (checked: `/api/health` returns the built corpus version).
 - `.vercelignore` (https://vercel.com/docs/deployments/vercelignore): everything is uploaded except the default
   exclusions and what `.vercelignore` lists, so a git-ignored build directory is uploaded by `vercel deploy` from a local
   folder. A git integration would not have files that are not in git, so this project is deployed from the CLI.

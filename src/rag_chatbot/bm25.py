@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -24,9 +24,16 @@ def bm25_tokens(text: str) -> list[str]:
 class BM25Index:
     """Okapi BM25 (k1=1.5, b=0.75) over a list of texts. Small, exact, dependency-free."""
 
-    def __init__(self, texts: Sequence[str], k1: float = 1.5, b: float = 0.75) -> None:
+    def __init__(
+        self,
+        texts: Sequence[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        tokenizer: Callable[[str], list[str]] = bm25_tokens,
+    ) -> None:
         self.k1, self.b = k1, b
-        self.docs = [Counter(bm25_tokens(t)) for t in texts]
+        self.tokenize = tokenizer
+        self.docs = [Counter(self.tokenize(t)) for t in texts]
         self.lengths = np.array([sum(d.values()) for d in self.docs], dtype=np.float32)
         self.avg = float(self.lengths.mean()) if len(self.docs) else 0.0
         df: Counter[str] = Counter()
@@ -44,7 +51,7 @@ class BM25Index:
         out = np.zeros(len(self.docs), dtype=np.float32)
         if not self.docs:
             return out
-        for term in set(bm25_tokens(query)):
+        for term in set(self.tokenize(query)):
             idf = self.idf.get(term)
             if idf is None:
                 continue

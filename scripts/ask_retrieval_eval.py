@@ -35,7 +35,7 @@ def main() -> int:
     ap.add_argument("--eval", type=Path, default=ROOT / "eval" / "ask_aditya_eval.jsonl")
     ap.add_argument("--dense", action="store_true")
     ap.add_argument("--out", type=Path, default=None)
-    ap.add_argument("--k", type=int, default=5)
+    ap.add_argument("--k", type=int, default=7)
     args = ap.parse_args()
     idx = AskIndex.load(args.index)
     qs = [json.loads(line) for line in args.eval.read_text(encoding="utf-8").splitlines() if line]

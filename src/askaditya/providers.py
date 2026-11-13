@@ -27,7 +27,17 @@ class ProviderUnavailable(RuntimeError):
 
 
 class Unavailable(RuntimeError):
-    """Every provider in the chain failed or is out of budget (the API answers 503, fallback limit)."""
+    """Every provider in the chain failed or is out of budget (the API answers 503, fallback limit).
+
+    ``attempts`` lists one reason code per provider that was tried or skipped, and ``retry_after`` is the number
+    of seconds until a per-minute budget frees up when that is the only thing in the way (else 0)."""
+
+    def __init__(
+        self, message: str, attempts: list[str] | None = None, retry_after: int = 0
+    ) -> None:
+        super().__init__(message)
+        self.attempts = attempts or []
+        self.retry_after = retry_after
 
 
 class Provider(Protocol):
@@ -186,21 +196,26 @@ class ProviderChain:
     def generate(self, system: str, user: str, force_fail: bool = False) -> Generation:
         attempts: list[str] = []
         if force_fail or not self.providers:
-            raise Unavailable("no provider available")
+            raise Unavailable(
+                "no provider available", ["chain: forced" if force_fail else "chain: no_providers"]
+            )
         if not self.limiter.take_global(self.settings.global_daily_cap):
-            raise Unavailable("global daily cap reached")
+            raise Unavailable("global daily cap reached", ["global: cap_day"])
         cfg = self.settings
         est = estimate_tokens(system, user, cfg.max_new_tokens)
+        minute_blocked: list[bool] = []
         for p in self.providers:
             cap = cfg.provider_daily_caps.get(p.name)
             if cap is not None and not self.limiter.take_provider(p.name, cap):
-                attempts.append(f"{p.name}: daily request budget spent")
+                attempts.append(f"{p.name}: budget_requests_day")
                 continue
             tmin, tday = cfg.token_caps_minute.get(p.name), cfg.token_caps_day.get(p.name)
             if (tmin is not None or tday is not None) and not self.limiter.take_tokens(
                 p.name, est, tmin, tday
             ):
-                attempts.append(f"{p.name}: token budget spent")
+                block = getattr(self.limiter, "last_block", "") or "day"
+                attempts.append(f"{p.name}: budget_tokens_{block}")
+                minute_blocked.append(block == "minute")
                 continue
             try:
                 text = p.complete(system, user, cfg.max_new_tokens)
@@ -214,7 +229,13 @@ class ProviderChain:
             if real and (tmin is not None or tday is not None):
                 self.limiter.adjust_tokens(p.name, real - est)
             return Generation(text, p.name, attempts, usage)
-        raise Unavailable("; ".join(attempts) or "no provider")
+        only_minute = (
+            bool(minute_blocked)
+            and all(minute_blocked)
+            and len(minute_blocked) == len(self.providers)
+        )
+        retry = int(60 - self.limiter.clock() % 60) + 1 if only_minute else 0
+        raise Unavailable("; ".join(attempts) or "no provider", attempts, retry)
 
 
 def build_chain(

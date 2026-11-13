@@ -49,3 +49,14 @@ def test_no_phone_number_is_stored_in_the_eval_file():
     from askaditya.build import phone_like
 
     assert not phone_like(EVAL.read_text(encoding="utf-8").replace("\n", " "))
+
+
+def test_the_heldout_file_has_two_paraphrases_per_claim_and_no_forbidden_name():
+    path = ROOT / "eval" / "ask_aditya_heldout.jsonl"
+    held = [
+        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
+    assert len(held) == 12 and all(r["group"] == "trap" and r["must_contain"] for r in held)
+    main = {r["question"] for r in rows()}
+    assert not main & {r["question"] for r in held}  # nothing was tuned on these
+    assert FORBIDDEN not in path.read_text(encoding="utf-8").lower()

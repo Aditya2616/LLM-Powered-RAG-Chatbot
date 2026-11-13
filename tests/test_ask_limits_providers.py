@@ -280,7 +280,7 @@ def test_a_provider_over_its_daily_budget_is_skipped_before_it_can_answer_429():
     chain = make_chain([a, b], s)
     assert chain.generate("s", "u").provider == "groq"
     second = chain.generate("s", "u")
-    assert second.provider == "gemini" and "groq: daily request budget spent" in second.attempts
+    assert second.provider == "gemini" and "groq: budget_requests_day" in second.attempts
     assert len(a.calls) == 1
 
 
@@ -354,7 +354,7 @@ def test_the_per_minute_token_budget_moves_the_chain_on_before_a_429():
     big = "x" * 1750  # about 500 estimated prompt tokens plus the completion allowance
     assert chain.generate("s", big).provider == "groq"
     second = chain.generate("s", big)
-    assert second.provider == "groq-backup" and "groq: token budget spent" in second.attempts
+    assert second.provider == "groq-backup" and "groq: budget_tokens_minute" in second.attempts
     assert len(a.calls) == 1
 
 
@@ -364,7 +364,7 @@ def test_the_per_day_token_budget_resets_at_midnight():
     p = ScriptedProvider("groq", ["ok"])
     chain = make_chain([p], s, MemoryLimiter(clock))
     chain.generate("s", "u" * 1000)
-    with pytest.raises(Unavailable, match="token budget"):
+    with pytest.raises(Unavailable, match="budget_tokens_day"):
         chain.generate("s", "u" * 1000)
     clock.t += 86400
     assert chain.generate("s", "u" * 1000).provider == "groq"
