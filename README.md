@@ -333,8 +333,11 @@ The fast suite uses a hashing embedder and scripted generators, so it needs neit
 
 ```
 src/rag_chatbot/   the package (see How it works)
+src/askaditya/     the Ask-Aditya service (see Ask-Aditya): safety stages, providers, limits, API
+ask/               the deployable app (app.py, vercel.json) and a fictional persona for tests
+eval/              ask_aditya_eval.jsonl, the 84-question evaluation set
 corpus/docs/       the 11 bundled documents; corpus/questions.jsonl the gold questions
-scripts/           run_eval.py, record_demo.py, check_numbers.py, check_ui.py
+scripts/           run_eval.py, record_demo.py, check_numbers.py, check_ui.py, build_ask_index.py, run_ask_eval.py, ask_retrieval_eval.py
 results/           measured results (JSON), the source of every table above
 docs/              the static viewer, data/ (recorded run), assets/ (screenshots), notes/
 frontend/          the Streamlit client
@@ -344,6 +347,67 @@ tests/             fast offline suite; the model test is marked slow
 ## Static demo
 
 `docs/` is a static site: serve it with any file server (`python -m http.server -d docs`) or GitHub Pages. It replays `docs/data/demo.json`, which `scripts/record_demo.py` wrote from a real run (chunk layout, 2-D projection, retrieved chunks and scores, the token stream with its real timing, the final answers), including a question on a topic the documents cover but a detail they do not, and an off-topic one. When the same page is served by the service it switches to live mode and sends your questions to it.
+
+## Ask-Aditya: the portfolio assistant
+
+The same retrieval code also powers the "Ask my AI" box on [Aditya's portfolio](https://adityajain16.vercel.app): a small HTTP API that answers questions about him, grounded only in his résumé, his portfolio text and the READMEs of his ten projects, and that says "I don't know" and points to his email when the sources do not support an answer. Code: `src/askaditya/`, deployable app: `ask/`. It has not been deployed yet, so everything below was measured locally, with a local open model standing in for the hosted free-tier providers (neither provider has been called for real).
+
+```mermaid
+flowchart LR
+    V[Visitor] -->|POST /api/ask| C[CORS, per-address limits]
+    C --> S[validate, injection screen]
+    S --> T{unpublished topic, about the assistant, off topic?}
+    T -->|fixed reply| E
+    T --> R[BM25 and query heuristics over the index]
+    R --> G[provider chain: Groq, then Gemini]
+    G -->|all failed or cap spent| X[503, fallback limit]
+    G --> Y[verify the answer]
+    Y -->|ok| E[SSE: token events, then done]
+    Y -->|fails| U[I don't know and the email]
+    U --> E
+```
+
+**What runs, in order.** (1) Input validation. (2) An injection screen: this repository's own rule list over the question and every history item (it does not use Sentinel). (3) Deterministic replies for topics he has not published (salary, grades, notice period, relocation or remote work, visa, phone number, research-paper details, 15FORTEEN details, personal life); they never reach a model. (4) A fixed answer about the assistant itself, and a polite refusal of off-topic questions. (5) Retrieval. (6) Generation with a strict grounded prompt (third person, at most about 80 words, one follow-up suggestion). (7) Verification before anything is sent: no phone-like digit run, every number in the answer must occur in the retrieved passages, none of the six false claims about his projects may be asserted (a question that tries one gets the true statement from the sources), the capitalised names and most words must come from the passages, and a length cap. An answer that fails becomes "I don't know" plus his email.
+
+Because verification has to come first, the answer is generated completely, checked, and only then streamed as `token` events followed by `done`. Time to first token is therefore the whole generation time, not the first word.
+
+**Retrieval.** The index is a few hundred 500-character chunks, built by this repository's own splitter. At runtime it is BM25 only (NumPy, no model, no download) plus a few query-side heuristics: section names such as Contact or Education are matched, a named project boosts its README (and its lead section, which holds the summary and the headline numbers), and a short follow-up inherits the previous question. BM25 was chosen over a hosted embedding call because it needs no key, sends no question to a third party and adds no latency or failure mode; the comparison below shows what dense vectors would add. The retrieval parameters were tuned on this same question set, so the retrieval figure is optimistic.
+
+<!-- BEGIN ask_retrieval -->
+
+<!-- END ask_retrieval -->
+
+(The dense row uses MiniLM vectors computed offline as a stand-in; a hosted embedding model was not run.)
+
+**API.** `POST /api/ask` with `{"question": string (1 to 500 characters), "history": [{"role": "user"|"assistant", "text": string}]}` (at most 6 items) returns `text/event-stream`: repeated `event: token` / `data: {"t": "..."}`, then `event: done` / `data: {"answer": string, "sources": [{"title", "url"}], "grounded": boolean, "fallback": null|"unknown"|"offtopic"|"refused"|"limit"}`. `GET /api/health` returns `{"ok": true, "corpus_version": "..."}`. Errors: 400 for bad input, 429 with `Retry-After` when a per-address limit is hit (10 a minute, 60 a day), 503 with `fallback: "limit"` when every provider failed or a daily cap is spent. CORS allows only `https://adityajain16.vercel.app` and `http://127.0.0.1:8765`, including the preflight.
+
+**Providers and cost.** The generator is a chain of two free-tier hosted models, Groq first and Gemini second (either alone also works); a local model can be used in development. There are no model ids in the code: set `GROQ_MODEL` and `GEMINI_MODEL`. No payment method is ever needed: both providers answer 429 on a free key when the quota is gone, and the service also keeps its own daily budget per provider and a global daily cap, so it stops asking first. The facts and limits behind the default caps (100 requests a day per provider, 120 in total) are in `docs/notes/ASK_ADITYA.md`, with the date they were read. Cost per 1,000 questions on the free tiers is $0 by construction; nothing here has been billed or measured on a real account. The Gemini free tier lists prompts as used to improve Google's products, so visitor questions may be used by Google if that provider is configured.
+
+**Shared limits.** Per-address and daily counters live in Upstash Redis over its REST API when `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (or the Vercel integration's `KV_REST_API_URL` and `KV_REST_API_TOKEN`) are set: every serverless instance sees the same counts. Without them the counters are in process memory, which is exact on one long-lived server but per instance on a serverless platform (each instance counts separately and resets when recycled), so the limits become approximate and the global cap can be exceeded by up to the number of warm instances. If Upstash is unreachable the service falls back to memory counting rather than stopping.
+
+**Environment variable names.** `GROQ_API_KEY`, `GROQ_MODEL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `ASK_PROVIDER_ORDER` (default `groq,gemini`), `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `ASK_IP_PER_MINUTE`, `ASK_IP_PER_DAY`, `ASK_GLOBAL_DAILY_CAP`, `ASK_PROVIDER_DAILY_CAPS` (`groq=100,gemini=100`), `ASK_INDEX_DIR`, `ASK_PLATFORM_NAME` (build time), `ASK_EVAL_TOKEN` (lets the evaluation runner bypass the per-address limits; unset means no bypass), `ASK_TEST_HOOKS` (`1` enables a header that forces the `limit` path and exposes the stage of each answer; leave it off in production) and `ASK_LOCAL_MODEL` (development only).
+
+**Rebuilding the index.** The résumé, the exported portfolio text and the project READMEs are private inputs and are not in this repository, and neither is the built index. One command reads them from their local paths, removes phone numbers before chunking, fills in the product name that the corpus keeps as a placeholder (from `ASK_PLATFORM_NAME` or a git-ignored `ask/private/platform_name.txt`; the default text is "an AI assistant platform"), and writes `index.json` and `VERSION` (the date and the SHA-256 of every source) into the git-ignored `ask/private/index`, then copies the service code into `ask/`:
+
+```bash
+python scripts/build_ask_index.py --resume Aditya_Jain_Resume.pdf --corpus corpus.md --bundle \
+    --readmes ../SFT-Forge ../VoiceScribe ../VisionLens ../Sentinel ../AgentFlow ../DiffuseLab ../PromptLab ../EvalBench ../ModelRouter ../LLM-Powered-RAG-Chatbot
+cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in git (see ask/.vercelignore)
+```
+
+`GET /api/health` reports the `corpus_version`. The repository ships a small fictional persona (`ask/persona/`) so the tests and CI run without the private sources.
+
+**Evaluation.** `eval/ask_aditya_eval.jsonl` has 84 questions with machine-checkable expectations, written from the three sources: 44 factual (exact numbers and names must appear), 15 about unpublished topics (the deflection, the email, and never a phone number), 10 traps built from the six false claims, 10 injection attempts and 5 off-topic questions. `scripts/run_ask_eval.py` calls the real HTTP API, checks the server-sent-event framing and every field of `done`, applies each question's expectations, measures time to first token, and probes the 429, 503 `limit` and CORS behaviour on servers with deliberately tiny limits.
+
+<!-- BEGIN ask_eval -->
+
+<!-- END ask_eval -->
+
+<!-- BEGIN ask_probes -->
+
+<!-- END ask_probes -->
+
+**Caveats.** The numbers above come from a 1.5B local model on a shared GPU, not from the models the service will use, so accuracy and latency will differ once real keys are in place; the time-to-first-token figures include a shared machine and are not a claim about the deployed service. The factual questions were also used to tune retrieval and the verifier. The injection screen is a list of patterns and will miss attacks phrased differently, and the topic detector is keyword based, so an unusual phrasing of an unpublished topic can reach the model (where the grounded prompt and the verifier are the remaining defences). Nothing here is called production-ready.
 
 ## Limitations
 

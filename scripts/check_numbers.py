@@ -43,6 +43,11 @@ def load() -> dict:
     d["lat"] = {}
     for p in sorted(RESULTS.glob("latency_cpu_*.json")):
         d["lat"][p.stem.removeprefix("latency_cpu_")] = json.loads(p.read_text(encoding="utf-8"))
+    d["ask"] = {}
+    for p in sorted(RESULTS.glob("ask_eval_*.json")):
+        d["ask"][p.stem.removeprefix("ask_eval_")] = json.loads(p.read_text(encoding="utf-8"))
+    ar = RESULTS / "ask_retrieval.json"
+    d["ask_retrieval"] = json.loads(ar.read_text(encoding="utf-8")) if ar.exists() else None
     d["demo"] = json.loads((DOCS / "data" / "demo.json").read_text(encoding="utf-8"))
     return d
 
@@ -315,8 +320,80 @@ def b_lead(d: dict) -> str:
     )
 
 
+GROUP_LABEL = {
+    "factual": "Factual",
+    "unpublished": "Unpublished topics",
+    "trap": "Traps",
+    "injection": "Injection attempts",
+    "offtopic": "Off-topic",
+}
+
+
+def b_ask_eval(d: dict) -> str:
+    if not d["ask"]:
+        return "Not run."
+    head = [
+        "| Run | "
+        + " | ".join(GROUP_LABEL[g] for g in GROUP_LABEL)
+        + " | All | First token mean / p95 (ms) | Cold start: ready / first answer (ms) |",
+        "|---|" + "---|" * (len(GROUP_LABEL) + 3),
+    ]
+    rows = []
+    for tag, r in d["ask"].items():
+        g = r["groups"]
+        ft = r["first_token_ms"]
+        cold = r["cold_start"]
+        cells = [
+            f"{g[k]['passed']}/{g[k]['n']} ({pct(g[k]['passed'] / g[k]['n'])}%)"
+            for k in GROUP_LABEL
+        ]
+        rows.append(
+            f"| {tag}: {r['meta']['note'] or r['meta']['mode']}; {r['meta']['n_questions']} questions, {r['meta']['date']}, corpus {r['meta']['corpus_version']} | "
+            + " | ".join(cells)
+            + f" | {r['total']['passed']}/{r['total']['n']} ({pct(r['total']['passed'] / r['total']['n'])}%) | {ft['mean_all']:.0f} / {ft['p95_all']:.0f} (answered by the model: {ft['mean_generated']:.0f} / {ft['p95_generated']:.0f}) | "
+            + f"{cold.get('ready_ms', 0):.0f} / {cold.get('first_ask_ms', 0):.0f} |"
+        )
+    return "\n".join(head + rows)
+
+
+def b_ask_probes(d: dict) -> str:
+    if not d["ask"]:
+        return "Not run."
+    out = []
+    for tag, r in d["ask"].items():
+        p = r.get("probes") or {}
+        if not p:
+            continue
+        rl, lim, cors = p.get("rate_limit", {}), p.get("limit", {}), p.get("cors", {})
+        out.append(
+            f"- `{tag}`: per-address limit {rl.get('statuses')} (200, 200, then 429 with a Retry-After header: {'ok' if rl.get('pass') else 'FAILED'}); "
+            f"daily cap spent gives HTTP {lim.get('cap_spent_status')} with fallback `{lim.get('cap_spent_fallback')}` "
+            f"and the test hook gives HTTP {lim.get('hook_status')} with fallback `{lim.get('hook_fallback')}`, while deterministic answers still work: "
+            f"{lim.get('deterministic_still_answers')}; CORS preflight and origins {'ok' if cors.get('pass') else 'FAILED'}."
+        )
+    return "\n".join(out) or "Not run."
+
+
+def b_ask_retrieval(d: dict) -> str:
+    r = d["ask_retrieval"]
+    if not r:
+        return "Not run."
+    rows = [
+        "| Retrieval (top "
+        + str(r["k"])
+        + " chunks) | Factual questions whose facts are all in the retrieved text |",
+        "|---|---|",
+    ]
+    for name, x in r["rows"].items():
+        rows.append(f"| {name} | {x['hits']}/{x['n']} ({pct(x['rate'])}%) |")
+    return "\n".join(rows)
+
+
 BLOCKS = {
     "intro": b_intro,
+    "ask_eval": b_ask_eval,
+    "ask_probes": b_ask_probes,
+    "ask_retrieval": b_ask_retrieval,
     "chunk_bullet": b_chunk_bullet,
     "lead": b_lead,
     "setup": b_setup,

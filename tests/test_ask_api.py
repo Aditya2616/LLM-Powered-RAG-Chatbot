@@ -372,3 +372,41 @@ def test_the_pipeline_object_is_usable_directly(index):
         and r.provider == "fake"
         and r.timings["retrieve_ms"] >= 0
     )
+
+
+def test_the_eval_token_bypasses_the_per_address_limit_only_when_configured(index):
+    on, _ = app_with(index, [GOOD], ip_per_minute=1, eval_token="s3cret")
+    codes = [
+        on.post(
+            "/api/ask", json={"question": "Where does Sam work?"}, headers={"x-ask-eval": "s3cret"}
+        ).status_code
+        for _ in range(3)
+    ]
+    assert codes == [200, 200, 200]
+    wrong = [
+        on.post(
+            "/api/ask", json={"question": "Where does Sam work?"}, headers={"x-ask-eval": "nope"}
+        ).status_code
+        for _ in range(2)
+    ]
+    assert wrong == [200, 429]
+    off, _ = app_with(index, [GOOD], ip_per_minute=1)
+    codes = [
+        off.post(
+            "/api/ask", json={"question": "Where does Sam work?"}, headers={"x-ask-eval": ""}
+        ).status_code
+        for _ in range(2)
+    ]
+    assert codes == [200, 429]
+
+
+def test_the_test_hook_exposes_the_stage_and_reason(index):
+    client, _ = app_with(index, ["Sam founded Initech Corporation."], test_hooks=True)
+    r = client.post(
+        "/api/ask", json={"question": "Where does Sam work?"}, headers={"x-ask-test": "stage"}
+    )
+    assert (
+        r.headers["x-ask-stage"] == "verify"
+        and "name" in r.headers["x-ask-reason"]
+        or "support" in r.headers["x-ask-reason"]
+    )
