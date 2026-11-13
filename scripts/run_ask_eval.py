@@ -99,6 +99,34 @@ def ask(client: httpx.Client, base: str, q: dict, headers: dict) -> dict:
     return out
 
 
+def reached_model(res: dict) -> bool:
+    """Whether a question spent model tokens, judged from what a production deployment exposes.
+
+    ``X-Ask-Provider`` is on every answer: a provider name means a model answered, an empty value means a fixed
+    reply. With the header absent (an older deployment) every 200 answer that is not a fixed refusal or off-topic
+    reply is treated as generated, which over-waits rather than under-waits.
+    """
+    if res.get("status") != 200:
+        return False
+    provider = res.get("provider")
+    if provider is not None:
+        return bool(provider.strip())
+    if res.get("stage") in ("model", "verify", "trap"):
+        return True
+    done = res["events"][-1][1] if res.get("events") and res["events"][-1][0] == "done" else {}
+    return done.get("fallback") not in ("offtopic", "refused")
+
+
+def effective_rate(starts: list[float]) -> float | None:
+    """Questions per minute over the run, from the request start times (monotonic seconds)."""
+    if len(starts) < 2 or starts[-1] <= starts[0]:
+        return None
+    return (len(starts) - 1) * 60.0 / (starts[-1] - starts[0])
+
+
+MAX_SAFE_QPM = 7.0
+
+
 def check_contract(res: dict) -> dict | None:
     ev = res["events"]
     if not ev or ev[-1][0] != "done" or any(n != "token" for n, _ in ev[:-1]):
@@ -443,10 +471,12 @@ def main() -> int:
         ap.error("give --base-url or --spawn")
     headers = {"x-ask-eval": args.eval_token} if args.eval_token else {}
     results = []
+    starts: list[float] = []
     try:
         with httpx.Client() as c:
             health = c.get(f"{base}/api/health", timeout=30).json()
             for i, q in enumerate(questions):
+                starts.append(time.monotonic())
                 res = ask(c, base, q, headers)
                 if i == 0:
                     cold["first_ask_ms"] = res["total_ms"]
@@ -481,11 +511,21 @@ def main() -> int:
                 )
                 if args.pause:
                     time.sleep(args.pause)
-                if args.pause_generated and res.get("stage") in ("model", "verify", "trap"):
+                if args.pause_generated and reached_model(res):
                     time.sleep(args.pause_generated)
     finally:
         if server:
             server.stop()
+    qpm = effective_rate(starts)
+    if qpm is not None:
+        print(f"effective rate: {qpm:.1f} questions a minute over {len(starts)} questions")
+        if qpm > MAX_SAFE_QPM:
+            print(
+                f"WARNING: {qpm:.1f} questions a minute is above {MAX_SAFE_QPM:.0f}; against a deployment "
+                "with free-tier token limits this spills to the backup and Gemini and ends in 503s. "
+                "Use --pause 8 (one question every 8 to 10 s).",
+                flush=True,
+            )
     try:
         extra = {} if args.no_probes or not args.spawn else probes(env)
         if args.chain_probes and not args.no_probes and args.spawn:
