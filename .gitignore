@@ -1,13 +1,20 @@
 # Environment
-rag-chatbot/.env
+.env
 .venv/
+.venv-iso/
 
 # Python cache
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
 
-# Data artifacts
-rag-chatbot/data/raw_docs/*
-!rag-chatbot/data/raw_docs/.gitkeep
-rag-chatbot/data/vector_store/*
-!rag-chatbot/data/vector_store/.gitkeep
+# Runtime data (the bundled corpus lives in corpus/)
+data/
+runs/
+scratch/
+shots/
+*.log
