@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 from langchain_core.documents import Document
 
+from rag_chatbot.bm25 import BM25Index, rrf_fuse
 from rag_chatbot.embeddings import HashingEmbeddings
 from rag_chatbot.loaders import load_documents, split_documents
-from rag_chatbot.bm25 import BM25Index, rrf_fuse
 from rag_chatbot.retrieval import Retriever
 from rag_chatbot.store import IndexMismatch, VectorStore
 from tests.conftest import CORPUS
