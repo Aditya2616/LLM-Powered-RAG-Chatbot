@@ -2,7 +2,9 @@
 
 [![ci](https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot/actions/workflows/ci.yml) [![licence: MIT](https://img.shields.io/badge/licence-MIT-d7ff3f.svg)](LICENSE)
 
-Question answering over your own documents, with the answer tied to the text it came from. It ingests PDF, TXT and DOCX files, splits them into chunks, embeds them into a FAISS index, retrieves the best chunks for a question (dense, BM25 or a fusion of both), and has a language model answer from those chunks only, saying "I don't know" when they do not contain the answer. Python, LangChain, FAISS, FastAPI, Streamlit and Docker. It runs with no API key: the default embedder and generator are small open models that run on a laptop.
+<!-- BEGIN intro -->
+Question answering over your own documents, with the answer tied to the text it came from. It ingests PDF, TXT and DOCX files, splits them into chunks, embeds them into a FAISS index, retrieves the best chunks for a question (dense, BM25 or a fusion of both), and instructs a language model to answer from those chunks only and to say "I don't know" when they do not contain the answer (measured below: it does so on 56.0% to 72.0% of unanswerable questions, depending on the model). Python, LangChain, FAISS, FastAPI, Streamlit and Docker. It runs with no API key: the default embedder and generator are small open models that run on a laptop.
+<!-- END intro -->
 
 <!-- BEGIN lead -->
 Headline result, on the 100 questions bundled with the repository (a small invented corpus): Qwen2.5-0.5B-Instruct answers 52/75 (69.3%) of the answerable questions correctly and says "I don't know" on 14/25 (56.0%) of the unanswerable ones; Qwen2.5-1.5B-Instruct answers 70/75 (93.3%) and declines 18/25 (72.0%). Declining reliably is the weak spot, and the results below say where.
@@ -10,7 +12,7 @@ Headline result, on the 100 questions bundled with the repository (a small inven
 
 The part I care about is the "I don't know" path, so the repository ships a small corpus and a question set (answerable and unanswerable) and reports how often the system answers correctly, declines when it should, and declines when it should not.
 
-![The viewer: chunks of the documents as points in embedding space, a question, and the four chunks retrieved for it, with their scores](docs/assets/desktop-answered-map.png)
+![The viewer at the Generate step: chunks of the documents as points in embedding space, with the question's query point joined to the four numbered chunks retrieved for it](docs/assets/desktop-answered-map.png)
 
 | An answerable question | A question the documents cannot answer |
 |---|---|
@@ -54,10 +56,10 @@ Everything is in `src/rag_chatbot/`: `loaders.py` (loading, chunking, upload che
 - **Small samples.** 75 answerable and 25 unanswerable questions. Tables give counts as k/n; at 75 questions a 95% Wilson interval is roughly plus or minus 10 percentage points (the intervals are in the `results/*.json` files), and a difference of one or two questions is noise.
 - **Answer correctness is a word match.** An answer counts as correct if it contains every required fact (a number, a name) after normalising currency and punctuation. It is strict about wording and blind to meaning, so it can fail a right answer phrased differently and pass a wrong answer that happens to include the right words. "Grounded" is likewise lexical: the share of the answer's words that appear in the retrieved text. Neither is a human judgement.
 - **The generator is tiny.** The default model has 0.5 billion parameters. It follows "answer only from the context, otherwise say I don't know" only partly, and the tables show where it does not.
-- **Hosted providers were not run.** The OpenAI-compatible and Gemini adapters are tested against a stubbed HTTP transport. They have not been run against a real service, because I have no keys. The Docker image has not been built (no Docker on the machine I developed on).
+- **Hosted providers were not run.** The OpenAI-compatible and Gemini adapters are tested against a stubbed HTTP transport. They have not been run against a real service, because I have no keys. The Docker image is built and queried in CI on every push with the no-model providers, and was run once in CI with the default local models.
 
 <!-- BEGIN setup -->
-The corpus is 11 invented policy documents (5,403 words, 30,830 characters) for a fictional outdoor-gear retailer. The question set has 100 questions: 75 answerable (42 worded close to the text, 33 reworded) and 25 that the documents cannot answer (17 on a topic the documents cover but a detail they do not, 8 off topic). Retrieval ran on cuda with all-MiniLM-L6-v2 embeddings (revision `1110a243`); generation ran on cuda in float16 with greedy decoding and at most 160 new tokens, retrieving the top 4 chunks with the hybrid retriever at 1000-character chunks unless a row says otherwise. Dates: retrieval 2026-11-13, generation 2026-11-13.
+The corpus is 11 invented policy documents (5,403 words, 30,830 characters) for a fictional outdoor-gear retailer. The question set has 100 questions: 75 answerable (42 worded close to the text, 33 reworded) and 25 that the documents cannot answer (17 on a topic the documents cover but a detail they do not, 8 off topic). Retrieval ran on cuda with all-MiniLM-L6-v2 embeddings (revision `1110a243`); generation ran on cuda in float16 with greedy decoding and at most 160 new tokens, retrieving the top 4 chunks with the hybrid retriever at 500-character chunks unless a table says otherwise. Dates: retrieval 2026-11-13, generation 2026-11-13.
 <!-- END setup -->
 
 ### Headline
@@ -75,7 +77,9 @@ Each statement below is checked against the results files by `scripts/check_numb
 
 - **Hybrid retrieval is the safest choice, not a large win.** It beats dense search on MRR at every chunk size and is within a few points of the best single retriever everywhere. On a corpus this easy the retrievers are close, and the differences are a handful of questions.
 - **The cross-encoder reranker raises MRR at every chunk size, but it barely moved the answers.** It lowers Recall@3 at 500 characters, and at that chunk size it changes the number of correct answers by at most two questions for either model, which is noise. It stays optional (`RERANKER_MODEL`) and off by default.
-- **500-character chunks are the default because of the generator, not the retriever.** Larger chunks retrieve about as well (1,000 characters has the best hybrid recall), but the 0.5B model answers more questions correctly from 500-character chunks than from 1,000-character ones.
+<!-- BEGIN chunk_bullet -->
+- **500-character chunks are the default because of the generator, not the retriever.** Larger chunks retrieve about as well (hybrid MRR 0.937 at 1,000 characters against 0.920 at 500; hybrid Recall@3 98.7% against 98.7%), but the 0.5B model answers more questions correctly from 500-character chunks (52/75) than from 1,000-character ones (45/75).
+<!-- END chunk_bullet -->
 - **Retrieval is what makes the model useful here.** Without it the 0.5B model answers almost nothing correctly, because the documents are invented and it cannot know them. The no-retrieval row is a sanity check that the questions really need the documents.
 - **The "I don't know" path is the weak spot.** Neither model declines on more than three quarters of the unanswerable questions, and the questions about a detail the documents leave out (near-miss) are declined less often than the off-topic ones. The small model is more likely to produce a plausible sentence from a chunk that mentions the topic.
 - **Adding two worked examples to the prompt made abstention worse for both models.** The examples lower the rate of "I don't know" on unanswerable questions, so the default prompt has none (`FEW_SHOT` turns them on).
@@ -183,6 +187,7 @@ Threshold tuned on the 50 even-numbered questions (half A); statistic: highest c
 | 0.30 | 32.0% | 1.3% |
 | 0.40 | 36.0% | 6.7% |
 | 0.50 | 60.0% | 16.0% |
+| 0.55 | 80.0% | 33.3% |
 | 0.60 | 84.0% | 49.3% |
 | 0.70 | 100.0% | 74.7% |
 | 0.80 | 100.0% | 93.3% |
@@ -272,7 +277,15 @@ curl -N -X POST http://localhost:8000/query/stream -H "Content-Type: application
 
 curl http://localhost:8000/health
 curl http://localhost:8000/documents
+
+# remove one document and its chunks from the index
+curl -X DELETE http://localhost:8000/documents/returns_and_refunds.txt
+
+# 2-D projection of every chunk (what the viewer draws)
+curl http://localhost:8000/index/map
 ```
+
+`rag-chatbot info` prints the embedder, generator, retriever and per-document chunk counts of the current index.
 
 A `/query` response carries the answer, whether it abstained and why (`model_declined`, `low_retrieval_score` or `empty_index`), the sources, and timings. The shape (the values here are illustrative, not a recorded response):
 
@@ -293,9 +306,9 @@ A `/query` response carries the answer, whether it abstained and why (`model_dec
 
 A source is a chunk that was put in the prompt; `support` is the share of the answer's content words found in that chunk. The service also keeps an in-memory LRU cache with a time-to-live, short per-session chat history, and a JSON-lines query log (`data/query_log.jsonl`). The index persists in `data/vector_store/`.
 
-Streamlit client (the original UI, updated to show scores and the reason for a refusal): start the service, then `pip install -e ".[streamlit]"` and `streamlit run frontend/streamlit_app.py`.
+Streamlit client (shows scores and the reason for a refusal): start the service, then `pip install -e ".[streamlit]"` and `streamlit run frontend/streamlit_app.py`.
 
-Docker: `docker build -t rag-chatbot .` then `docker run -p 8000:8000 -v rag-data:/data -v rag-models:/models rag-chatbot`. The image installs CPU PyTorch and downloads the models on first use. It has not been built or run.
+Docker: `docker build -t rag-chatbot .` then `docker run -p 8000:8000 -v rag-data:/data -v rag-models:/models rag-chatbot`. The image installs CPU PyTorch and downloads the models on first use. CI builds the image and queries the running container (see `.github/workflows/ci.yml`).
 
 ## Reproduce
 
@@ -314,7 +327,7 @@ pytest -m slow              # loads the real models
 ruff check .
 ```
 
-The fast suite uses a hashing embedder and scripted generators, so it needs neither torch nor a download; that is what CI runs. The interface check (`python scripts/check_ui.py --live --shots docs/assets`, needs `pip install -e ".[check]"` and `playwright install chromium`) loads the page at 1440x900 and 390x844 and fails on console errors, horizontal scroll or touch targets under 44 px.
+The fast suite uses a hashing embedder and scripted generators, so it needs neither torch nor a download; that is what CI runs; CI also builds the Docker image and queries the running container. The interface check (`python scripts/check_ui.py --live --shots docs/assets`, needs `pip install -e ".[check]"` and `playwright install chromium`) loads the page at 1440x900 and 390x844 and fails on console errors, horizontal scroll or touch targets under 44 px.
 
 ## Layout
 

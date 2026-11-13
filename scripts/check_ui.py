@@ -98,7 +98,7 @@ SMALL = """() => {
 }"""
 
 
-def shoot(page, path: Path, scroll_sel: str, last_sel: str, pad: int = 12) -> None:
+def shoot(page, path: Path, scroll_sel: str, last_sel: str, pad: int = 3) -> None:
     """Scroll an element to just under the sticky bar and capture down to the bottom of another element,
     so the picture ends on a card boundary and nothing is clipped or hidden under the bar."""
     page.evaluate("document.documentElement.style.scrollBehavior = 'auto'")

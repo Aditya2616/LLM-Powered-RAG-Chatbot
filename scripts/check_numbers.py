@@ -56,7 +56,7 @@ def b_setup(d: dict) -> str:
     m = d["retrieval"]["meta"]
     q, c = m["questions"], m["corpus"]
     gens = [g for g in d["gen"].values() if g["meta"]["llm"]["dtype"]]
-    g0 = gens[0]["meta"]
+    g0 = d["gen"]["qwen2.5-0.5b-instruct_c500"]["meta"]
     return (
         f"The corpus is {c['documents']} invented policy documents ({c['words']:,} words, {c['characters']:,} characters) "
         f"for a fictional outdoor-gear retailer. The question set has {q['total']} questions: {q['answerable']} answerable "
@@ -65,7 +65,7 @@ def b_setup(d: dict) -> str:
         f"Retrieval ran on {m['device']} with {short(m['embedder']['model'])} embeddings (revision `{m['embedder']['revision'][:8]}`); "
         f"generation ran on {g0['device']} in {g0['llm']['dtype']} with greedy decoding and at most {g0['max_new_tokens']} new tokens, "
         f"retrieving the top {g0['retrieval']['k']} chunks with the {g0['retrieval']['retriever']} retriever at "
-        f"{g0['retrieval']['chunk_size']}-character chunks unless a row says otherwise. Dates: retrieval {m['date']}, "
+        f"{g0['retrieval']['chunk_size']}-character chunks unless a table says otherwise. Dates: retrieval {m['date']}, "
         f"generation {', '.join(sorted({g['meta']['date'] for g in gens}))}."
     )
 
@@ -156,7 +156,12 @@ def b_gate(d: dict) -> str:
     key = next(k for k in d["gen"] if "0.5b" in k and k.endswith("c500"))
     g = d["gen"][key]
     m = g["meta"]["gate"]
-    sweep = [s for s in g["gate_sweep"] if round(s["threshold"] * 100) % 10 == 0]
+    chosen = round(m["threshold"] * 100)
+    sweep = [
+        s
+        for s in g["gate_sweep"]
+        if round(s["threshold"] * 100) % 10 == 0 or round(s["threshold"] * 100) == chosen
+    ]
     out = [
         f"Threshold tuned on the {m['n_half_a']} {m['tuned_on']}; statistic: {m['statistic']}. Chosen threshold: **{m['threshold']:.2f}**.\n",
         '| Threshold | "I don\'t know" on unanswerable (all 25) | False "I don\'t know" on answerable (all 75) |',
@@ -261,6 +266,42 @@ def b_headline(d: dict) -> str:
     return "\n".join(lines)
 
 
+def b_intro(d: dict) -> str:
+    h = headline_facts(d)
+    lo = min(
+        h["g05"]["rag"]["summary"]["abstained_on_unanswerable"]["rate"],
+        h["g15"]["rag"]["summary"]["abstained_on_unanswerable"]["rate"],
+    )
+    hi = max(
+        h["g05"]["rag"]["summary"]["abstained_on_unanswerable"]["rate"],
+        h["g15"]["rag"]["summary"]["abstained_on_unanswerable"]["rate"],
+    )
+    return (
+        "Question answering over your own documents, with the answer tied to the text it came from. It ingests PDF, TXT and DOCX "
+        "files, splits them into chunks, embeds them into a FAISS index, retrieves the best chunks for a question (dense, BM25 or a "
+        'fusion of both), and instructs a language model to answer from those chunks only and to say "I don\'t know" when they do '
+        f"not contain the answer (measured below: it does so on {pct(lo)}% to {pct(hi)}% of unanswerable questions, depending on the "
+        "model). Python, LangChain, FAISS, FastAPI, Streamlit and Docker. It runs with no API key: the default embedder and "
+        "generator are small open models that run on a laptop."
+    )
+
+
+def b_chunk_bullet(d: dict) -> str:
+    r = {(x["chunk_size"], x["retriever"]): x for x in d["retrieval"]["rows"]}
+    g05 = d["gen"]["qwen2.5-0.5b-instruct_c500"]["configs"]["rag"]["summary"][
+        "correct_on_answerable"
+    ]
+    g10 = d["gen"]["qwen2.5-0.5b-instruct_c1000"]["configs"]["rag"]["summary"][
+        "correct_on_answerable"
+    ]
+    return (
+        "- **500-character chunks are the default because of the generator, not the retriever.** Larger chunks retrieve about as well "
+        f"(hybrid MRR {f3(r[(1000, 'hybrid')]['mrr'])} at 1,000 characters against {f3(r[(500, 'hybrid')]['mrr'])} at 500; "
+        f"hybrid Recall@3 {pct(r[(1000, 'hybrid')]['recall']['3'])}% against {pct(r[(500, 'hybrid')]['recall']['3'])}%), but the 0.5B model "
+        f"answers more questions correctly from 500-character chunks ({g05['k']}/{g05['n']}) than from 1,000-character ones ({g10['k']}/{g10['n']})."
+    )
+
+
 def b_lead(d: dict) -> str:
     h = headline_facts(d)
     r05 = h["g05"]["rag"]["summary"]
@@ -275,6 +316,8 @@ def b_lead(d: dict) -> str:
 
 
 BLOCKS = {
+    "intro": b_intro,
+    "chunk_bullet": b_chunk_bullet,
     "lead": b_lead,
     "setup": b_setup,
     "retrieval": b_retrieval,
