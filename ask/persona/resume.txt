@@ -1,0 +1,19 @@
+SAM RIVERA
+Springfield | +91 98765 43210 | sam.rivera@example.test | linkedin.com/in/sam-rivera-example | github.com/sam-rivera-example
+Data Engineer, Northwind Labs | B.Sc Statistics, Lakeside University
+SUMMARY
+Statistics graduate working on data pipelines and forecasting. Builds small analytics projects end to end.
+EXPERIENCE
+Data Engineer | Northwind Labs, Springfield Mar 2024 - Present
+Maintains the nightly ingestion jobs and the forecasting dashboards used by 12 analysts.
+Analyst | Harbour Retail, Springfield Jun 2022 - Feb 2024
+Built weekly sales reports and reduced report preparation time from 6 hours to 2 hours.
+PROJECTS
+Atlas | Python, Pandas
+Cleans and joins messy spreadsheets into one tidy table.
+Beacon | Python, FastAPI
+Serves demand forecasts over a small HTTP API.
+EDUCATION
+Bachelor of Science, Statistics, Lakeside University Aug 2018 - Jun 2022
+CERTIFICATIONS
+Data Analysis with Python | Example Academy

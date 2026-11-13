@@ -65,3 +65,12 @@ def loaded_pipeline(make_pipeline):
     pipe = make_pipeline(ScriptedLLM())
     pipe.ingest(sorted(CORPUS.glob("*.txt")))
     return pipe
+
+
+@pytest.fixture(scope="session")
+def persona_dir(tmp_path_factory):
+    from tests.ask_fakes import build_persona
+
+    work = tmp_path_factory.mktemp("persona")
+    build_persona(work / "idx", work)
+    return work / "idx"

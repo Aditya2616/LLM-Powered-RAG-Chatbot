@@ -15,7 +15,7 @@ from rag_chatbot.text import content_tokens, is_abstention
 
 from . import safety
 from .build import GITHUB, PORTFOLIO
-from .index import AskIndex, Hit
+from .index import AskIndex, Hit, contextual_query
 from .providers import ProviderChain
 
 MIN_RELEVANCE = (
@@ -91,11 +91,7 @@ class AskPipeline:
 
     # --------------------------------------------------------------------------------- retrieval
     def retrieve(self, question: str, history: list[dict]) -> list[Hit]:
-        query = question
-        if len(question.split()) <= 5:
-            prior = [h["text"] for h in history if h["role"] == "user"]
-            if prior:
-                query = prior[-1] + " " + question
+        query = contextual_query(question, history)
         vec = self.embed_query(query) if self.embed_query else None
         return self.index.search(query, self.top_k, vec)
 
@@ -175,7 +171,7 @@ class AskPipeline:
             r = self._unknown("model", "model declined")
             r.provider, r.timings = gen.provider, timings
             return r
-        verdict = safety.verify_output(raw, [h.chunk["text"] for h in hits], question)
+        verdict = safety.verify_output(raw, [f"{h.chunk['section']}. {h.chunk['text']}" for h in hits], question)
         if not verdict.ok:
             if trap:
                 src = [_src(f"{trap.project} README", f"{GITHUB}/{trap.project.replace(' ', '-')}")]
