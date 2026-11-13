@@ -192,7 +192,7 @@ def b_latency(d: dict) -> str:
         "| Model | Device | Threads | Queries | Retrieve p50 / p95 (ms) | Generate p50 / p95 (ms) | Total p50 / p95 (ms) | CPU load before / after |",
         "|---|---|---|---|---|---|---|---|",
     ]
-    for k, v in d["lat"].items():
+    for v in d["lat"].values():
         m = v["meta"]
         rows.append(
             f"| {short(m['llm']['model'])} ({m['llm']['dtype']}) | {m['device']} | {m['torch_threads']} of {m['logical_cpus']} logical | {v['queries']} | "
@@ -207,7 +207,7 @@ def b_gpu_latency(d: dict) -> str:
         "| Model | Device | Mean generation per question (ms) | p95 (ms) | Questions |",
         "|---|---|---|---|---|",
     ]
-    for k, g in d["gen"].items():
+    for g in d["gen"].values():
         c = g["configs"].get("rag")
         if not c or not g["meta"]["llm"]["dtype"]:
             continue
@@ -484,7 +484,7 @@ def render_readme(text: str, blocks: dict) -> str:
             rf"(<!-- BEGIN {re.escape(name)} -->\n)(.*?)(\n<!-- END {re.escape(name)} -->)", re.S
         )
         if pat.search(text):
-            text = pat.sub(lambda m: m.group(1) + body + m.group(3), text)
+            text = pat.sub(lambda m, body=body: m.group(1) + body + m.group(3), text)
     return text
 
 

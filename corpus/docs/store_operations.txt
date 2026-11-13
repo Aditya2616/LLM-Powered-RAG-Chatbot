@@ -32,4 +32,4 @@ The fire alarm is tested every Wednesday at 10:15. If the alarm sounds at any ot
 Staff working a shift of more than 6 hours receive a 20 minute paid break. A lunch break of 45 minutes is unpaid. Breaks must be taken away from the shop floor.
 
 11. Theft
-Never chase or confront someone you think has stolen something. Press the silent alert button and give a description to the manager. The manager decides whether to call the police.
+Never chase or confront someone you think has stolen something. Press the silent alert button and give a description to the foreman. The foreman decides whether to call the police.
