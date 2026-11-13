@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RAG Chatbot</title>
+<meta name="description" content="Context-grounded question answering: ingest, chunk, embed, retrieve, generate, with citations and an honest I don't know.">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2307080a'/%3E%3Ccircle cx='9' cy='21' r='2.6' fill='%23edece6' fill-opacity='.5'/%3E%3Ccircle cx='15' cy='11' r='2.6' fill='%23d7ff3f'/%3E%3Ccircle cx='23' cy='17' r='2.6' fill='%23d7ff3f'/%3E%3Ccircle cx='21' cy='8' r='2' fill='%23edece6' fill-opacity='.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand mono" href="#top">RAG CHATBOT</a>
+  <span class="pill mono" id="modePill">Recorded run</span>
+  <nav class="mono">
+    <a href="#lab">Pipeline</a>
+    <a href="#results">Results</a>
+    <a href="#notes">Notes</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <p class="eyebrow mono">Retrieval-augmented generation &middot; LangChain &middot; FAISS &middot; FastAPI</p>
+    <h1>Answers it can <em>point to</em>, or an honest <em>I don't know.</em></h1>
+    <p class="lede">Documents are split into chunks, embedded, and searched. A small local model may only use what was
+      retrieved, and each answer carries the chunks it came from. Pick a question below to watch the real pipeline
+      run, including two questions the documents cannot answer.</p>
+  </section>
+
+  <section id="lab" aria-label="Pipeline viewer">
+    <ol class="rail mono" id="rail" aria-label="Pipeline steps"></ol>
+    <div class="panel stage" id="stagePanel">
+      <div class="stage-head mono">
+        <span class="caption" id="caption" aria-live="polite"></span>
+        <span class="legend"><span><i class="lg doc"></i>chunk</span><span><i class="lg hit"></i>retrieved</span><span><i class="lg q"></i>query</span></span>
+      </div>
+      <canvas id="stage" role="img" aria-label="Chunks of the documents laid out as bars, then as points in embedding space, with the query and its retrieved neighbours"></canvas>
+      <div class="controls">
+        <button class="btn" id="replay" type="button">Replay ingest</button>
+        <span class="mono muted small" id="corpusNote"></span>
+      </div>
+    </div>
+
+    <div class="ask panel">
+      <div class="sec-head"><h2>Ask</h2><p class="mono muted" id="askNote"></p></div>
+      <div class="qchips" id="qchips" role="group" aria-label="Recorded questions"></div>
+      <form id="liveForm" class="liveform" hidden>
+        <label class="sr" for="liveQ">Your question</label>
+        <input id="liveQ" type="text" autocomplete="off" placeholder="Ask about the loaded documents" maxlength="2000">
+        <button class="btn primary" type="submit">Ask</button>
+        <button class="btn" type="button" id="loadSample" hidden>Load sample corpus</button>
+      </form>
+    </div>
+
+    <div class="out-grid">
+      <article class="panel answer" id="answerCard" aria-live="polite">
+        <div class="sec-head"><h2>Answer</h2><span class="chip mono" id="stateChip">waiting</span></div>
+        <p class="qline" id="qline">Choose a question.</p>
+        <p class="ans" id="ans"></p>
+        <div class="cites" id="cites"></div>
+        <dl class="kv mono" id="timings"></dl>
+        <p class="why mono" id="why"></p>
+      </article>
+      <div class="chunks" id="chunks" aria-label="Retrieved chunks"></div>
+    </div>
+  </section>
+
+  <section id="results" class="panel">
+    <div class="sec-head"><h2>Measured on this corpus</h2><p class="mono muted" id="resNote"></p></div>
+    <div id="resBody"></div>
+  </section>
+
+  <section id="notes" class="panel notes">
+    <div class="sec-head"><h2>Read this first</h2></div>
+    <ul id="notesList"></ul>
+  </section>
+</main>
+
+<footer class="foot mono">
+  <span>Built by <a href="https://adityajain16.vercel.app">Aditya Jain</a></span>
+  <a href="https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot">github.com/Aditya2616/LLM-Powered-RAG-Chatbot</a>
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -340,14 +340,25 @@ def stage_generation(args: argparse.Namespace) -> None:
         Prompt(system="s", user="warm up"), 4, 0.0
     )  # load and warm up before timing anything
     configs = {}
-    for name, kw in (
-        ("closed_book", dict(few_shot=False, gate=None, closed_book=True)),
-        ("rag", dict(few_shot=False, gate=None)),
-        ("rag_few_shot", dict(few_shot=True, gate=None)),
-        ("rag_gate", dict(few_shot=False, gate=threshold)),
-        ("rag_few_shot_gate", dict(few_shot=True, gate=threshold)),
-    ):
-        configs[name] = run_config(llm, name, questions, retr, args.k, **kw)
+    try:
+        reranker = CrossEncoderReranker(RERANKER, device)
+        reranker.score("warm up", ["warm up"])
+        retr_rr = Retriever(store, args.retriever, reranker)
+    except Exception:
+        retr_rr = None
+    plan = [
+        ("closed_book", retr, dict(few_shot=False, gate=None, closed_book=True)),
+        ("rag", retr, dict(few_shot=False, gate=None)),
+    ]
+    if retr_rr is not None:
+        plan.append(("rag_rerank", retr_rr, dict(few_shot=False, gate=None)))
+    plan += [
+        ("rag_few_shot", retr, dict(few_shot=True, gate=None)),
+        ("rag_gate", retr, dict(few_shot=False, gate=threshold)),
+        ("rag_few_shot_gate", retr, dict(few_shot=True, gate=threshold)),
+    ]
+    for name, rt, kw in plan:
+        configs[name] = run_config(llm, name, questions, rt, args.k, **kw)
         s = configs[name]["summary"]
         print(
             f"{name:18s} correct {s['correct_on_answerable']['rate']:.2f} abst-unans "
@@ -383,7 +394,7 @@ def stage_generation(args: argparse.Namespace) -> None:
         "gate_sweep": sweep,
         "configs": configs,
     }
-    write(f"generation_{args.model.split('/')[-1].lower()}.json", data)
+    write(f"generation_{args.model.split('/')[-1].lower()}_c{args.chunk_size}.json", data)
 
 
 def stage_extractive(args: argparse.Namespace) -> None:
