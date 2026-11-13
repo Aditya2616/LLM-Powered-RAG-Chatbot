@@ -91,8 +91,10 @@ def create_app(
         except BadRequest as exc:
             return JSONResponse({"error": str(exc)}, status_code=400)
         hook = request.headers.get("x-ask-test", "") if cfg.test_hooks else ""
+        # constant-time, on bytes (a non-ASCII header must not raise); ignored when no token is configured
         exempt = bool(cfg.eval_token) and hmac.compare_digest(
-            request.headers.get("x-ask-eval", ""), cfg.eval_token
+            request.headers.get("x-ask-eval", "").encode("utf-8", "ignore"),
+            cfg.eval_token.encode("utf-8"),
         )
         allowed, retry = (
             (True, 0)

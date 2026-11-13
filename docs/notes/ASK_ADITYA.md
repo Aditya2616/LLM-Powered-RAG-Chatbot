@@ -104,3 +104,25 @@ Model ids live only in the environment; these are the values the evaluation used
 - `openai/gpt-oss-20b` was screened on three questions only (1 to 2 s each, one wrong "UNKNOWN") and not evaluated fully.
 - `ASK_MAX_NEW_TOKENS=400` for all three; the token budgets count that allowance in their estimate, so they are
   conservative.
+
+## Evaluation expectations changed since the first version
+
+The first version of `eval/ask_aditya_eval.jsonl` had 84 questions. Changes, each of which accepts only the same fact from
+the sources:
+
+| Question | Change | Reason |
+|---|---|---|
+| f25 (SFT Forge's three gates) | `dedupe` became `dedup` | the README says "dedupe"; "deduplication" is the same word and the same gate |
+| f41, t05, t06 (SFT Forge experiment) | added "not find any measurable" and "no measurable benefit" | the source says the experiment found no measurable benefit; a model that writes "did not find any measurable improvement" states the same fact |
+| f45, f46 (added) | two questions about the identity and administration skills | cover the skill line that names a product; the expectations use neighbouring words (SSO, SCIM, Enterprise Administration) so the product name stays out of the repository |
+
+No expectation was relaxed to make a model pass: the remaining misses (f21 on all three hosted legs, f18 on the backup)
+are retrieval and model-declined cases and still count as failures.
+
+## Security of the evaluation bypass and the test hooks
+
+- `ASK_EVAL_TOKEN` is compared with `hmac.compare_digest` on bytes (a non-ASCII header cannot raise), is ignored when it is
+  not set, is never logged, and only skips the per-address limits: validation (400), the injection screen, the topic
+  deflections and the global cap still apply (tests: `test_eval_token_security`).
+- `ASK_TEST_HOOKS` is read from the environment only (`ASK_TEST_HOOKS=1`); no request header can enable it
+  (`test_test_hooks_cannot_be_enabled_by_a_request`). Leave it unset in production.
