@@ -141,7 +141,7 @@ def test_structured_questions_are_answered_from_the_sections(q, expect):
         ("Does he know SQL?", "Yes"),
         ("Has he worked with PyTorch?", "Yes"),
         ("Does he use Docker?", "Yes"),
-        ("Does he know Python and SQL?", "Yes"),
+        ("Does he know Python and SQL?", "Listed:"),
         ("Does he know Kotlin?", "Yes"),  # only in a project stack
         ("Does he know Kubernetes?", "Kubernetes is not listed"),
     ],

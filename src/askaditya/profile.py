@@ -28,8 +28,11 @@ _CERT = re.compile(
     re.I,
 )
 _COURSEWORK = re.compile(
-    r"\b(university|college|degree|semester|syllabus|curriculum|coursework|b\.?tech|subjects?)\b",
+    r"\b(university|college|degree|semester|syllabus|curriculum|coursework|b\.?tech|subjects?|classes|class)\b",
     re.I,
+)
+_EDU_STOP = set(
+    "related classes class courses course subject subjects module modules taken took take study studied degree semester college university".split()
 )
 _CERT_STOP = set(
     """a an the is are was were be been he his him aditya does do did have has had any which what who how many
@@ -42,7 +45,7 @@ _STUDENT = re.compile(
     re.I,
 )
 _EDU = re.compile(
-    r"\b(educat\w*|degree|universit\w*|college|studies|studied|study|graduat\w*|coursework|b\.?tech|major|school|gguipu|ggsipu)\b",
+    r"\b(educat\w*|degree|universit\w*|college|studies|studied|study|graduat\w*|coursework|b\.?tech|major|school|gguipu|ggsipu|classes|subjects?)\b",
     re.I,
 )
 _COMPANY = [
@@ -51,7 +54,7 @@ _COMPANY = [
     ("15FORTEEN", re.compile(r"\b15 ?forteen\b|\bfounder'?s office\b", re.I)),
 ]
 _EXPERIENCE = re.compile(
-    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?|positions?|jobs?|held|titles?|employed|before|previous(ly)?|earlier|past|formerly|company|employer|organi[sz]ation|firm|work(s|ing)? (for|at))\b",
+    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?|positions?|jobs?|held|titles?|employed|latest|most recent|newest|before|previous(ly)?|earlier|past|formerly|company|employer|organi[sz]ation|firm|work(s|ing)? (for|at))\b",
     re.I,
 )
 _SKILLS = re.compile(
@@ -63,7 +66,7 @@ _KNOWS2 = re.compile(
     re.I,
 )
 _KNOWS = re.compile(
-    r"\b(know|knows|use|uses|using|used|work(ed|s)? (with|on)|experience (with|in|of)|experienced (with|in|at)|familiar (with)?|proficient (in|with)|skilled (in|at|with)|knowledge of|expertise in|comfortable with|tried|touched|handled?)\s+(?:the |any |of |in |with )?(?P<term>[\w .+#&/-]{2,40}?)\s*[?.!]*$",
+    r"\b(know|knows|code in|codes in|program in|programs in|write code in|develop in|build with|script in|use|uses|using|used|work(ed|s)? (with|on)|experience (with|in|of)|experienced (with|in|at)|familiar (with)?|proficient (in|with)|skilled (in|at|with)|knowledge of|expertise in|comfortable with|tried|touched|handled?)\s+(?:the |any |of |in |with )?(?P<term>[\w .+#&/-]{2,40}?)\s*[?.!]*$",
     re.I,
 )
 _PROJECTS_SHORT = re.compile(r"\bprojects?\b(?:\W+\w+){0,4}\W*$", re.I)
@@ -77,7 +80,7 @@ _LOCATION = re.compile(
     re.I,
 )
 _OPEN = re.compile(
-    r"\b(open to|looking for|available|opportunit\w*|hir(e|ing)|job search|seeking|on the market)\b",
+    r"\b(open to|looking for|available|opportunit\w*|hir(e|ing)|job search|seeking|on the market)\b|\b(what|which) (kind|type|sort)s? of (roles?|jobs?|work|positions?|opportunit\w*)\b|\b(roles?|jobs?|positions?|work) (is|does|would) (he|aditya) (after|want|seek\w*|prefer|look\w*)\b",
     re.I,
 )
 
@@ -130,7 +133,7 @@ def _bullets(text: str) -> list[str]:
 
 _MONTHS = {m: i for i, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)}
 _CURRENT = re.compile(
-    r"\b(currently|right now|now|current|present)\b|\b(which|what) (company|organi[sz]ation|firm|employer)\b|\bwho (does|is) (he|aditya) (work|working|employed)\b|\bwork(s|ing)? (for|at)\b|\bemployer\b|\bat his (company|job|workplace)\b",
+    r"\b(currently|right now|now|current|present|latest|most recent|newest)\b|\b(which|what) (company|organi[sz]ation|firm|employer)\b|\bwho (does|is) (he|aditya) (work|working|employed)\b|\bwork(s|ing)? (for|at)\b|\bemployer\b|\bat his (company|job|workplace)\b",
     re.I,
 )
 _HOW_LONG = re.compile(
@@ -299,11 +302,39 @@ class Profile:
                 break
         return _fit(parts)
 
-    def education(self) -> str | None:
+    def education(self, question: str = "") -> str | None:
         items = _bullets(self._section("Education"))
         if not items:
             return None
         keep = [i for i in items if not i.lower().startswith("no cgpa")]
+        if re.search(
+            r"\b(classes|class|courses?|coursework|subjects?|modules?|taken|took|take)\b",
+            question,
+            re.I,
+        ):
+            words = [
+                w
+                for w in re.findall(r"[a-z0-9+#]+", question.lower())
+                if len(w) > 3 and w not in _CERT_STOP | _EDU_STOP
+            ]
+            for line in keep:
+                m = re.match(r"Coursework:\s*(.+)", line, re.I)
+                if not m or not words:
+                    continue
+                courses = [c.strip().rstrip(".") for c in m.group(1).split(",")]
+                hit = [
+                    c
+                    for c in courses
+                    if any(c.lower().startswith(w[:5]) or w[:5] in c.lower() for w in words)
+                ]
+                if hit:
+                    verb = "matches" if len(hit) == 1 else "match"
+                    return _fit(
+                        [
+                            f"Of his coursework, {len(hit)} {verb}: {', '.join(hit)}.",
+                            line.rstrip(".") + ".",
+                        ]
+                    )
         return _fit([i.rstrip(".") + "." for i in keep])
 
     def experience(self, question: str) -> str | None:
@@ -388,8 +419,9 @@ class Profile:
             parts.append(f"{c}: {shown}.")
         return _fit(parts)
 
-    def knows(self, term: str) -> str | None:
-        """Yes/no for "does he know X": from the skills list, then the project stacks and READMEs."""
+    def _where(self, term: str) -> str | None:
+        """Where a skill appears: "under Languages", "in the stack of X", "" when it is not listed, None when
+        the term is too vague to test."""
         t = term.strip(" .?!").lower()
         t = re.sub(r"^(the|any|a|an)\s+", "", t)
         if len(t) < 2 or t in {
@@ -404,20 +436,52 @@ class Profile:
             "tech",
         }:
             return None
-        for cat, items in self._skill_lines():
-            if re.search(rf"(?<![\w-]){re.escape(t)}(?![\w])", items, re.I):
-                return f"Yes. {term.strip(' .?!')} is in his skills list, under {cat}: {items}."
-        stacks = [
-            f"{m.group(1)}"
-            for m in re.finditer(
-                r"\*\*([^*]+)\*\*[^\n]*·[^\n]*·\s*([^\n]*)", self._section("Projects")
+        forms = {t, t.rstrip("s")} if len(t) > 3 else {t}
+        for form in forms:
+            pat = rf"(?<![\w-]){re.escape(form)}(?![\w])"
+            for cat, items in self._skill_lines():
+                if re.search(pat, items, re.I):
+                    return f"under {cat}: {items}"
+            stacks = [
+                m.group(1)
+                for m in re.finditer(
+                    r"(?m)^\d+\.\s+\*\*([^*\n]+)\*\*[^\n]*·[^\n]*·\s*([^\n]*)",
+                    self._section("Projects"),
+                )
+                if re.search(pat, m.group(2), re.I)
+            ]
+            if stacks:
+                return f"in the stack of {', '.join(stacks[:4])}"
+        return ""  # a passing mention in README prose is not a skill
+
+    def knows(self, term: str) -> str | None:
+        """Yes/no for "does he know X": from the skills list, then the project stacks."""
+        name = term.strip(" .?!")
+        where = self._where(term)
+        if where is None:
+            return None
+        if not where:
+            return f"{name} is not listed among his skills or project stacks."
+        if where.startswith("under"):
+            return f"Yes. {name} is in his skills list, {where}."
+        return f"Yes. {name} appears {where}."
+
+    def knows_many(self, terms: list[str]) -> str | None:
+        """Several skills in one question: the listed ones with where they appear, then the unlisted ones."""
+        wheres = [(x.strip(" .?!"), self._where(x)) for x in terms]
+        if any(w is None for _, w in wheres):
+            return None
+        yes = [f"{n} ({w.split(':')[0]})" for n, w in wheres if w]
+        no = [n for n, w in wheres if not w]
+        parts = []
+        if yes:
+            parts.append("Listed: " + ", ".join(yes) + ".")
+        if no:
+            joined = ", ".join(no)
+            parts.append(
+                f"{joined} {'is' if len(no) == 1 else 'are'} not listed among his skills or project stacks."
             )
-            if re.search(rf"(?<![\w-]){re.escape(t)}(?![\w])", m.group(2), re.I)
-        ]
-        if stacks:
-            return f"Yes. {term.strip(' .?!')} appears in the stack of {', '.join(stacks[:4])}."
-        # a passing mention in README prose is not a skill
-        return f"{term.strip(' .?!')} is not listed among his skills or project stacks."
+        return " ".join(parts)
 
     def projects(self, question: str) -> str | None:
         text = self._section("Projects")
@@ -524,12 +588,10 @@ class Profile:
         ):
             term = m.group("term")
             parts = [x for x in re.split(r"\s*(?:,|\band\b|\bor\b|/)\s*", term) if x]
-            found = [self.knows(x) for x in parts]
-            if len(parts) > 1 and all(f and f.startswith("Yes") for f in found):
-                said = " and ".join(x.strip(" .?!") for x in parts)
-                return f"Yes. {said} are in his skills list or project stacks.", "skill"
-            if len(parts) == 1 and found[0] and not _COMPANY[0][1].search(term):
-                return found[0], "skill"
+            if len(parts) > 1 and (a := self.knows_many(parts)):
+                return a, "skill"
+            if len(parts) == 1 and not _COMPANY[0][1].search(term) and (a := self.knows(parts[0])):
+                return a, "skill"
         if any(rx.search(q) for _, rx in _COMPANY) and (a := self.experience(q)):
             return a, "experience"
         if re.search(r"open[- ]?source", q, re.I) and re.search(rf"\b{_HE}\b", q, re.I):
@@ -538,7 +600,7 @@ class Profile:
         if _EDU.search(q) and re.search(
             rf"\b{_HE}\b|\beducation\b|\bdegree\b|\bcoursework\b", q, re.I
         ):
-            if a := self.education():
+            if a := self.education(q):
                 return a, "education"
         if _OPEN.search(q) and re.search(rf"\b{_HE}\b", q, re.I) and (a := self.openness()):
             return a, "open"

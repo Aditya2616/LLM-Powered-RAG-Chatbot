@@ -64,7 +64,7 @@ def validate_request(payload: object) -> tuple[str, list[dict[str, str]]]:
 _INJECTION = [
     (
         "override",
-        r"\b(ignore|disregard|forget|override|bypass|skip|drop)\b.{0,40}\b(previous|prior|above|earlier|all|any|your|the|these|those|system)\b.{0,30}\b(instruction|prompt|rule|guideline|direction|constraint|polic)",
+        r"\b(ignore|disregard|forget|override|bypass|skip|drop)\b.{0,40}\b(previous|prior|above|earlier|all|any|your|the|these|those|system)\b.{0,30}\b(instruction|prompt|rule|guideline|direction|constraint|restriction|filter|safeguard|guardrail|polic)",
     ),
     (
         "override",
@@ -101,6 +101,18 @@ _INJECTION = [
     ("reveal", r"\b(developer|system) (message|prompt|instructions?)\b"),
     ("delimiter", r"#{2,}\s*(system|assistant|user|human|instructions?|prompt|new|developer)\b"),
     ("delimiter", r"<\|[^>]{0,30}\|>|\[/?inst\]|<<\s*/?sys\s*>>|\[/?system\]"),
+    (
+        "override",  # the same instruction in Spanish, French, German and Hindi
+        r"\b(ignora\w*|ignore[zr]?|olvida\w*|descarta\w*|oubli\w*|vergiss\w*|ignorier\w*|missacht\w*)\b.{0,40}\b(instrucci\w+|instructions?|r[eè]gles?|reglas?|anweisung\w*|regeln|pr[eé]c[eé]dent\w*|anterior\w*|vorherig\w*|prompt|sistema|syst[eè]me)\b|(अनदेखा|भूल|नज़रअंदाज़|नजरअंदाज).{0,30}(निर्देश|नियम)|(निर्देश|नियम).{0,30}(अनदेखा|भूल|नज़रअंदाज़|नजरअंदाज)|\b(ignore|bhool)\s+(karo|kar do|jao)\b",
+    ),
+    (
+        "reveal",
+        r"\b(prompt|mensaje|message|nachricht) (del |du |de |des )?(sistema|syst[eè]me|systeme)\b|\bsystem-?prompt\b|\bprompt syst[eè]me\b|\b(tu|su|votre|ton|dein\w*) (prompt|instrucciones|instructions|anweisungen)\b|(आपके|तुम्हारे|अपने) (निर्देश|प्रॉम्प्ट)|\b(my|your|the) instructions (say|state|tell|are)\b|\binstructions say\b",
+    ),
+    (
+        "delimiter",  # a fake tool result or a JSON blob that carries a role
+        r"\btool (result|output|response|message|call)s?\s*[:=]|\bfunction[_ ]?(call|result)s?\s*[:=]|[\"']role[\"']\s*:\s*[\"'](system|assistant|developer|tool)|[\"']content[\"']\s*:\s*[\"']",
+    ),
     ("delimiter", r"(?:^|[#>\])\n]|\s{2,})\s*(system|assistant|developer|human)\s*:"),
     (
         "reveal",  # (a) questions about the assistant's own instructions, rules, configuration, hidden text
@@ -108,7 +120,7 @@ _INJECTION = [
     ),
     (
         "reveal",
-        r"\bwhat (were|was|are|have) (you|they|we) (been )?(told|given|instructed|configured|programmed|prompted|asked)\b|\b(you|assistant) (were|was|have been|had been) (told|given|instructed|configured|programmed|prompted)\b|\bbefore (this|our|the|your) (conversation|chat|session|exchange)\b|\b(hidden|secret|internal|initial|original) (text|message|prompt|instructions?|rules|context)\b|\b(show|print|reveal|display|dump|output|leak|expose)\b.{0,20}\b(config\w*|settings|environment|env vars?|keys?|tokens?|secrets?|credentials)\b",
+        r"\bwhat (\w+ )?(were|was|are|have) (you|they|we) (been )?(told|given|instructed|configured|programmed|prompted|asked)\b|\b(you|assistant) (were|was|have been|had been) (told|given|instructed|configured|programmed|prompted)\b|\bbefore (this|our|the|your) (conversation|chat|session|exchange)\b|\b(hidden|secret|internal|initial|original) (text|message|prompt|instructions?|rules|context)\b|\b(show|print|reveal|display|dump|output|leak|expose)\b.{0,20}\b(config\w*|settings|environment|env vars?|keys?|tokens?|secrets?|credentials)\b",
     ),
     (
         "authority",  # (b) authority, permission and role claims
@@ -153,7 +165,14 @@ _HOMOGLYPHS = str.maketrans(
 
 def _normalise(text: str) -> str:
     t = unicodedata.normalize("NFKC", text).lower()
-    t = "".join(ch for ch in t if unicodedata.category(ch) not in ("Cf", "Mn", "Co"))
+    t = "".join(
+        ch
+        for ch in t
+        if unicodedata.category(ch) not in ("Cf", "Co")
+        and not (
+            unicodedata.category(ch) == "Mn" and 0x300 <= ord(ch) <= 0x36F
+        )  # Latin accents only
+    )
     t = t.translate(_HOMOGLYPHS)
     return re.sub(r"\s+", " ", t)
 
@@ -164,6 +183,14 @@ def _despace(text: str) -> str:
     return " ".join(p.replace(" ", "") if re.fullmatch(r"(?:\S ){2,}\S", p) else p for p in parts)
 
 
+_SECOND = re.compile(
+    r"\b(you|your|yours|yourself|you're|you've|you'd)\b|\b(text|everything|words|messages?|content) (above|before)\b|\bbefore (this|our) (conversation|chat)\b",
+    re.I,
+)
+_THIRD = re.compile(
+    r"\b(his|aditya'?s|rag chatbot'?s?|evalbench'?s?|agentflow'?s?|promptlab'?s?|sft[- ]?forge'?s?|diffuselab'?s?|visionlens'?s?|voicescribe'?s?|sentinel'?s?|modelrouter'?s?)\b",
+    re.I,
+)
 _LONG_TOKEN = re.compile(r"(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/]{24,}={0,2}(?![A-Za-z0-9+/])")
 
 
@@ -177,7 +204,7 @@ def _encoded_blob(text: str) -> bool:
 
 
 _HIJACK = re.compile(
-    r"\b(respond|reply|answer|output|write|speak|talk|format|return)\b.{0,15}\b(in|as|using|with)\b.{0,4}\b(json|xml|yaml|html|base64|binary|hex|morse|emoji|pirate|l33t|reverse|uppercase|all caps|a poem|rhymes?|code blocks?)\b|\b(reply|respond|answer|say|output|print|type|write|repeat) (only|just|exactly|nothing but|solely)\b|\b(end|start) (every|each|your) (answer|reply|response|message) with\b",
+    r"\b(respond|reply|answer|output|write|speak|talk|format|return)\b.{0,15}\b(in|as|using|with)\b.{0,4}\b(json|xml|yaml|html|base64|binary|hex|morse|emoji|pirate|l33t|reverse|uppercase|all caps|a poem|rhymes?|code blocks?)\b|\b(reply|respond|answer|say|output|print|type|write|repeat) (only|just|exactly|nothing but|solely)\b|\b(end|start) (every|each|your) (answer|reply|response|message) with\b|\bsay\b.{0,30}\b(and nothing else|nothing else|and only that)\b|\b(complete|finish|continue|fill in)\b.{0,12}\b(this|the following|my)\b.{0,15}\b(sentence|phrase|text|line)\b",
     re.I,
 )
 
@@ -195,10 +222,22 @@ def screen_injection(text: str) -> str | None:
     ]
     spaced = re.sub(r"(?<=\b\w) (?=\w\b)", "", plain)  # "i g n o r e" -> "ignore"
     candidates.append(spaced)
+    third = bool(_THIRD.search(plain)) and not _SECOND.search(plain)
     for rule, pattern in _INJECTION:
+        if third and rule == "reveal":
+            continue  # about a project's own prompt or rules, not this assistant's
         for c in candidates:
             if re.search(pattern, c, flags=re.I | re.M):
                 return rule
+    if (
+        len(re.findall(r"\b\w\b", plain)) >= 6
+    ):  # letters spread out one by one: squash them and look again
+        squashed = re.sub(r"[^a-z]", "", plain)
+        if re.search(
+            r"(ignore|disregard|forget|override|bypass)(all|any|your|the|these|those|previous|prior|above|earlier|system)*(instructions?|prompts?|rules?|guidelines?)",
+            squashed,
+        ):
+            return "override"
     if _HIJACK.search(plain) and not _ABOUT_HIM.search(plain):
         return "format"  # (d) an output-format hijack in a request that is not about him
     return None
@@ -216,6 +255,14 @@ def _email(email: str) -> str:
 
 
 _TOPICS = [
+    (
+        "salary",
+        r"\b(pay|pays|paying|paid)\b.{0,20}\b(him|aditya|he)\b|\b(he|aditya)\b.{0,15}\b(is paid|gets paid|get paid|earns?|makes money|draws?)\b|\bhow much\b.{0,30}\b(pay|paid|earn)\b",
+    ),
+    (
+        "personal",
+        r"\b(for fun|weekends?|spare time|leisure|pastimes?|free time|outside (of )?(work|his job)|off[- ]duty|after work|vacations?)\b",
+    ),
     (
         "salary",
         r"\b(minimum|expected|current|desired|required|target|base|starting|asking|preferred|ideal)\b.{0,15}\b(pay|salary|compensation|requirements?|package|ctc|stipend|remuneration|rate|wage|income|money)\b|\b(pay|salary|compensation|ctc|stipend)\b.{0,15}\b(requirements?|expectations?|range|figure|number|demands?|ask)\b|\blooking for\b.{0,20}\b(compensation|pay|money|salary)\b",
@@ -398,6 +445,13 @@ _CONTACT = re.compile(
 
 def is_contact_question(question: str) -> bool:
     """How to reach him (email, LinkedIn, GitHub, résumé link): answered from the Contact passage, no model."""
+    q = question.lower()
+    if re.search(
+        r"\b(latest|most recent|newest|on his (cv|r[eé]sum[eé])|in his (cv|r[eé]sum[eé]))\b", q
+    ) and not re.search(
+        r"\b(link|url|download|pdf|email|e-mail|linkedin|github|contact|website)\b", q
+    ):
+        return False
     return bool(_CONTACT.search(question))
 
 
@@ -442,9 +496,17 @@ def is_assistant_question(question: str) -> bool:
     return bool(_META.search(_normalise(question)))
 
 
+_TASK = re.compile(
+    r"^\s*(please\s+)?(can you |could you |would you )?(fix|debug|write|solve|calculate|compute|translate|refactor|rewrite|convert|correct|optimi[sz]e|generate|compose|draw)\b|\b(fix|debug|solve|translate|rewrite|refactor|correct)\s+(this|the following|my|these)\b",
+    re.I,
+)
+
+
 def is_offtopic_pattern(question: str) -> bool:
     q = _normalise(question)
-    return bool(_OFFTOPIC.search(q)) and not _ABOUT_HIM.search(q)
+    if _ABOUT_HIM.search(q):
+        return False
+    return bool(_OFFTOPIC.search(q) or _TASK.search(q))
 
 
 def mentions_him(question: str) -> bool:

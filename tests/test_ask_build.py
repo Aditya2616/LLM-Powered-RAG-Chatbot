@@ -45,7 +45,8 @@ def test_the_phone_number_never_enters_the_index(tmp_path):
     )
     raw = (tmp_path / "idx" / "index.json").read_text(encoding="utf-8")
     assert "98765" not in raw and "43210" not in raw
-    assert not b.phone_like(raw.replace("\\n", " "))
+    chunks_text = " ".join(c["text"] for c in AskIndex.load(tmp_path / "idx").chunks)
+    assert not b.phone_like(chunks_text.replace(chr(10), " "))
     resume = [c for c in AskIndex.load(tmp_path / "idx").chunks if c["title"] == "Résumé"]
     assert resume and "sam.rivera@example.test" in " ".join(c["text"] for c in resume)
 
