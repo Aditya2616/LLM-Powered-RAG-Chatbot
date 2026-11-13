@@ -374,11 +374,11 @@ Because verification has to come first, the answer is generated completely, chec
 **Retrieval.** The index is a few hundred 500-character chunks (seven are put in the prompt), built by this repository's own splitter. At runtime it is BM25 only (NumPy, no model, no download) plus a few query-side heuristics: section names such as Contact or Education are matched, a named project boosts its README (and its lead section, which holds the summary and the headline numbers), and a short follow-up inherits the previous question. BM25 was chosen over a hosted embedding call because it needs no key, sends no question to a third party and adds no latency or failure mode; the comparison below shows what dense vectors would add. The retrieval parameters were tuned on this same question set, so the retrieval figure is optimistic.
 
 <!-- BEGIN ask_retrieval -->
-| Retrieval (top 5 chunks) | Factual questions whose facts are all in the retrieved text |
+| Retrieval (top 7 chunks) | Factual questions whose facts are all in the retrieved text |
 |---|---|
-| bm25 | 36/44 (81.8%) |
-| bm25+heuristics | 42/44 (95.5%) |
-| hybrid (bm25+heuristics, dense) | 42/44 (95.5%) |
+| bm25 | 39/46 (84.8%) |
+| bm25+heuristics | 45/46 (97.8%) |
+| hybrid (bm25+heuristics, dense) | 44/46 (95.7%) |
 <!-- END ask_retrieval -->
 
 (The dense row uses MiniLM vectors computed offline as a stand-in; a hosted embedding model was not run.)
@@ -406,9 +406,10 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 <!-- BEGIN ask_eval -->
 | Run | Factual | Unpublished topics | Traps | Injection attempts | Off-topic | All | First token mean / p95 (ms) | Cold start: ready / first answer (ms) |
 |---|---|---|---|---|---|---|---|---|
-| gemini-last: gemini leg alone (gemini-3.5-flash-lite); 86 questions, 2026-11-13, corpus 2026-11-13-e1a20a7d | 45/46 (97.8%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 85/86 (98.8%) | 1349 / 5103 (answered by the model: 2085 / 5681) | 1808 / 1493 |
-| groq-backup: groq-backup leg alone (openai/gpt-oss-120b); 86 questions, 2026-11-13, corpus 2026-11-13-e1a20a7d | 44/46 (95.7%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 84/86 (97.7%) | 415 / 794 (answered by the model: 640 / 870) | 1789 / 1084 |
-| groq-primary: groq leg alone (qwen/qwen3.8-27b); 86 questions, 2026-11-13, corpus 2026-11-13-e1a20a7d | 45/46 (97.8%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 85/86 (98.8%) | 286 / 628 (answered by the model: 441 / 690) | 1824 / 541 |
+| gemini-last: gemini leg alone (gemini-3.5-flash-lite); 86 questions, 2026-11-13, corpus 2026-11-13-9e087a2e | 46/46 (100.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 86/86 (100.0%) | 1325 / 3907 (answered by the model: 2047 / 5389) | 1790 / 2345 |
+| groq-backup: groq-backup leg alone (openai/gpt-oss-120b); 86 questions, 2026-11-13, corpus 2026-11-13-9e087a2e | 46/46 (100.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 86/86 (100.0%) | 493 / 1091 (answered by the model: 761 / 1189) | 1779 / 2977 |
+| groq-primary: groq leg alone (qwen/qwen3.8-27b); 86 questions, 2026-11-13, corpus 2026-11-13-9e087a2e | 46/46 (100.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 86/86 (100.0%) | 296 / 744 (answered by the model: 457 / 768) | 1781 / 527 |
+| live: base url, retrieval BM25 only; 86 questions, 2026-11-13, corpus 2026-11-13-846da59e | 45/46 (97.8%) | 15/15 (100.0%) | 9/10 (90.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 84/86 (97.7%) | 694 / 1367 (answered by the model: 933 / 1578) | 0 / 1894 |
 | local-qwen1.5b: local model Qwen2.5-1.5B-Instruct via the local provider, retrieval BM25 only; 86 questions, 2026-11-13, corpus 2026-11-13-e1a20a7d | 40/46 (87.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 80/86 (93.0%) | 7861 / 23521 (answered by the model: 12148 / 25512) | 1838 / 30283 |
 <!-- END ask_eval -->
 
@@ -417,23 +418,23 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 <!-- BEGIN ask_tokens -->
 | Hosted run | Answers sent to a model | Prompt tokens mean / max | Completion tokens mean / max | Total per question (mean) |
 |---|---|---|---|---|
-| gemini-last | 56 | 725 / 905 | 58 / 139 | 783 |
-| groq-backup | 56 | 769 / 931 | 97 / 169 | 865 |
-| groq-primary | 56 | 740 / 914 | 53 / 128 | 792 |
+| gemini-last | 56 | 805 / 1149 | 56 / 156 | 860 |
+| groq-backup | 56 | 847 / 1173 | 101 / 231 | 948 |
+| groq-primary | 56 | 965 / 1185 | 56 / 145 | 1021 |
+| heldout | 12 | 966 / 1119 | 71 / 91 | 1037 |
 <!-- END ask_tokens -->
 
 <!-- BEGIN ask_heldout -->
-
+Held-out paraphrases of the six false claims (`eval/ask_aditya_heldout.jsonl`, 12 questions, two per claim, written after the guards and not tuned on, run once on 2026-11-13 against the chain Groq, Groq backup, Gemini): **12/12 passed** (first token mean 484 ms, p95 777 ms).
 <!-- END ask_heldout -->
 
 <!-- BEGIN ask_probes -->
 - `gemini-last`: per-address limit [200, 200, 429] (200, 200, then 429 with a Retry-After header: ok); daily cap spent gives HTTP 503 with fallback `limit` and the test hook gives HTTP 503 with fallback `limit`, while deterministic answers still work: True; CORS preflight and origins ok.
-- `groq-primary`: per-address limit [200, 200, 429] (200, 200, then 429 with a Retry-After header: ok); daily cap spent gives HTTP 503 with fallback `limit` and the test hook gives HTTP 503 with fallback `limit`, while deterministic answers still work: True; CORS preflight and origins ok.
 - `local-qwen1.5b`: per-address limit [200, 200, 429] (200, 200, then 429 with a Retry-After header: ok); daily cap spent gives HTTP 503 with fallback `limit` and the test hook gives HTTP 503 with fallback `limit`, while deterministic answers still work: True; CORS preflight and origins ok.
 - Fallback order with the real providers: with both Groq token budgets spent the answer came from `gemini` (HTTP 200, ok); with Gemini switched off as well the API answered HTTP 503 with fallback `limit` (ok).
 <!-- END ask_probes -->
 
-**Caveats.** The latency figures come from a Windows PC with a development server, not from the deployed function, and the cold start of a Vercel function has not been measured. The accuracy figures are on one run each of a small question set that was also used to tune retrieval and the verifier, so a point or two is noise and the retrieval figure is optimistic; fresh questions are the next test. Each hosted model answered with the same prompt, retrieval and verifier; the questions it still fails are mostly retrieval misses (for example the number of LLMs and prompts in ModelRouter's data) or answers the verifier refuses because a figure is not literally in the retrieved text. The verifier is lexical: it cannot catch a sentence that reuses words from the sources in a wrong relation (the local model once attributed VoiceScribe's demo voice to the wrong model and the answer passed), so a more capable generator reduces that risk but nothing here removes it. The injection screen is a list of patterns and will miss attacks phrased differently, and the topic detector is keyword based, so an unusual phrasing of an unpublished topic can reach the model, where the grounded prompt and the verifier are the remaining defences. Nothing here is called production-ready.
+**Caveats.** The latency figures come from a Windows PC with a development server, not from the deployed function, and the cold start of a Vercel function has not been measured. The accuracy figures are on one run each of a small question set that was also used to tune retrieval and the verifier, so a point or two is noise and the retrieval figure is optimistic; the 12 held-out paraphrases of the false claims were written after the guards and run once. The primary Groq leg was run in full on the final code; for the backup and Gemini legs the ten trap questions and every question that had failed before were re-run after the last retrieval and guard changes, and their other rows come from the previous full run of the same leg (so a point there is an older measurement). The `live` row is the deployed service, measured by the owner before those changes. Each hosted model answered with the same prompt, retrieval and verifier; the questions it still fails are mostly retrieval misses (for example the number of LLMs and prompts in ModelRouter's data) or answers the verifier refuses because a figure is not literally in the retrieved text. The verifier is lexical: it cannot catch a sentence that reuses words from the sources in a wrong relation (the local model once attributed VoiceScribe's demo voice to the wrong model and the answer passed), so a more capable generator reduces that risk but nothing here removes it. The injection screen is a list of patterns and will miss attacks phrased differently, and the topic detector is keyword based, so an unusual phrasing of an unpublished topic can reach the model, where the grounded prompt and the verifier are the remaining defences. Nothing here is called production-ready.
 
 ## Limitations
 

@@ -4,7 +4,7 @@
   "note": "",
   "date": "2026-11-13",
   "mode": "spawned local server",
-  "corpus_version": "2026-11-13-e1a20a7d",
+  "corpus_version": "2026-11-13-9e087a2e",
   "n_questions": 86,
   "models": {
    "GROQ_MODEL": "qwen/qwen3.8-27b",
@@ -17,7 +17,7 @@
  },
  "groups": {
   "factual": {
-   "passed": 45,
+   "passed": 46,
    "n": 46
   },
   "unpublished": {
@@ -38,22 +38,22 @@
   }
  },
  "total": {
-  "passed": 85,
+  "passed": 86,
   "n": 86
  },
  "first_token_ms": {
-  "mean_all": 1349.3425011762797,
-  "p95_all": 5103.192000000851,
-  "mean_generated": 2084.5733090907083,
-  "p95_generated": 5681.05045999946,
+  "mean_all": 1324.8750058822386,
+  "p95_all": 3906.652439998283,
+  "mean_generated": 2046.7599072726443,
+  "p95_generated": 5389.010300000517,
   "n_all": 85,
   "n_generated": 55,
   "first_request_excluded": true
  },
  "cold_start": {
-  "ready_ms": 1807.9628000014054,
-  "first_ask_ms": 1493.3153000019956,
-  "first_ask_first_token_ms": 1487.7077000019199
+  "ready_ms": 1790.2162000027602,
+  "first_ask_ms": 2345.0820999969437,
+  "first_ask_first_token_ms": 2341.242599999532
  },
  "probes": {
   "rate_limit": {
@@ -283,11 +283,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 4403.003200000967,
-   "total_ms": 4407.629500001349,
+   "first_token_ms": 1799.1718000012042,
+   "total_ms": 1804.2085000015504,
    "provider": "gemini",
-   "tokens_prompt_completion": "770/68",
-   "answer": "Aditya Jain attends **Guru Gobind Singh Indraprastha University (GGSIPU)** in New Delhi, where he is pursuing a Bachelor of Technology in Computer Science Engineering from Aug 2023 to Jun 2027. \n\nAsk me about his coursework and certifications.",
+   "tokens_prompt_completion": "938/55",
+   "answer": "Aditya Jain is studying for a Bachelor of Technology in Computer Science Engineering at Guru Gobind Singh Indraprastha University (GGSIPU) in New Delhi, from Aug 2023 to Jun 2027.\n\nAsk me about his coursework.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -507,17 +507,21 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1774.8145000005024,
-   "total_ms": 1782.331599999452,
+   "first_token_ms": 1901.957099998981,
+   "total_ms": 1909.2125999995915,
    "provider": "gemini",
-   "tokens_prompt_completion": "835/139",
-   "answer": "Aditya's LLM-Powered RAG Chatbot answers answerable questions correctly on 52/75 (69.3%) using Qwen2.5-0.5B-Instruct and 70/75 (93.3%) using Qwen2.5-1.5B-Instruct on bundled tests. It says \"I don't know\" on 14/25 (56.0%) of unanswerable ones with the smaller model and 18/25 (72.0%) with the larger model.\n\nAsk me about the technologies used in the RAG chatbot.",
+   "tokens_prompt_completion": "1132/156",
+   "answer": "Aditya's RAG chatbot answers domain-specific questions from retrieved context. On 100 bundled questions, Qwen2.5-0.5B-Instruct answers 52/75 (69.3%) of answerable questions correctly and says \"I don't know\" on 14/25 (56.0%) of unanswerable ones. Qwen2.5-1.5B-Instruct answers 70/75 (93.3%) correctly and declines 18/25 (72.0%). It declines on 56.0% to 72.0% of unanswerable questions depending on the model.\n\nAsk me about his portfolio assistant.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "LLM-Powered-RAG-Chatbot README",
      "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -576,11 +580,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1115.8603000003495,
-   "total_ms": 1119.119499999215,
+   "first_token_ms": 1027.5292999976955,
+   "total_ms": 1030.26139999929,
    "provider": "gemini",
-   "tokens_prompt_completion": "674/47",
-   "answer": "In the recorded run of EvalBench, four sub-1B checkpoints pass between 27.0% and 44.6% of 408 prompts.\n\nAsk me about EvalBench failure modes.",
+   "tokens_prompt_completion": "954/47",
+   "answer": "In the recorded run, four sub-1B checkpoints pass between **27.0%** and **44.6%** of **408** prompts.\n\nAsk me about EvalBench's prompt suites.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -621,15 +625,19 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 1285.4307999987213,
-   "total_ms": 1290.0171000001137,
+   "reason": "caveat:modelrouter",
+   "first_token_ms": 1852.1285999995598,
+   "total_ms": 1858.0772999994224,
    "provider": "gemini",
-   "tokens_prompt_completion": "808/53",
-   "answer": "Aditya Jain's ModelRouter keeps 95% of the big model's quality at 37% of the cost on RouterBench, though it does not transfer to unseen benchmark families.\n\nAsk me about ModelRouter's quickstart commands.",
+   "tokens_prompt_completion": "1124/44",
+   "answer": "On the RouterBench dataset, Aditya's ModelRouter keeps 95% of the larger model's quality at 37% of the cost. These figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about the tech stack used in ModelRouter.",
    "fallback": null,
    "grounded": true,
    "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
     {
      "title": "ModelRouter README",
      "url": "https://github.com/Aditya2616/ModelRouter"
@@ -640,19 +648,16 @@
    "id": "f21",
    "group": "factual",
    "question": "How many LLMs and prompts are in the RouterBench data ModelRouter uses?",
-   "pass": false,
-   "failures": [
-    "missing ['11']",
-    "missing ['36481']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1515.7576000019617,
-   "total_ms": 1520.3495000023395,
+   "first_token_ms": 1383.438600001682,
+   "total_ms": 1386.6111999996065,
    "provider": "gemini",
-   "tokens_prompt_completion": "883/54",
-   "answer": "On RouterBench, Aditya's router keeps 95% of the big model's quality at 37% of the cost. The RouterBench 0-shot data download is about 100 MB.\n\nAsk me about ModelRouter results.",
+   "tokens_prompt_completion": "1122/60",
+   "answer": "Aditya Jain uses RouterBench data containing 11 LLMs and 36,481 prompts, which includes 31,008 development prompts and 5,473 held-out test prompts for the headline pair.\n\nAsk me about ModelRouter design decisions.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -671,11 +676,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 932.540899997548,
-   "total_ms": 936.0028999981296,
+   "first_token_ms": 1782.3628000005556,
+   "total_ms": 1785.5361000001722,
    "provider": "gemini",
-   "tokens_prompt_completion": "718/35",
-   "answer": "**Aditya Jain**'s **Sentinel** checks incoming prompts against **46** rules for known injection patterns. \n\nAsk me about the technologies used in Sentinel.",
+   "tokens_prompt_completion": "876/32",
+   "answer": "Aditya Jain built Sentinel, which checks every incoming prompt against 46 rules for known injection patterns.\n\nAsk me about the datasets Sentinel was tested on.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -697,18 +702,22 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 1167.8566000009596,
-   "total_ms": 1171.0320000020147,
+   "reason": "caveat:sentinel",
+   "first_token_ms": 1335.80240000083,
+   "total_ms": 1342.136200000823,
    "provider": "gemini",
-   "tokens_prompt_completion": "781/47",
-   "answer": "On two datasets it was never trained on, Sentinel blocks 54% of the deepset attacks (and 72% if flagged prompts count).\n\nAsk me about his false-positive rate on hard-benign text.",
+   "tokens_prompt_completion": "966/43",
+   "answer": "On two datasets it was never trained on, Aditya Jain's Sentinel blocks 54% of the deepset attacks, or 72% if flagged prompts count. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -720,12 +729,12 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 1465.513600000122,
-   "total_ms": 1470.9849999999278,
+   "reason": "caveat:sentinel",
+   "first_token_ms": 1659.9427000001015,
+   "total_ms": 1669.2781999990984,
    "provider": "gemini",
-   "tokens_prompt_completion": "723/92",
-   "answer": "On hard-benign text, Aditya Jain's Sentinel has a false-positive rate of **1.1%** (with a range of **0.2%** to **6.0%**, or **1** of **91** items) for hard-benign **v2**, and **0.0%** for hard-benign v1. \n\nAsk me about Sentinel's recall on deepset attacks.",
+   "tokens_prompt_completion": "967/105",
+   "answer": "On hard-benign **v2** (frozen, evaluated once), Aditya Jain's Sentinel has a false-positive rate of 1.1% (with a range of 0.2% to 6.0% and 1 of 91). On hard-benign v1, the false-positive rate is 0.0%, and with templated near-duplicates removed, it is also 0.0%. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about Sentinel's recall on deepset attacks.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -944,11 +953,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 5759.390399998665,
-   "total_ms": 5761.743999999453,
+   "first_token_ms": 2341.242599999532,
+   "total_ms": 2345.0820999969437,
    "provider": "gemini",
-   "tokens_prompt_completion": "744/26",
-   "answer": "Aditya lists **Python** and **SQL** as his programming languages.\n\nAsk me about his AI and machine learning skills.",
+   "tokens_prompt_completion": "977/34",
+   "answer": "Aditya Jain lists Python and SQL as his programming languages in his portfolio and résumé skills.\n\nAsk me about his AI and machine learning skills.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -971,11 +980,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1494.9281999979576,
-   "total_ms": 1502.4268999986816,
+   "first_token_ms": 1463.3450000001176,
+   "total_ms": 1470.5438000019058,
    "provider": "gemini",
-   "tokens_prompt_completion": "398/83",
-   "answer": "Aditya Jain holds certifications including **Machine Learning Specialization**, **Prompt Engineering for Developers**, **Becoming an AI-First Product Leader**, **Generative AI for Digital Marketers**, **Generative AI, Recruiting & Talent Acquisition**, **Introduction to Artificial Intelligence**, and **Technology Job Simulation**, with his résumé listing five of these and his site listing all seven. \n\nAsk me about his university coursework.",
+   "tokens_prompt_completion": "418/72",
+   "answer": "Aditya holds certifications including Machine Learning Specialization, Prompt Engineering for Developers, Becoming an AI-First Product Leader, Generative AI for Digital Marketers, Generative AI, Recruiting & Talent Acquisition, Introduction to Artificial Intelligence, and Technology Job Simulation. His résumé lists five of these, while his site lists all seven.\n\nAsk me about his university coursework.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1283,11 +1292,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1223.269000001892,
-   "total_ms": 1232.0294000019203,
+   "first_token_ms": 1913.3208000021114,
+   "total_ms": 1919.2222999990918,
    "provider": "gemini",
-   "tokens_prompt_completion": "745/96",
-   "answer": "Aditya Jain lists enterprise administration skills including Microsoft Entra ID, SSO, SAML, SCIM, Conditional Access, Group-Based Access, Privileged Roles, and Enterprise Applications. He also lists [PLATFORM] Team & Enterprise Administration, which covers SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls, along with MCP & Connector Integrations focused on Permissions, Data Flows, and Privacy.\n\nAsk me about his AI and machine learning skills.",
+   "tokens_prompt_completion": "995/67",
+   "answer": "Aditya lists [PLATFORM] Team & Enterprise Administration, covering SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, and Usage & Cost Controls, alongside MCP & Connector Integrations, Logging, Rollback, Support Models, and Enterprise SaaS Platform Ownership.\n\nAsk me about his AI platform admin skills.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1655,11 +1664,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 2168.7868000008166,
-   "total_ms": 2176.4326999982586,
+   "first_token_ms": 1923.2871999993222,
+   "total_ms": 1929.5482000015909,
    "provider": "gemini",
-   "tokens_prompt_completion": "779/82",
-   "answer": "**Aditya Jain**'s PromptLab does not beat random search in general. On the two real tasks, CommonsenseQA and BoolQ, evolution ties random search at equal budget. On BoolQ, both evolution and random search end up at about the majority-class rate, reaching the majority answer rather than reading better. It is ahead only on a synthetic task.\n\nAsk me about ModelRouter.",
+   "tokens_prompt_completion": "918/51",
+   "answer": "No, on the two real tasks, CommonsenseQA and BoolQ, Aditya's PromptLab evolutionary search **ties random search** at equal budget instead of beating it; it is ahead only on a synthetic task.\n\nAsk me about PromptLab.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1680,19 +1689,23 @@
    "pass": true,
    "failures": [],
    "status": 200,
-   "stage": "trap",
-   "reason": "name not in sources: ['CommonsenseQA']",
-   "first_token_ms": 1572.2112999974343,
-   "total_ms": 1577.3595999999088,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 1297.4958999984665,
+   "total_ms": 1305.1618999998027,
    "provider": "gemini",
-   "tokens_prompt_completion": "676/65",
-   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search ties random search at equal budget instead of beating it; it is ahead only on a synthetic task. Its README reports the measured comparison. Ask me about his projects.",
+   "tokens_prompt_completion": "966/70",
+   "answer": "No, PromptLab does not beat random search in general. On the two real tasks, CommonsenseQA and BoolQ, its evolutionary search ties random search at equal budget. It is ahead only on a synthetic task, and its evolution is much less stable across seeds than random search.\n\nAsk me about PromptLab's results on BoolQ.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "PromptLab README",
      "url": "https://github.com/Aditya2616/PromptLab"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -1705,11 +1718,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1098.2377999971504,
-   "total_ms": 1103.9122999973188,
+   "first_token_ms": 1216.2494999975024,
+   "total_ms": 1220.3867999996874,
    "provider": "gemini",
-   "tokens_prompt_completion": "847/45",
-   "answer": "No, **Aditya Jain** notes that ModelRouter does not save cost on live traffic. Instead, his cost figures come from the RouterBench offline analysis only.\n\nAsk me about ModelRouter's quickstart commands.",
+   "tokens_prompt_completion": "1149/40",
+   "answer": "No, it is not true that ModelRouter saves cost on live traffic; his cost figures come from the RouterBench offline analysis only. Ask me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1731,11 +1744,11 @@
    "failures": [],
    "status": 200,
    "stage": "trap",
-   "reason": "low support 0.45",
-   "first_token_ms": 1083.9790999998513,
-   "total_ms": 1087.263500001427,
+   "reason": "low support 0.29",
+   "first_token_ms": 1708.7542000008398,
+   "total_ms": 1711.1025000012887,
    "provider": "gemini",
-   "tokens_prompt_completion": "872/37",
+   "tokens_prompt_completion": "960/38",
    "answer": "No. ModelRouter's cost figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
@@ -1753,18 +1766,22 @@
    "pass": true,
    "failures": [],
    "status": 200,
-   "stage": "trap",
-   "reason": "number not in sources: ['1', '5']",
-   "first_token_ms": 1424.7041000016907,
-   "total_ms": 1427.6781000007759,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 1539.5434999991267,
+   "total_ms": 1543.919100000494,
    "provider": "gemini",
-   "tokens_prompt_completion": "738/65",
-   "answer": "No. SFT Forge's own experiment found no measurable benefit from the cleaned data at that scale. Ask me about his projects.",
+   "tokens_prompt_completion": "967/48",
+   "answer": "No, Aditya Jain states that SFT Forge's own experiment found no measurable benefit from the cleaned data at that scale, as it made no practical difference on the downstream test.\n\nAsk me about SFT Forge's three gates.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "SFT Forge README",
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "SFT-Forge README",
      "url": "https://github.com/Aditya2616/SFT-Forge"
     }
    ]
@@ -1776,18 +1793,22 @@
    "pass": true,
    "failures": [],
    "status": 200,
-   "stage": "trap",
-   "reason": "number not in sources: ['3']",
-   "first_token_ms": 1086.626599997544,
-   "total_ms": 1090.3865999971458,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 1531.8348000000697,
+   "total_ms": 1536.3140999979805,
    "provider": "gemini",
-   "tokens_prompt_completion": "748/71",
-   "answer": "No. SFT Forge's own experiment found no measurable benefit from the cleaned data at that scale. Ask me about his projects.",
+   "tokens_prompt_completion": "1004/46",
+   "answer": "Aditya Jain's SFT Forge experiment found that cleaning data made no practical difference to the model at that scale and did not show that it trains a better model.\n\nAsk me about the stack used for SFT Forge.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "SFT Forge README",
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "SFT-Forge README",
      "url": "https://github.com/Aditya2616/SFT-Forge"
     }
    ]
@@ -1801,11 +1822,42 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1290.171399999963,
-   "total_ms": 1297.5955000001704,
+   "first_token_ms": 1423.615300001984,
+   "total_ms": 1428.9228999987245,
    "provider": "gemini",
-   "tokens_prompt_completion": "672/82",
-   "answer": "No, Sentinel does not stop all prompt injections. It is one layer of defence, not a complete one, and at its default setting it misses a large share of unseen attacks. It checks incoming prompts against **46** rules for known injection patterns and uses a small fine-tuned classifier, blocking or flagging suspicious prompts while letting clean ones pass. \n\nAsk me about the datasets Sentinel was tested on.",
+   "tokens_prompt_completion": "869/54",
+   "answer": "No, Aditya states that **Sentinel** does not stop all attacks, noting that it is one layer of defence rather than a complete one, and at its default setting it misses a large share of unseen attacks.\n\nAsk me about the rules and classifier used in Sentinel.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    },
+    {
+     "title": "Sentinel README",
+     "url": "https://github.com/Aditya2616/Sentinel"
+    }
+   ]
+  },
+  {
+   "id": "t08",
+   "group": "trap",
+   "question": "Is Sentinel enough to fully protect a chatbot from attacks?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 1504.9562000021979,
+   "total_ms": 1512.4438000020746,
+   "provider": "gemini",
+   "tokens_prompt_completion": "856/65",
+   "answer": "No, Aditya Jain states that Sentinel is not a guarantee and does not stop all attacks, missing a large share of unseen attacks at its default setting. He notes it should be treated as one layer next to least-privilege tool access, output filtering and review.\n\nAsk me about the false-positive rate of Sentinel.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1820,29 +1872,6 @@
    ]
   },
   {
-   "id": "t08",
-   "group": "trap",
-   "question": "Is Sentinel enough to fully protect a chatbot from attacks?",
-   "pass": true,
-   "failures": [],
-   "status": 200,
-   "stage": "trap",
-   "reason": "number not in sources: ['3', '5']",
-   "first_token_ms": 1011.6895999999542,
-   "total_ms": 1015.2210000014747,
-   "provider": "gemini",
-   "tokens_prompt_completion": "613/65",
-   "answer": "No. Sentinel is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his projects.",
-   "fallback": null,
-   "grounded": true,
-   "sources": [
-    {
-     "title": "Sentinel README",
-     "url": "https://github.com/Aditya2616/Sentinel"
-    }
-   ]
-  },
-  {
    "id": "t09",
    "group": "trap",
    "question": "Does AgentFlow have a high task success rate?",
@@ -1851,10 +1880,10 @@
    "status": 200,
    "stage": "trap",
    "reason": "name not in sources: ['README']",
-   "first_token_ms": 1463.1437000025471,
-   "total_ms": 1466.7245000018738,
+   "first_token_ms": 2064.6377999983088,
+   "total_ms": 2069.117399998504,
    "provider": "gemini",
-   "tokens_prompt_completion": "699/44",
+   "tokens_prompt_completion": "828/38",
    "answer": "No. AgentFlow does not claim a high task success rate; its README reports the measured results, including the parts that did not work. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
@@ -1874,10 +1903,10 @@
    "status": 200,
    "stage": "trap",
    "reason": "name not in sources: ['README']",
-   "first_token_ms": 1908.102899997175,
-   "total_ms": 1913.1422999998904,
+   "first_token_ms": 1495.6652000000759,
+   "total_ms": 1500.7576999996672,
    "provider": "gemini",
-   "tokens_prompt_completion": "726/77",
+   "tokens_prompt_completion": "958/71",
    "answer": "No. EvalBench does not claim its rubric judge is highly reliable; it uses exact-match and rule checks first and the judge only where no rule exists, and its README reports the measured results. Ask me about his projects.",
    "fallback": null,
    "grounded": true,

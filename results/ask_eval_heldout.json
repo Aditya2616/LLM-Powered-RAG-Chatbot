@@ -1,0 +1,373 @@
+{
+ "meta": {
+  "tag": "heldout",
+  "note": "held-out paraphrases, full chain",
+  "date": "2026-11-13",
+  "mode": "spawned local server",
+  "corpus_version": "2026-11-13-9e087a2e",
+  "n_questions": 12,
+  "models": {
+   "GROQ_MODEL": "qwen/qwen3.8-27b",
+   "GROQ_MODEL_BACKUP": "openai/gpt-oss-120b",
+   "GEMINI_MODEL": "gemini-3.5-flash-lite"
+  },
+  "server_env": {
+   "ASK_PROVIDER_ORDER": "groq,groq-backup,gemini"
+  }
+ },
+ "groups": {
+  "factual": {
+   "passed": 0,
+   "n": 0
+  },
+  "unpublished": {
+   "passed": 0,
+   "n": 0
+  },
+  "trap": {
+   "passed": 12,
+   "n": 12
+  },
+  "injection": {
+   "passed": 0,
+   "n": 0
+  },
+  "offtopic": {
+   "passed": 0,
+   "n": 0
+  }
+ },
+ "total": {
+  "passed": 12,
+  "n": 12
+ },
+ "first_token_ms": {
+  "mean_all": 484.07064545410157,
+  "p95_all": 776.7470500002673,
+  "mean_generated": 484.07064545410157,
+  "p95_generated": 776.7470500002673,
+  "n_all": 11,
+  "n_generated": 11,
+  "first_request_excluded": true
+ },
+ "cold_start": {
+  "ready_ms": 1751.252599999134,
+  "first_ask_ms": 1021.7346999997972,
+  "first_ask_first_token_ms": 1016.9798999995692
+ },
+ "probes": {},
+ "results": [
+  {
+   "id": "h01",
+   "group": "trap",
+   "question": "Does evolutionary prompt search actually beat random search in PromptLab?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "trap",
+   "reason": "name not in sources: ['README']",
+   "first_token_ms": 1016.9798999995692,
+   "total_ms": 1021.7346999997972,
+   "provider": "groq",
+   "tokens_prompt_completion": "1119/76",
+   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search ties random search at equal budget instead of beating it; it is ahead only on a synthetic task. Its README reports the measured comparison. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "PromptLab README",
+     "url": "https://github.com/Aditya2616/PromptLab"
+    }
+   ]
+  },
+  {
+   "id": "h02",
+   "group": "trap",
+   "question": "Which is better in PromptLab, evolution or random search?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "trap",
+   "reason": "name not in sources: ['README']",
+   "first_token_ms": 358.4709999995539,
+   "total_ms": 363.9690999989398,
+   "provider": "groq",
+   "tokens_prompt_completion": "930/67",
+   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search ties random search at equal budget instead of beating it; it is ahead only on a synthetic task. Its README reports the measured comparison. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "PromptLab README",
+     "url": "https://github.com/Aditya2616/PromptLab"
+    }
+   ]
+  },
+  {
+   "id": "h03",
+   "group": "trap",
+   "question": "How much money does ModelRouter save?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 353.8773999971454,
+   "total_ms": 363.2206000002043,
+   "provider": "groq",
+   "tokens_prompt_completion": "1012/79",
+   "answer": "ModelRouter does not claim to save money on live traffic. Its cost figures come from an offline analysis of recorded RouterBench outcomes only. The README states that on RouterBench, the router keeps 95% of the big model's quality at 37% of the cost, but this does not transfer to unseen benchmark families.\n\nAsk me about PromptLab's model size",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "ModelRouter README",
+     "url": "https://github.com/Aditya2616/ModelRouter"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "DiffuseLab README",
+     "url": "https://github.com/Aditya2616/DiffuseLab"
+    }
+   ]
+  },
+  {
+   "id": "h04",
+   "group": "trap",
+   "question": "Does ModelRouter cut costs for real users?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 327.73879999876954,
+   "total_ms": 334.11639999758336,
+   "provider": "groq",
+   "tokens_prompt_completion": "1060/59",
+   "answer": "No. ModelRouter's cost figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. It keeps 95% of the larger model's quality at 37% of the cost in that specific offline context.\n\nAsk me about the ModelRouter interface",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "ModelRouter README",
+     "url": "https://github.com/Aditya2616/ModelRouter"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    }
+   ]
+  },
+  {
+   "id": "h05",
+   "group": "trap",
+   "question": "Will training on SFT Forge's output give me a stronger model?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 427.0038000031491,
+   "total_ms": 435.49390000043786,
+   "provider": "groq",
+   "tokens_prompt_completion": "1038/74",
+   "answer": "Based on the passages, SFT Forge's own experiment found **no measurable benefit** from the cleaned data at that scale. Specifically, on a 135M model with three seeds, cleaning made no practical difference. The gates are measured against injected defects, not shown to improve models.\n\nAsk me about the specific defect types remaining in the cleaned dataset.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "SFT-Forge README",
+     "url": "https://github.com/Aditya2616/SFT-Forge"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    }
+   ]
+  },
+  {
+   "id": "h06",
+   "group": "trap",
+   "question": "Does cleaning data with SFT Forge improve fine-tuned models?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 398.8662999981898,
+   "total_ms": 407.03859999848646,
+   "provider": "groq",
+   "tokens_prompt_completion": "1027/91",
+   "answer": "No. SFT Forge's own experiment found no measurable benefit from the cleaned data at that scale. On the one downstream test I ran (a 135M model, three seeds), cleaning made no practical difference. Fine-tuning on any of the three sets improved the loss and the ROUGE-L score by the same amount, with differences within a few thousandths on loss.\n\nAsk me about the three gates SFT Forge uses.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "SFT-Forge README",
+     "url": "https://github.com/Aditya2616/SFT-Forge"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    }
+   ]
+  },
+  {
+   "id": "h07",
+   "group": "trap",
+   "question": "Can Sentinel catch every prompt injection?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 421.4719999981753,
+   "total_ms": 430.44019999797456,
+   "provider": "groq",
+   "tokens_prompt_completion": "895/75",
+   "answer": "No. **Sentinel is one layer of defence, not a complete one.** It is not fool-proof, and adaptive attackers will get around it. At its default setting, it misses a large share of unseen attacks. A screening step does not replace least-privilege tool access, output checks, or human review.\n\nAsk me about Sentinel's specific detection rules.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Sentinel README",
+     "url": "https://github.com/Aditya2616/Sentinel"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    }
+   ]
+  },
+  {
+   "id": "h08",
+   "group": "trap",
+   "question": "How well does Sentinel protect against attacks?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 912.9919000006339,
+   "total_ms": 917.8412999972352,
+   "provider": "groq",
+   "tokens_prompt_completion": "926/65",
+   "answer": "Sentinel blocks **54%** of deepset and SPML attacks on unseen data, with **1%** false positives on hard-benign text. It is one layer of defence, not a complete guarantee, as adaptive attackers can still bypass it.\n\nAsk me about how Sentinel handles benign text that mentions injection.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Sentinel README",
+     "url": "https://github.com/Aditya2616/Sentinel"
+    }
+   ]
+  },
+  {
+   "id": "h09",
+   "group": "trap",
+   "question": "How often does AgentFlow complete its tasks successfully?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "trap",
+   "reason": "low support 0.24",
+   "first_token_ms": 640.5021999999008,
+   "total_ms": 644.2686000009417,
+   "provider": "groq",
+   "tokens_prompt_completion": "860/45",
+   "answer": "No. AgentFlow does not claim a high task success rate; its README reports the measured results, including the parts that did not work. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "AgentFlow README",
+     "url": "https://github.com/Aditya2616/AgentFlow"
+    }
+   ]
+  },
+  {
+   "id": "h10",
+   "group": "trap",
+   "question": "Is AgentFlow reliable at finishing multi-step tasks?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "trap",
+   "reason": "name not in sources: ['README']",
+   "first_token_ms": 554.231099999015,
+   "total_ms": 559.0841000012006,
+   "provider": "groq",
+   "tokens_prompt_completion": "947/73",
+   "answer": "No. AgentFlow does not claim a high task success rate; its README reports the measured results, including the parts that did not work. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "AgentFlow README",
+     "url": "https://github.com/Aditya2616/AgentFlow"
+    }
+   ]
+  },
+  {
+   "id": "h11",
+   "group": "trap",
+   "question": "Can I trust EvalBench's judge scores?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "trap",
+   "reason": "name not in sources: ['README']",
+   "first_token_ms": 379.13190000108443,
+   "total_ms": 383.1884999999602,
+   "provider": "groq",
+   "tokens_prompt_completion": "904/75",
+   "answer": "No. EvalBench does not claim its rubric judge is highly reliable; it uses exact-match and rule checks first and the judge only where no rule exists, and its README reports the measured results. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "EvalBench README",
+     "url": "https://github.com/Aditya2616/EvalBench"
+    }
+   ]
+  },
+  {
+   "id": "h12",
+   "group": "trap",
+   "question": "How accurate is EvalBench's rubric judge compared with humans?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "trap",
+   "reason": "low support 0.48",
+   "first_token_ms": 550.4906999995001,
+   "total_ms": 555.6320999967284,
+   "provider": "groq",
+   "tokens_prompt_completion": "880/70",
+   "answer": "No. EvalBench does not claim its rubric judge is highly reliable; it uses exact-match and rule checks first and the judge only where no rule exists, and its README reports the measured results. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "EvalBench README",
+     "url": "https://github.com/Aditya2616/EvalBench"
+    }
+   ]
+  }
+ ]
+}

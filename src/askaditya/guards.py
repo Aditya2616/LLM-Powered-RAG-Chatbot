@@ -4,7 +4,7 @@
 further: whenever a question or an answer is about one of the six projects AND about the topic where the false claim
 lives (savings, success, reliability, "better than", "stops all"), the answer must carry the caveat that the sources
 attach to that claim. If it does not, the caveat is added, or, for a question that is itself phrased as the claim,
-the whole answer is replaced by the true statement. It runs on every answer, whatever the phrasing of the question.
+the answer is replaced by the true statement when it asserts the claim, and gets the caveat added otherwise. It runs on every answer, whatever the phrasing of the question.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .safety import TRAPS, Trap, _normalise, split_follow_up, trap_for_question
+from .safety import TRAPS, Trap, _normalise, asserts_false_claim, split_follow_up, trap_for_question
 
 
 @dataclass(frozen=True)
@@ -88,7 +88,7 @@ def enforce_caveats(question: str, answer: str) -> tuple[str, str | None]:
     for g in guards_in_scope(question, answer):
         if g.required.search(answer):
             continue
-        if claim is not None and claim.key == g.trap.key:
+        if claim is not None and claim.key == g.trap.key and asserts_false_claim(answer):
             return claim.safe + " Ask me about his other projects.", f"replaced:{g.trap.key}"
         body = f"{body.rstrip()} {g.caveat}"
         notes.append(f"caveat:{g.trap.key}")

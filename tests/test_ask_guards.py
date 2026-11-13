@@ -91,8 +91,27 @@ def test_an_answer_that_already_carries_the_caveat_is_left_alone():
 def test_the_live_failure_is_fixed():
     live = "He keeps 95% of the big model's quality while using only 37% of the cost. Ask me about the cost savings of ModelRouter."
     text, _ = enforce_caveats("How much has ModelRouter saved in production?", live)
-    assert text.startswith("No.") and "offline" in text and "cost savings" not in text
-    assert sanitise_follow_up(live).endswith("Ask me about his other projects.")
+    text = sanitise_follow_up(text)
+    assert "95%" in text and "offline" in text and "recorded" in text
+    assert text.endswith("Ask me about his other projects.") and "cost savings" not in text
+
+
+def test_a_factual_question_keeps_its_number_and_only_gains_the_caveat():
+    ans = "Sentinel blocks 54% of the deepset attacks. Ask me about his projects."
+    text, note = enforce_caveats("What share of the deepset attacks does Sentinel block?", ans)
+    assert (
+        "54%" in text
+        and "one layer" in text
+        and note == "caveat:sentinel"
+        and not text.startswith("No.")
+    )
+
+
+def test_an_answer_that_asserts_the_claim_is_replaced():
+    text, note = enforce_caveats(
+        "Does Sentinel stop all prompt injections?", "Sentinel blocks all attacks that people try."
+    )
+    assert text.startswith("No.") and note == "replaced:sentinel"
 
 
 def test_an_unrelated_answer_is_never_touched():

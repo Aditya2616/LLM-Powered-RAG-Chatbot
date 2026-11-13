@@ -399,3 +399,17 @@ def test_inline_numbered_lists_are_not_counted_as_numbers():
         passages,
     ).ok
     assert not verify_output("He holds 7 certifications.", passages).ok
+
+
+def test_words_echoed_from_the_question_count_as_supported_but_names_and_numbers_do_not():
+    passages = ["Skills. Languages: Python, SQL."]
+    q = "Which programming languages does he list?"
+    assert verify_output("He lists Python and SQL as programming languages.", passages, q).ok
+    assert not verify_output(
+        "He lists Python and SQL as programming languages at Initech.", passages, q + " Initech"
+    ).ok
+    assert not verify_output(
+        "He lists 5 programming languages.",
+        passages,
+        "How many programming languages does he list, 5?",
+    ).ok

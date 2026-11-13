@@ -4,7 +4,7 @@
   "note": "",
   "date": "2026-11-13",
   "mode": "spawned local server",
-  "corpus_version": "2026-11-13-e1a20a7d",
+  "corpus_version": "2026-11-13-9e087a2e",
   "n_questions": 86,
   "models": {
    "GROQ_MODEL": "qwen/qwen3.8-27b",
@@ -17,7 +17,7 @@
  },
  "groups": {
   "factual": {
-   "passed": 44,
+   "passed": 46,
    "n": 46
   },
   "unpublished": {
@@ -38,22 +38,22 @@
   }
  },
  "total": {
-  "passed": 84,
+  "passed": 86,
   "n": 86
  },
  "first_token_ms": {
-  "mean_all": 414.70509882385477,
-  "p95_all": 794.4963600020856,
-  "mean_generated": 639.9077890912436,
-  "p95_generated": 870.2226500001412,
+  "mean_all": 492.8943541180428,
+  "p95_all": 1091.3303000001179,
+  "mean_generated": 760.7457290913524,
+  "p95_generated": 1188.9644200018658,
   "n_all": 85,
   "n_generated": 55,
   "first_request_excluded": true
  },
  "cold_start": {
-  "ready_ms": 1789.1148999988218,
-  "first_ask_ms": 1083.7068000000727,
-  "first_ask_first_token_ms": 1075.6359000006341
+  "ready_ms": 1778.8083000014012,
+  "first_ask_ms": 2976.874600000883,
+  "first_ask_first_token_ms": 2970.361200001207
  },
  "probes": {},
  "results": [
@@ -232,11 +232,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 592.6459000002069,
-   "total_ms": 595.5856000000495,
+   "first_token_ms": 1097.2820999995747,
+   "total_ms": 1100.000700000237,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "803/88",
-   "answer": "He studies at **Guru Gobind Singh Indraprastha University (GGSIPU)**. Ask me about his current role.",
+   "tokens_prompt_completion": "963/84",
+   "answer": "He studies at Guru Gobind Singh Indraprastha University (GGSIPU) in New Delhi. **Ask me about** his current internship.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -456,17 +456,21 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 694.1157000001112,
-   "total_ms": 699.4655000016792,
+   "first_token_ms": 1028.4982999983185,
+   "total_ms": 1034.2921000010392,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "868/125",
-   "answer": "His RAG chatbot answers 52/75 (69.3%) of answerable questions correctly with the smaller model and 70/75 (93.3%) with the larger one; it says “I don’t know” on 14/25 (56.0%) and 18/25 (72.0%) of unanswerable questions respectively. **Ask me about** the technologies it uses.",
+   "tokens_prompt_completion": "1150/231",
+   "answer": "His RAG chatbot, using Qwen2.5‑0.5B‑Instruct, answered **52/75 (69.3%)** of answerable questions correctly and said “I don’t know” on **14/25 (56.0%)** of unanswerable ones; with Qwen2.5‑1.5B‑Instruct it answered **70/75 (93.3%)** correctly and declined **18/25 (72.0%)** of unanswerable questions.  \nAsk me about the technologies it uses.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "LLM-Powered-RAG-Chatbot README",
      "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -520,24 +524,24 @@
    "id": "f18",
    "group": "factual",
    "question": "What pass rates did EvalBench's checkpoints get?",
-   "pass": false,
-   "failures": [
-    "fallback 'unknown', expected None",
-    "grounded False, expected True",
-    "missing ['27.0']",
-    "missing ['44.6']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "model declined",
-   "first_token_ms": 712.0583000032639,
-   "total_ms": 717.7271000000474,
+   "reason": "",
+   "first_token_ms": 2970.361200001207,
+   "total_ms": 2976.874600000883,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "717/37",
-   "answer": "I don't know that from his résumé, portfolio or project READMEs. You can ask Aditya directly: itsaditya1610@gmail.com. Ask me about his projects.",
-   "fallback": "unknown",
-   "grounded": false,
-   "sources": []
+   "tokens_prompt_completion": "987/153",
+   "answer": "The recorded run shows four sub‑1B checkpoints passing between **27.0%** and **44.6%** of the 408 prompts. With 408 prompts, the 95 % Wilson intervals on a checkpoint’s pass rate are about **plus or minus 4.3 to 4.8 points**. Ask me about how the failures are clustered.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "EvalBench README",
+     "url": "https://github.com/Aditya2616/EvalBench"
+    }
+   ]
   },
   {
    "id": "f19",
@@ -570,15 +574,19 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 446.53459999972256,
-   "total_ms": 449.4855999982974,
+   "reason": "caveat:modelrouter",
+   "first_token_ms": 803.8443000004918,
+   "total_ms": 812.0859999980894,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "841/87",
-   "answer": "He keeps 95% of the big model’s quality at 37% of the cost on RouterBench. Ask me about how the router decides which model to use.",
+   "tokens_prompt_completion": "1147/125",
+   "answer": "ModelRouter keeps **95%** of the larger model’s quality while using only **37%** of the cost on the RouterBench dataset. It routes easy requests to a cheap model and hard ones to a larger model to achieve this trade‑off. **Ask me about** how the routing decision is made. These figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic.",
    "fallback": null,
    "grounded": true,
    "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
     {
      "title": "ModelRouter README",
      "url": "https://github.com/Aditya2616/ModelRouter"
@@ -589,24 +597,24 @@
    "id": "f21",
    "group": "factual",
    "question": "How many LLMs and prompts are in the RouterBench data ModelRouter uses?",
-   "pass": false,
-   "failures": [
-    "fallback 'unknown', expected None",
-    "grounded False, expected True",
-    "missing ['11']",
-    "missing ['36481']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "model declined",
-   "first_token_ms": 337.4195000033069,
-   "total_ms": 339.85410000241245,
+   "reason": "",
+   "first_token_ms": 577.7558000008867,
+   "total_ms": 581.4930999986245,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "916/31",
-   "answer": "I don't know that from his résumé, portfolio or project READMEs. You can ask Aditya directly: itsaditya1610@gmail.com. Ask me about his projects.",
-   "fallback": "unknown",
-   "grounded": false,
-   "sources": []
+   "tokens_prompt_completion": "1142/111",
+   "answer": "The RouterBench data used by ModelRouter contains **11 LLMs** and **36,481 prompts**.  \nAsk me about how the router decides which model to use.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "ModelRouter README",
+     "url": "https://github.com/Aditya2616/ModelRouter"
+    }
+   ]
   },
   {
    "id": "f22",
@@ -616,12 +624,12 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 463.8679999989108,
-   "total_ms": 465.8884999989823,
+   "reason": "caveat:sentinel",
+   "first_token_ms": 1126.0204000027443,
+   "total_ms": 1130.2025000004505,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "770/42",
-   "answer": "He checks prompts against **46 rules**. Ask me about how Sentinel works.",
+   "tokens_prompt_completion": "930/67",
+   "answer": "Sentinel checks **46** rules. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -643,18 +651,22 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 702.5462000019616,
-   "total_ms": 703.4562000008009,
+   "reason": "caveat:sentinel",
+   "first_token_ms": 484.65280000164057,
+   "total_ms": 490.34630000096513,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "836/100",
-   "answer": "He blocks **54%** of the deepset attacks. Ask me about his false‑positive rate on hard‑benign text.",
+   "tokens_prompt_completion": "1021/83",
+   "answer": "He blocks **54%** of the deepset attacks. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his project goals.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -666,12 +678,12 @@
    "failures": [],
    "status": 200,
    "stage": "model",
-   "reason": "",
-   "first_token_ms": 605.8319999974628,
-   "total_ms": 609.7670999988622,
+   "reason": "caveat:sentinel",
+   "first_token_ms": 842.0096000008925,
+   "total_ms": 848.4867000006489,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "754/155",
-   "answer": "Sentinel’s false‑positive rate on hard‑benign text is **1.1%** (range 0.2% to 6.0%) for version v2, and **0.0%** for version v1 (both original and with templated near‑duplicates removed). Ask me about its recall on deepset attacks.",
+   "tokens_prompt_completion": "986/144",
+   "answer": "Sentinel’s false‑positive rate on hard‑benign text is **1.1%** for the v2 set (1 of 91) and **0.0%** for the v1 set (0 of 60). It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about its recall on out‑of‑distribution attacks.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -894,11 +906,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 638.7155000011262,
-   "total_ms": 640.6320000023698,
+   "first_token_ms": 1067.5231000022904,
+   "total_ms": 1069.2154000025766,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "808/79",
-   "answer": "He lists **Python** and **SQL** as his programming languages. Ask me about his AI/ML expertise.",
+   "tokens_prompt_completion": "1037/101",
+   "answer": "He lists **Python** and **SQL**. Ask me about his AI/ML expertise.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -921,11 +933,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 1075.6359000006341,
-   "total_ms": 1083.7068000000727,
+   "first_token_ms": 801.4667000024929,
+   "total_ms": 811.8977000012819,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "471/152",
-   "answer": "He holds the following certifications: **1. Machine Learning Specialization, DeepLearning.AI / Coursera**; **2. Prompt Engineering for Developers, DeepLearning.AI**; **3. Becoming an AI-First Product Leader, LinkedIn Learning**; **4. Generative AI for Digital Marketers, LinkedIn Learning**; **5. Generative AI, Recruiting & Talent Acquisition, LinkedIn Learning**; **6. Introduction to Artificial Intelligence, LinkedIn Learning**; **7. Technology Job Simulation, Deloitte Australia**. Ask me about his education.",
+   "tokens_prompt_completion": "491/145",
+   "answer": "He holds certifications in **Machine Learning Specialization (DeepLearning.AI / Coursera)**, **Prompt Engineering for Developers (DeepLearning.AI)**, **Becoming an AI-First Product Leader (LinkedIn Learning)**, **Generative AI for Digital Marketers (LinkedIn Learning)**, **Generative AI, Recruiting & Talent Acquisition (LinkedIn Learning)**, **Introduction to Artificial Intelligence (LinkedIn Learning)**, and **Technology Job Simulation (Deloitte Australia)**. Ask me about his education.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1229,11 +1241,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 580.0444999986212,
-   "total_ms": 584.6067999991647,
+   "first_token_ms": 612.1179000001575,
+   "total_ms": 618.8949999996112,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "816/140",
-   "answer": "He lists **AI platform admin** skills such as [PLATFORM] Team & Enterprise Administration (SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls). Ask me about his AI project portfolio.",
+   "tokens_prompt_completion": "1067/143",
+   "answer": "He lists **AI platform admin: [PLATFORM] Team & Enterprise Administration (SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls)** as shown in passage. Ask me about his AI development tools.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1601,11 +1613,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 727.308699999412,
-   "total_ms": 731.8648999971629,
+   "first_token_ms": 647.1337000002677,
+   "total_ms": 651.2390000025334,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "832/137",
-   "answer": "No. **On CommonsenseQA and BoolQ it does not beat random search at equal budget**, and it “ties on the two real tasks”.  \n\nAsk me about his other projects.",
+   "tokens_prompt_completion": "966/123",
+   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab’s evolutionary search **ties** random search at equal budget rather than beating it; it only outperforms random search on a synthetic task.  \nAsk me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1626,16 +1638,20 @@
    "pass": true,
    "failures": [],
    "status": 200,
-   "stage": "trap",
-   "reason": "name not in sources: ['CommonsenseQA']",
-   "first_token_ms": 476.667399998405,
-   "total_ms": 482.6431999972556,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 849.8934000017471,
+   "total_ms": 856.3992000017606,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "729/101",
-   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search ties random search at equal budget instead of beating it; it is ahead only on a synthetic task. Its README reports the measured comparison. Ask me about his projects.",
+   "tokens_prompt_completion": "1007/117",
+   "answer": "PromptLab does **not** generally beat random search; on the two real tasks (CommonsenseQA and BoolQ) it ties random search at equal budget, and it is only ahead on a synthetic task. **Ask me about** his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
     {
      "title": "PromptLab README",
      "url": "https://github.com/Aditya2616/PromptLab"
@@ -1651,11 +1667,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 724.6304999971471,
-   "total_ms": 729.8891999998887,
+   "first_token_ms": 614.9528000023565,
+   "total_ms": 618.2756000016525,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "887/99",
-   "answer": "He does **not** claim that ModelRouter saves money on live traffic; the cost figures come from an offline RouterBench analysis, not from live traffic. Ask me about his other project claims.",
+   "tokens_prompt_completion": "1173/100",
+   "answer": "He does not save money on live traffic; the cost figures come only from an offline RouterBench analysis, not from actual live use. **Ask me about** his project performance.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1677,11 +1693,11 @@
    "failures": [],
    "status": 200,
    "stage": "trap",
-   "reason": "number not in sources: ['63']",
-   "first_token_ms": 746.4446000012686,
-   "total_ms": 749.1979000005813,
+   "reason": "model declined",
+   "first_token_ms": 667.5294999986363,
+   "total_ms": 670.9671999997227,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "899/130",
+   "tokens_prompt_completion": "988/70",
    "answer": "No. ModelRouter's cost figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
@@ -1701,11 +1717,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 702.288899999985,
-   "total_ms": 707.2948999993969,
+   "first_token_ms": 1551.3509000011254,
+   "total_ms": 1554.8706000008679,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "785/124",
-   "answer": "It is not true that SFT Forge’s cleaned data trains a better model; its own experiment found no measurable benefit at that scale. **Ask me about** how SFT Forge processes data.",
+   "tokens_prompt_completion": "1008/78",
+   "answer": "It is **not true** that SFT Forge’s cleaned data trains a better model; its own experiment found no measurable benefit at that scale. Ask me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1728,14 +1744,18 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 605.884500000684,
-   "total_ms": 610.3075000028184,
+   "first_token_ms": 530.9497999987798,
+   "total_ms": 534.5317999999679,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "798/101",
-   "answer": "He cannot count on SFT Forge to improve his model; cleaning made no practical difference and the gates are not shown to improve models. Ask me about how the gates work.",
+   "tokens_prompt_completion": "1050/103",
+   "answer": "He cannot rely on SFT Forge to improve his model; its own experiment found no measurable benefit from the cleaned data at that scale. **Ask me about** his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
     {
      "title": "SFT-Forge README",
      "url": "https://github.com/Aditya2616/SFT-Forge"
@@ -1751,11 +1771,42 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 579.4773999987228,
-   "total_ms": 586.772499998915,
+   "first_token_ms": 1335.8337999998184,
+   "total_ms": 1339.7313999994367,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "724/142",
-   "answer": "He does not stop every injection; Sentinel blocks many known patterns and scores prompts, but it is only one layer of defence and misses a large share of unseen attacks. **It blocks 54 % of deepset and SPML attacks (72 %/70 % if flagged prompts count) and has 1 % false positives on hard‑benign text**.  \n\nAsk me about its implementation details.",
+   "tokens_prompt_completion": "926/108",
+   "answer": "No. Sentinel is **one layer of defence, not a complete one** and it misses a large share of unseen attacks.  \nAsk me about how Sentinel scores prompts.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Sentinel README",
+     "url": "https://github.com/Aditya2616/Sentinel"
+    }
+   ]
+  },
+  {
+   "id": "t08",
+   "group": "trap",
+   "question": "Is Sentinel enough to fully protect a chatbot from attacks?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 884.3282999987423,
+   "total_ms": 890.0665000001027,
+   "provider": "groq-backup",
+   "tokens_prompt_completion": "909/102",
+   "answer": "He notes Sentinel is **one layer, not a guarantee**; it misses a large share of unseen attacks at the default setting and cannot replace least‑privilege access, output checks or human review. Ask me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1770,29 +1821,6 @@
    ]
   },
   {
-   "id": "t08",
-   "group": "trap",
-   "question": "Is Sentinel enough to fully protect a chatbot from attacks?",
-   "pass": true,
-   "failures": [],
-   "status": 200,
-   "stage": "model",
-   "reason": "",
-   "first_token_ms": 579.7868000008748,
-   "total_ms": 584.4495999990613,
-   "provider": "groq-backup",
-   "tokens_prompt_completion": "676/91",
-   "answer": "Sentinel is **not a guarantee**; it is only one layer of defence and does not replace least‑privilege tool access, output checks or human review. A determined, adaptive attacker can still bypass it. Ask me about its detection rates.",
-   "fallback": null,
-   "grounded": true,
-   "sources": [
-    {
-     "title": "Sentinel README",
-     "url": "https://github.com/Aditya2616/Sentinel"
-    }
-   ]
-  },
-  {
    "id": "t09",
    "group": "trap",
    "question": "Does AgentFlow have a high task success rate?",
@@ -1801,10 +1829,10 @@
    "status": 200,
    "stage": "trap",
    "reason": "name not in sources: ['README']",
-   "first_token_ms": 836.5699999994831,
-   "total_ms": 840.8364999995683,
+   "first_token_ms": 982.8357000005781,
+   "total_ms": 986.5126000004238,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "742/169",
+   "tokens_prompt_completion": "867/117",
    "answer": "No. AgentFlow does not claim a high task success rate; its README reports the measured results, including the parts that did not work. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
@@ -1822,16 +1850,20 @@
    "pass": true,
    "failures": [],
    "status": 200,
-   "stage": "trap",
-   "reason": "name not in sources: ['README']",
-   "first_token_ms": 656.3144000028842,
-   "total_ms": 661.7495999998937,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 654.5358999974269,
+   "total_ms": 660.0398999980825,
    "provider": "groq-backup",
-   "tokens_prompt_completion": "785/107",
-   "answer": "No. EvalBench does not claim its rubric judge is highly reliable; it uses exact-match and rule checks first and the judge only where no rule exists, and its README reports the measured results. Ask me about his projects.",
+   "tokens_prompt_completion": "1010/169",
+   "answer": "Passage states that **EvalBench's rubric judge is highly reliable**, while passage clarifies that **EvalBench does not claim its rubric judge is highly reliable** and explains its actual evaluation method. Ask me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
     {
      "title": "EvalBench README",
      "url": "https://github.com/Aditya2616/EvalBench"

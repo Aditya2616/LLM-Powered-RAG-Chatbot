@@ -127,3 +127,31 @@ are retrieval and model-declined cases and still count as failures.
   deflections and the global cap still apply (tests: `test_eval_token_security`).
 - `ASK_TEST_HOOKS` is read from the environment only (`ASK_TEST_HOOKS=1`); no request header can enable it
   (`test_test_hooks_cannot_be_enabled_by_a_request`). Leave it unset in production.
+
+## The live 503 streak, and what changed
+
+During the deployed run, nine consecutive questions answered 503 `limit` while Groq's own headers showed quota left.
+The service answers 503 only when every provider in the chain was skipped or failed, so the cause had to be one of:
+
+1. **The per-minute token budget.** The old minute cap was 6,500 estimated tokens per Groq model. Paced at 7 s a question
+   (about 8.5 a minute at roughly 800 real tokens each) the real usage is about 6,800 a minute, over that cap, so both
+   Groq models were skipped for the rest of the minute. The cap is now 7,500, still below Groq's 8,000 tokens a minute,
+   and a 429 from Groq is handled by falling through anyway, so the cap can sit close to the limit.
+2. **Gemini not answering.** With both Groq models skipped, the only remaining leg was Gemini. If `GEMINI_MODEL` or the key
+   was not set in the Vercel project, or the call failed, the result is a 503. Locally the Gemini leg answers (evaluated
+   alone), so this needs the new logs to confirm on Vercel.
+3. **Blocking.** The route called the provider synchronously inside an async handler, so one slow call held back every
+   other request on the instance. It now runs in a thread pool.
+
+Per-instance memory counters are not the cause of a streak (they would under-count, not over-count), but without Upstash
+each instance counts separately.
+
+What the service does now:
+- A per-minute block is reported with an accurate `Retry-After` (seconds to the next minute) and recovers by itself at
+  the next minute; a daily block keeps 300.
+- Every 503, 429, 400 and every answer that needed a fallthrough or was refused by the verifier writes one JSON line to
+  stderr (Vercel runtime logs): `{"ask":{"status":503,"stage":"unavailable","attempts":["groq: budget_tokens_minute",
+  "groq-backup: budget_tokens_minute","gemini: 429"],"retry_after":23,...}}`. Reason codes only: no question, no answer
+  text, no key.
+- Every answer carries an `X-Ask-Provider` response header naming the provider that produced it (empty for fixed replies),
+  so a client can see in production whether the Gemini leg is serving.

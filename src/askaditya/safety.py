@@ -464,7 +464,9 @@ def verify_output(answer: str, passages: list[str], question: str = "") -> Verdi
     check = body or text
     words = content_tokens(check)
     if words:
-        seen = _seen_tokens(haystack)
+        # words the visitor used count as supported (an echo of the question is not a new fact); numbers and
+        # names are still checked against the passages alone
+        seen = _seen_tokens(haystack) | _seen_tokens(question)
         prefixes = {s[:5] for s in seen if len(s) >= 5}
         support = sum(_supported(w, seen, prefixes) for w in words) / len(words)
         if support < SUPPORT_MIN:
