@@ -1,14 +1,15 @@
-"""Generators for the free-tier chain: Groq (OpenAI-compatible) and Gemini, plus a local model for development.
+"""Generators for the chain: two Groq models, then Gemini on its free tier, plus a local model for development.
 
 Model ids come from the environment only. Any failure (HTTP error, 429, timeout, an empty or malformed
-body) raises ``ProviderUnavailable`` so the chain can move on; nothing here can start billing, because a
-free-tier key without a payment method has no billing to start.
+body) raises ``ProviderUnavailable`` so the chain can move on. Nothing here can start billing: a free-tier key
+without a payment method has no billing to start, and the chain also keeps its own request and token budgets
+so it stops asking before a provider would answer 429.
 """
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
 import httpx
@@ -39,8 +40,14 @@ def _strip_thinking(text: str) -> str:
     return re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
 
 
+def estimate_tokens(system: str, user: str, max_tokens: int) -> int:
+    """A deliberately high estimate of what one call costs against a tokens-per-minute budget: about one
+    token per 3.5 characters of prompt, plus the whole completion allowance."""
+    return int((len(system) + len(user)) / 3.5) + max_tokens
+
+
 class GroqProvider:
-    name = "groq"
+    """An OpenAI-compatible chat endpoint. ``name`` is the budget key (groq, groq-backup)."""
 
     def __init__(
         self,
@@ -49,8 +56,12 @@ class GroqProvider:
         base_url: str,
         timeout: float,
         transport: httpx.BaseTransport | None = None,
+        name: str = "groq",
+        reasoning_effort: str = "",
     ) -> None:
-        self.model, self.base_url, self.timeout = model, base_url, timeout
+        self.name, self.model, self.base_url, self.timeout = name, model, base_url, timeout
+        self.reasoning_effort = reasoning_effort
+        self.last_usage: dict = {}
         self._headers = {"Authorization": f"Bearer {key}"}
         self._client = httpx.Client(transport=transport, timeout=timeout)
 
@@ -61,22 +72,26 @@ class GroqProvider:
             "temperature": 0.2,
             "max_tokens": max_tokens,
         }
+        if self.reasoning_effort:
+            body["reasoning_effort"] = self.reasoning_effort
         try:
             r = self._client.post(
                 f"{self.base_url}/chat/completions", json=body, headers=self._headers
             )
         except httpx.HTTPError as exc:
-            raise ProviderUnavailable(f"groq: {type(exc).__name__}") from exc
+            raise ProviderUnavailable(f"{self.name}: {type(exc).__name__}") from exc
         if r.status_code == 429:
-            raise ProviderUnavailable("groq: 429", "rate_limit")
+            raise ProviderUnavailable(f"{self.name}: 429", "rate_limit")
         if r.status_code >= 400:
-            raise ProviderUnavailable(f"groq: HTTP {r.status_code}")
+            raise ProviderUnavailable(f"{self.name}: HTTP {r.status_code}")
         try:
-            text = _strip_thinking(r.json()["choices"][0]["message"]["content"] or "")
+            data = r.json()
+            text = _strip_thinking(data["choices"][0]["message"]["content"] or "")
         except (KeyError, IndexError, TypeError, ValueError) as exc:
-            raise ProviderUnavailable("groq: malformed response") from exc
+            raise ProviderUnavailable(f"{self.name}: malformed response") from exc
+        self.last_usage = data.get("usage") or {}
         if not text:
-            raise ProviderUnavailable("groq: empty", "empty")
+            raise ProviderUnavailable(f"{self.name}: empty", "empty")
         return text
 
 
@@ -93,6 +108,7 @@ class GeminiProvider:
     ) -> None:
         self.model = model if model.startswith("models/") else f"models/{model}"
         self.base_url, self.timeout = base_url, timeout
+        self.last_usage: dict = {}
         self._headers = {"x-goog-api-key": key}
         self._client = httpx.Client(transport=transport, timeout=timeout)
 
@@ -113,10 +129,12 @@ class GeminiProvider:
         if r.status_code >= 400:
             raise ProviderUnavailable(f"gemini: HTTP {r.status_code}")
         try:
-            parts = r.json()["candidates"][0]["content"]["parts"]
+            data = r.json()
+            parts = data["candidates"][0]["content"]["parts"]
             text = _strip_thinking("".join(p.get("text", "") for p in parts))
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise ProviderUnavailable("gemini: no candidates (blocked or empty)", "empty") from exc
+        self.last_usage = data.get("usageMetadata") or {}
         if not text:
             raise ProviderUnavailable("gemini: empty", "empty")
         return text
@@ -131,6 +149,7 @@ class LocalProvider:
         from rag_chatbot.llm import LocalLLM
 
         self._llm = LocalLLM(model, device)
+        self.last_usage: dict = {}
 
     def complete(self, system: str, user: str, max_tokens: int) -> str:
         from rag_chatbot.llm import Prompt
@@ -145,12 +164,15 @@ class LocalProvider:
 class Generation:
     text: str
     provider: str
-    attempts: list[str]
+    attempts: list[str] = field(default_factory=list)
+    usage: dict = field(default_factory=dict)
 
 
 class ProviderChain:
-    """Try each provider in order. A provider is skipped when its own daily budget or the global daily cap
-    is spent, so the service stops asking before a free tier would answer 429."""
+    """Try each provider in order. A provider is skipped when its own daily request budget, its per-minute or
+    per-day token budget, or the global daily cap is spent, so the service stops asking before a free tier
+    would answer 429. Token budgets use ``estimate_tokens`` and are corrected with the provider's reported
+    usage after a call."""
 
     def __init__(self, providers: list[Provider], limiter: Limiter, settings: AskSettings) -> None:
         self.providers = providers
@@ -167,17 +189,31 @@ class ProviderChain:
             raise Unavailable("no provider available")
         if not self.limiter.take_global(self.settings.global_daily_cap):
             raise Unavailable("global daily cap reached")
+        cfg = self.settings
+        est = estimate_tokens(system, user, cfg.max_new_tokens)
         for p in self.providers:
-            cap = self.settings.provider_daily_caps.get(p.name)
+            cap = cfg.provider_daily_caps.get(p.name)
             if cap is not None and not self.limiter.take_provider(p.name, cap):
-                attempts.append(f"{p.name}: daily budget spent")
+                attempts.append(f"{p.name}: daily request budget spent")
+                continue
+            tmin, tday = cfg.token_caps_minute.get(p.name), cfg.token_caps_day.get(p.name)
+            if (tmin is not None or tday is not None) and not self.limiter.take_tokens(
+                p.name, est, tmin, tday
+            ):
+                attempts.append(f"{p.name}: token budget spent")
                 continue
             try:
-                return Generation(
-                    p.complete(system, user, self.settings.max_new_tokens), p.name, attempts
-                )
+                text = p.complete(system, user, cfg.max_new_tokens)
             except ProviderUnavailable as exc:
                 attempts.append(str(exc))
+                if tmin is not None or tday is not None:
+                    self.limiter.adjust_tokens(p.name, -est)  # nothing was generated
+                continue
+            usage = dict(getattr(p, "last_usage", {}) or {})
+            real = int(usage.get("total_tokens") or usage.get("totalTokenCount") or 0)
+            if real and (tmin is not None or tday is not None):
+                self.limiter.adjust_tokens(p.name, real - est)
+            return Generation(text, p.name, attempts, usage)
         raise Unavailable("; ".join(attempts) or "no provider")
 
 
@@ -185,27 +221,42 @@ def build_chain(
     settings: AskSettings, limiter: Limiter, transport: httpx.BaseTransport | None = None
 ) -> ProviderChain:
     providers: list[Provider] = []
-    for name in settings.provider_order:
-        if name == "groq" and settings.groq_api_key and settings.groq_model:
+    s = settings
+    for name in s.provider_order:
+        if name == "groq" and s.groq_api_key and s.groq_model:
             providers.append(
                 GroqProvider(
-                    settings.groq_api_key,
-                    settings.groq_model,
-                    settings.groq_base_url,
-                    settings.provider_timeout_s,
+                    s.groq_api_key,
+                    s.groq_model,
+                    s.groq_base_url,
+                    s.provider_timeout_s,
                     transport,
+                    "groq",
+                    s.groq_reasoning_effort,
                 )
             )
-        elif name == "gemini" and settings.gemini_api_key and settings.gemini_model:
+        elif name == "groq-backup" and s.groq_api_key and s.groq_model_backup:
+            providers.append(
+                GroqProvider(
+                    s.groq_api_key,
+                    s.groq_model_backup,
+                    s.groq_base_url,
+                    s.provider_timeout_s,
+                    transport,
+                    "groq-backup",
+                    s.groq_backup_reasoning_effort,
+                )
+            )
+        elif name == "gemini" and s.gemini_enabled and s.gemini_api_key and s.gemini_model:
             providers.append(
                 GeminiProvider(
-                    settings.gemini_api_key,
-                    settings.gemini_model,
-                    settings.gemini_base_url,
-                    settings.provider_timeout_s,
+                    s.gemini_api_key,
+                    s.gemini_model,
+                    s.gemini_base_url,
+                    s.provider_timeout_s,
                     transport,
                 )
             )
-        elif name == "local" and settings.local_model:
-            providers.append(LocalProvider(settings.local_model))
-    return ProviderChain(providers, limiter, settings)
+        elif name == "local" and s.local_model:
+            providers.append(LocalProvider(s.local_model))
+    return ProviderChain(providers, limiter, s)

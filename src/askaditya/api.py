@@ -150,6 +150,11 @@ def create_app(
         }
         if cfg.test_hooks:
             headers["X-Ask-Stage"] = result.stage
+            headers["X-Ask-Provider"] = result.provider or ""
+            u = result.usage or {}
+            headers["X-Ask-Tokens"] = (
+                f"{u.get('prompt_tokens', u.get('promptTokenCount', 0))}/{u.get('completion_tokens', u.get('candidatesTokenCount', 0))}"
+            )
             headers["X-Ask-Reason"] = re.sub(r"[^ -~]", "?", result.reason)[:120]
         return StreamingResponse(events(), media_type="text/event-stream", headers=headers)
 

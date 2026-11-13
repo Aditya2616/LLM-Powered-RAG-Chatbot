@@ -22,11 +22,17 @@ from .config import AskSettings
 class Limiter(Protocol):
     mode: str
 
-    def hit(self, key: str, ttl: int) -> int: ...
+    def hit(self, key: str, ttl: int, n: int = 1) -> int: ...
 
     def take_global(self, cap: int) -> bool: ...
 
     def take_provider(self, name: str, cap: int) -> bool: ...
+
+    def take_tokens(
+        self, name: str, n: int, per_minute: int | None, per_day: int | None
+    ) -> bool: ...
+
+    def adjust_tokens(self, name: str, delta: int) -> None: ...
 
     def check_ip(self, ip: str, per_minute: int, per_day: int) -> tuple[bool, int]: ...
 
@@ -42,7 +48,7 @@ class _Base:
         self.clock = clock
         self.salt = salt
 
-    def hit(self, key: str, ttl: int) -> int:  # pragma: no cover - interface
+    def hit(self, key: str, ttl: int, n: int = 1) -> int:  # pragma: no cover - interface
         raise NotImplementedError
 
     def check_ip(self, ip: str, per_minute: int, per_day: int) -> tuple[bool, int]:
@@ -63,6 +69,31 @@ class _Base:
     def take_provider(self, name: str, cap: int) -> bool:
         return self.hit(f"p:{name}:{_day(self.clock())}", 90000) <= cap
 
+    def take_tokens(self, name: str, n: int, per_minute: int | None, per_day: int | None) -> bool:
+        """Reserve an estimated ``n`` tokens against the model's per-minute and per-day budgets. When either
+        is over, the reservation is given back and False is returned, so the chain moves on before the
+        provider would answer 429."""
+        now = self.clock()
+        keys = [
+            (f"t:{name}:m:{int(now // 60)}", 90, per_minute),
+            (f"t:{name}:d:{_day(now)}", 90000, per_day),
+        ]
+        totals = [self.hit(k, ttl, n) for k, ttl, _ in keys]
+        if any(
+            cap is not None and total > cap for total, (_, _, cap) in zip(totals, keys, strict=True)
+        ):
+            for k, ttl, _ in keys:
+                self.hit(k, ttl, -n)
+            return False
+        return True
+
+    def adjust_tokens(self, name: str, delta: int) -> None:
+        """Replace an estimate by the real usage once the provider has reported it."""
+        if delta:
+            now = self.clock()
+            self.hit(f"t:{name}:m:{int(now // 60)}", 90, delta)
+            self.hit(f"t:{name}:d:{_day(now)}", 90000, delta)
+
 
 class MemoryLimiter(_Base):
     mode = "memory"
@@ -72,7 +103,7 @@ class MemoryLimiter(_Base):
         self._d: dict[str, tuple[int, float]] = {}
         self._lock = threading.Lock()
 
-    def hit(self, key: str, ttl: int) -> int:
+    def hit(self, key: str, ttl: int, n: int = 1) -> int:
         now = self.clock()
         with self._lock:
             if len(self._d) > 5000:
@@ -80,7 +111,7 @@ class MemoryLimiter(_Base):
             count, exp = self._d.get(key, (0, 0.0))
             if exp <= now:
                 count, exp = 0, now + ttl
-            count += 1
+            count += n
             self._d[key] = (count, exp)
             return count
 
@@ -103,19 +134,19 @@ class UpstashLimiter(_Base):
         self._client = httpx.Client(transport=transport, timeout=2.0)
         self._fallback = fallback
 
-    def hit(self, key: str, ttl: int) -> int:
+    def hit(self, key: str, ttl: int, n: int = 1) -> int:
         k = f"ask:{key}"
         try:
             r = self._client.post(
                 f"{self.url}/pipeline",
-                json=[["INCR", k], ["EXPIRE", k, ttl, "NX"]],
+                json=[["INCRBY", k, n], ["EXPIRE", k, ttl, "NX"]],
                 headers=self._headers,
             )
             r.raise_for_status()
             return int(r.json()[0]["result"])
         except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError):
             return self._fallback.hit(
-                key, ttl
+                key, ttl, n
             )  # Upstash unreachable: per-instance counting rather than none
 
 

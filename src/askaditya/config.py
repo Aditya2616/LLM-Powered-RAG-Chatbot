@@ -1,7 +1,10 @@
 """Settings for the Ask-Aditya service, read from environment variables.
 
-Nothing here names a hosted model: ``GROQ_MODEL`` and ``GEMINI_MODEL`` must be set in the environment.
-A provider without a key and a model is simply not part of the chain.
+Nothing here names a hosted model: ``GROQ_MODEL``, ``GROQ_MODEL_BACKUP`` and ``GEMINI_MODEL`` must be set in
+the environment. A provider without a key and a model is simply not part of the chain.
+
+The default chain is two Groq models (primary, then backup, because Groq's limits are per model) and then
+Gemini on its free tier as the last resort. Gemini can be switched off with ``ASK_DISABLE_GEMINI=1``.
 """
 
 from __future__ import annotations
@@ -13,6 +16,14 @@ from pathlib import Path
 
 ALLOWED_ORIGINS = ("https://adityajain16.vercel.app", "http://127.0.0.1:8765")
 CONTACT_EMAIL = "itsaditya1610@gmail.com"
+
+# Groq free-tier limits per model (docs/notes/ASK_ADITYA.md): 30 requests/min, 1,000 requests/day,
+# 8,000 tokens/min, 200,000 tokens/day. The defaults stay well inside them: a question costs about
+# 1,000 to 1,500 tokens, so 150 questions a day use roughly 150,000 to 225,000 estimated tokens, and the
+# token caps below stop the service asking before Groq would answer 429.
+DEFAULT_REQUEST_CAPS = {"groq": 150, "groq-backup": 150, "gemini": 100}
+DEFAULT_TOKEN_CAPS_DAY = {"groq": 170_000, "groq-backup": 170_000}
+DEFAULT_TOKEN_CAPS_MINUTE = {"groq": 6_500, "groq-backup": 6_500}
 
 
 def _int(env: Mapping[str, str], name: str, default: int) -> int:
@@ -36,25 +47,31 @@ def _caps(raw: str) -> dict[str, int]:
 class AskSettings:
     index_dir: Path = Path("private/index")
     allowed_origins: tuple[str, ...] = ALLOWED_ORIGINS
-    provider_order: tuple[str, ...] = ("groq", "gemini")
+    provider_order: tuple[str, ...] = ("groq", "groq-backup", "gemini")
     groq_api_key: str = ""
     groq_model: str = ""
+    groq_model_backup: str = ""
+    groq_reasoning_effort: str = ""
+    groq_backup_reasoning_effort: str = ""
     groq_base_url: str = "https://api.groq.com/openai/v1"
     gemini_api_key: str = ""
     gemini_model: str = ""
+    gemini_enabled: bool = True
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     local_model: str = ""
     upstash_url: str = ""
     upstash_token: str = ""
     ip_per_minute: int = 10
     ip_per_day: int = 60
-    global_daily_cap: int = 120
-    provider_daily_caps: dict[str, int] = field(
-        default_factory=lambda: {"groq": 100, "gemini": 100}
+    global_daily_cap: int = 350
+    provider_daily_caps: dict[str, int] = field(default_factory=lambda: dict(DEFAULT_REQUEST_CAPS))
+    token_caps_day: dict[str, int] = field(default_factory=lambda: dict(DEFAULT_TOKEN_CAPS_DAY))
+    token_caps_minute: dict[str, int] = field(
+        default_factory=lambda: dict(DEFAULT_TOKEN_CAPS_MINUTE)
     )
     top_k: int = 5
     max_new_tokens: int = 220
-    provider_timeout_s: float = 8.0
+    provider_timeout_s: float = 12.0
     test_hooks: bool = False
     contact_email: str = CONTACT_EMAIL
     ip_salt: str = "ask-aditya"
@@ -65,19 +82,27 @@ class AskSettings:
         e: Mapping[str, str] = os.environ if env is None else env
         order = tuple(
             p.strip().lower()
-            for p in e.get("ASK_PROVIDER_ORDER", "groq,gemini").split(",")
+            for p in e.get("ASK_PROVIDER_ORDER", "groq,groq-backup,gemini").split(",")
             if p.strip()
         )
-        caps = {"groq": 100, "gemini": 100}
+        caps = dict(DEFAULT_REQUEST_CAPS)
         caps.update(_caps(e.get("ASK_PROVIDER_DAILY_CAPS", "")))
+        tday = dict(DEFAULT_TOKEN_CAPS_DAY)
+        tday.update(_caps(e.get("ASK_TOKEN_CAPS_DAY", "")))
+        tmin = dict(DEFAULT_TOKEN_CAPS_MINUTE)
+        tmin.update(_caps(e.get("ASK_TOKEN_CAPS_MINUTE", "")))
         return cls(
             index_dir=Path(e.get("ASK_INDEX_DIR", "private/index")),
             provider_order=order,
             groq_api_key=e.get("GROQ_API_KEY", ""),
             groq_model=e.get("GROQ_MODEL", ""),
+            groq_model_backup=e.get("GROQ_MODEL_BACKUP", ""),
+            groq_reasoning_effort=e.get("GROQ_REASONING_EFFORT", ""),
+            groq_backup_reasoning_effort=e.get("GROQ_BACKUP_REASONING_EFFORT", ""),
             groq_base_url=e.get("GROQ_BASE_URL", cls.groq_base_url).rstrip("/"),
             gemini_api_key=e.get("GEMINI_API_KEY", ""),
             gemini_model=e.get("GEMINI_MODEL", ""),
+            gemini_enabled=e.get("ASK_DISABLE_GEMINI", "") != "1",
             gemini_base_url=e.get("GEMINI_BASE_URL", cls.gemini_base_url).rstrip("/"),
             local_model=e.get("ASK_LOCAL_MODEL", ""),
             upstash_url=(e.get("UPSTASH_REDIS_REST_URL") or e.get("KV_REST_API_URL") or "").rstrip(
@@ -86,11 +111,13 @@ class AskSettings:
             upstash_token=e.get("UPSTASH_REDIS_REST_TOKEN") or e.get("KV_REST_API_TOKEN") or "",
             ip_per_minute=_int(e, "ASK_IP_PER_MINUTE", 10),
             ip_per_day=_int(e, "ASK_IP_PER_DAY", 60),
-            global_daily_cap=_int(e, "ASK_GLOBAL_DAILY_CAP", 120),
+            global_daily_cap=_int(e, "ASK_GLOBAL_DAILY_CAP", 350),
             provider_daily_caps=caps,
+            token_caps_day=tday,
+            token_caps_minute=tmin,
             top_k=_int(e, "ASK_TOP_K", 5),
             max_new_tokens=_int(e, "ASK_MAX_NEW_TOKENS", 220),
-            provider_timeout_s=float(e.get("ASK_PROVIDER_TIMEOUT_S", "8") or 8),
+            provider_timeout_s=float(e.get("ASK_PROVIDER_TIMEOUT_S", "12") or 12),
             test_hooks=e.get("ASK_TEST_HOOKS", "") == "1",
             contact_email=e.get("ASK_CONTACT_EMAIL", CONTACT_EMAIL),
             ip_salt=e.get("ASK_IP_SALT", "ask-aditya"),

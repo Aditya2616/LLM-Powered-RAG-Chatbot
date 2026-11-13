@@ -44,6 +44,7 @@ class Result:
     reason: str = ""
     provider: str | None = None
     timings: dict = field(default_factory=dict)
+    usage: dict = field(default_factory=dict)
 
 
 def _src(title: str, url: str) -> dict:
@@ -185,9 +186,9 @@ class AskPipeline:
                 )
             else:
                 r = self._unknown("model" if declined else "verify", reason)
-            r.provider, r.timings = gen.provider, timings
+            r.provider, r.timings, r.usage = gen.provider, timings, gen.usage
             return r
         text = re.sub(r"\n{3,}", "\n\n", verdict.answer)
-        return Result(
-            text, self._sources(hits, text), True, None, "model", "", gen.provider, timings
-        )
+        r = Result(text, self._sources(hits, text), True, None, "model", "", gen.provider, timings)
+        r.usage = gen.usage
+        return r
