@@ -229,6 +229,11 @@ def build(
         raise RuntimeError(f"phone-like digit runs survived in résumé chunks {leaked}")
     out_dir.mkdir(parents=True, exist_ok=True)
     sources = {"resume": sha256(resume), "corpus": sha256(corpus)}
+    sources["platform_name"] = (
+        "default"
+        if platform == DEFAULT_PLATFORM_NAME
+        else hashlib.sha256(platform.encode()).hexdigest()
+    )
     sources.update({f"readme:{p.name}": sha256(p / "README.md") for p in projects})
     digest = hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest()[:8]
     today = today or dt.date.today()

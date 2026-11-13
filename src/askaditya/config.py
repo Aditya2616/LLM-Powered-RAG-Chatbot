@@ -70,7 +70,7 @@ class AskSettings:
         default_factory=lambda: dict(DEFAULT_TOKEN_CAPS_MINUTE)
     )
     top_k: int = 5
-    max_new_tokens: int = 220
+    max_new_tokens: int = 400
     provider_timeout_s: float = 12.0
     test_hooks: bool = False
     contact_email: str = CONTACT_EMAIL
@@ -116,7 +116,7 @@ class AskSettings:
             token_caps_day=tday,
             token_caps_minute=tmin,
             top_k=_int(e, "ASK_TOP_K", 5),
-            max_new_tokens=_int(e, "ASK_MAX_NEW_TOKENS", 220),
+            max_new_tokens=_int(e, "ASK_MAX_NEW_TOKENS", 400),
             provider_timeout_s=float(e.get("ASK_PROVIDER_TIMEOUT_S", "12") or 12),
             test_hooks=e.get("ASK_TEST_HOOKS", "") == "1",
             contact_email=e.get("ASK_CONTACT_EMAIL", CONTACT_EMAIL),

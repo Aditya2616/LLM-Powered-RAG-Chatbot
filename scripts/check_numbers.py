@@ -611,10 +611,10 @@ def claims(d: dict) -> list[tuple[str, bool]]:
     ev_counts = {g: sum(r["group"] == g for r in ev_rows) for g in GROUP_LABEL}
     out.append(
         (
-            "the README's question counts (84 = 44 + 15 + 10 + 10 + 5) match eval/ask_aditya_eval.jsonl",
-            len(ev_rows) == 84
+            "the README's question counts (86 = 46 + 15 + 10 + 10 + 5) match eval/ask_aditya_eval.jsonl",
+            len(ev_rows) == 86
             and ev_counts
-            == {"factual": 44, "unpublished": 15, "trap": 10, "injection": 10, "offtopic": 5},
+            == {"factual": 46, "unpublished": 15, "trap": 10, "injection": 10, "offtopic": 5},
         )
     )
     out.append(

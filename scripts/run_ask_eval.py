@@ -63,6 +63,8 @@ def ask(client: httpx.Client, base: str, q: dict, headers: dict) -> dict:
         with client.stream("POST", f"{base}/api/ask", json=body, headers=headers, timeout=60) as r:
             out["status"] = r.status_code
             out["stage"] = r.headers.get("x-ask-stage")
+            out["provider"] = r.headers.get("x-ask-provider")
+            out["tokens"] = r.headers.get("x-ask-tokens")
             out["reason"] = r.headers.get("x-ask-reason")
             ctype = r.headers.get("content-type", "")
             if r.status_code != 200:
@@ -154,6 +156,30 @@ def judge(q: dict, res: dict) -> list[str]:
             if not any(e.lower() in hay for e in q["expect_source"]):
                 fails.append(f"no source matching {q['expect_source']}")
     return fails
+
+
+def _platform_names() -> list[str]:
+    """The product name that the private index uses; it must never be stored in a results file."""
+    names = [
+        os.environ.get(k, "").strip() for k in ("ASK_PLATFORM_NAME", "ASSISTANT_PLATFORM_NAME")
+    ]
+    return [n for n in names if n]
+
+
+def scrub(value):
+    """Replace the private product name in any string inside ``value`` (case-insensitively)."""
+    names = _platform_names()
+    if not names or value is None:
+        return value
+    if isinstance(value, str):
+        for n in names:
+            value = re.sub(re.escape(n), "[PLATFORM]", value, flags=re.I)
+        return value
+    if isinstance(value, list):
+        return [scrub(v) for v in value]
+    if isinstance(value, dict):
+        return {k: scrub(v) for k, v in value.items()}
+    return value
 
 
 def free_port() -> int:
@@ -325,6 +351,15 @@ def main() -> int:
     ap.add_argument(
         "--note", default="", help="free text recorded with the run (model, device, load)"
     )
+    ap.add_argument(
+        "--pause-generated",
+        type=float,
+        default=0.0,
+        help="seconds to wait after a question that reached a model (token-per-minute budgets)",
+    )
+    ap.add_argument(
+        "--ids", default="", help="comma-separated question ids to run (iterate on failures)"
+    )
     ap.add_argument("--no-probes", action="store_true")
     ap.add_argument("--limit", type=int, default=0, help="only the first N questions (smoke test)")
     args = ap.parse_args()
@@ -335,6 +370,9 @@ def main() -> int:
         for line in args.eval.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+    if args.ids:
+        wanted = set(args.ids.split(","))
+        questions = [q for q in questions if q["id"] in wanted]
     if args.limit:
         questions = questions[: args.limit]
     server = None
@@ -377,10 +415,12 @@ def main() -> int:
                         "reason": res.get("reason"),
                         "first_token_ms": res["first_token_ms"],
                         "total_ms": res["total_ms"],
-                        "answer": done.get("answer"),
+                        "provider": res.get("provider"),
+                        "tokens_prompt_completion": res.get("tokens"),
+                        "answer": scrub(done.get("answer")),
                         "fallback": done.get("fallback"),
                         "grounded": done.get("grounded"),
-                        "sources": done.get("sources"),
+                        "sources": scrub(done.get("sources")),
                     }
                 )
                 print(
@@ -389,6 +429,8 @@ def main() -> int:
                 )
                 if args.pause:
                     time.sleep(args.pause)
+                if args.pause_generated and res.get("stage") in ("model", "verify", "trap"):
+                    time.sleep(args.pause_generated)
     finally:
         if server:
             server.stop()
@@ -438,7 +480,11 @@ def main() -> int:
         "probes": extra,
         "results": results,
     }
+    summary = scrub(summary)
     blob = json.dumps(summary, ensure_ascii=False)
+    assert not any(n.lower() in blob.lower() for n in _platform_names()), (
+        "the product name reached the results"
+    )
     assert FORBIDDEN not in blob.lower(), "the forbidden name appeared in the results"
     out = ROOT / "results" / f"ask_eval_{args.tag}.json"
     out.parent.mkdir(exist_ok=True)

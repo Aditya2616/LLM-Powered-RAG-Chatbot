@@ -26,7 +26,14 @@ def normalise(text: str) -> str:
     Currency symbols become words, thousands separators and percent signs are normalised, dashes become
     spaces, curly quotes become straight ones. Used for answer matching and groundedness only.
     """
-    t = text.lower().replace("’", "'").replace("‘", "'").replace(" ", " ")
+    t = (
+        text.lower()
+        .replace("’", "'")
+        .replace("‘", "'")
+        .replace(" ", " ")
+        .replace(" ", " ")
+        .replace(" ", " ")
+    )
     t = re.sub(r"£\s?(\d[\d,]*(?:\.\d+)?)", lambda m: f"{m.group(1)} pounds", t)
     t = re.sub(r"(?<=\d),(?=\d{3}\b)", "", t)
     t = re.sub(r"(\d)\s?%", r"\1 percent", t)

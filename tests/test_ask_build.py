@@ -14,8 +14,14 @@ def test_the_index_and_version_are_written(tmp_path):
         v["corpus_version"].startswith("2026-01-02-")
         and len(v["corpus_version"]) == len("2026-01-02-") + 8
     )
-    assert set(v["sources"]) == {"resume", "corpus", "readme:Atlas", "readme:Beacon"}
-    assert all(len(h) == 64 for h in v["sources"].values())
+    assert set(v["sources"]) == {
+        "resume",
+        "corpus",
+        "platform_name",
+        "readme:Atlas",
+        "readme:Beacon",
+    }
+    assert all(len(h) == 64 for k, h in v["sources"].items() if k != "platform_name")
     idx = AskIndex.load(tmp_path / "idx")
     assert idx.version == v["corpus_version"] and len(idx.chunks) == v["chunks"] > 5
 
