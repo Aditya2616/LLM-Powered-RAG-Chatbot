@@ -58,6 +58,7 @@ class AskSettings:
     test_hooks: bool = False
     contact_email: str = CONTACT_EMAIL
     ip_salt: str = "ask-aditya"
+    eval_token: str = ""
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> AskSettings:
@@ -93,4 +94,5 @@ class AskSettings:
             test_hooks=e.get("ASK_TEST_HOOKS", "") == "1",
             contact_email=e.get("ASK_CONTACT_EMAIL", CONTACT_EMAIL),
             ip_salt=e.get("ASK_IP_SALT", "ask-aditya"),
+            eval_token=e.get("ASK_EVAL_TOKEN", ""),
         )

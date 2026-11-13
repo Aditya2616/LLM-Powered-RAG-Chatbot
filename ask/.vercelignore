@@ -1,0 +1,8 @@
+# A .vercelignore replaces .gitignore for `vercel deploy`, so the git-ignored private/index and the
+# copied code ARE uploaded. List here what must not be.
+persona/
+README.md
+__pycache__/
+*.pyc
+private/platform_name.txt
+private/index/dense.npy

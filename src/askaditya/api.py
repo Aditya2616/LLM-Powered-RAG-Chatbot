@@ -7,6 +7,7 @@ means nothing unverified is ever shown.
 
 from __future__ import annotations
 
+import hmac
 import json
 import re
 import time
@@ -90,7 +91,14 @@ def create_app(
         except BadRequest as exc:
             return JSONResponse({"error": str(exc)}, status_code=400)
         hook = request.headers.get("x-ask-test", "") if cfg.test_hooks else ""
-        allowed, retry = lim.check_ip(client_ip(request), cfg.ip_per_minute, cfg.ip_per_day)
+        exempt = bool(cfg.eval_token) and hmac.compare_digest(
+            request.headers.get("x-ask-eval", ""), cfg.eval_token
+        )
+        allowed, retry = (
+            (True, 0)
+            if exempt
+            else lim.check_ip(client_ip(request), cfg.ip_per_minute, cfg.ip_per_day)
+        )
         if not allowed:
             return JSONResponse(
                 {"error": "rate_limited", "retry_after": retry},
