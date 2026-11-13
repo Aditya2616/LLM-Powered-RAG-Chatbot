@@ -19,10 +19,27 @@ _GLOSSARY = re.compile(
 _HE = r"(he|aditya|his|him)"
 
 _LEAD = re.compile(
-    r"\b(led|lead|leads|leader|leadership|manage[sd]?|managing|mentor\w*|supervis\w*|team lead|co-?lead)\b",
+    r"\b(led|lead|leads|leader|leadership|manag\w*|mentor\w*|supervis\w*|team lead|co-?lead)\b",
     re.I,
 )
-_CERT = re.compile(r"\b(certif\w*|credentials?|courses? (has|did|have)|licen[cs]es)\b", re.I)
+_CERT = re.compile(
+    r"\b(certif\w*|credentials?|courses?|licen[cs]es|coursera|deeplearning|linkedin learning|deloitte|job simulation)\b",
+    re.I,
+)
+_COURSEWORK = re.compile(
+    r"\b(university|college|degree|semester|syllabus|curriculum|coursework|b\.?tech|subjects?)\b",
+    re.I,
+)
+_CERT_STOP = set(
+    """a an the is are was were be been he his him aditya does do did have has had any which what who how many
+    much list all of in on at for from with about to and or certification certifications certified certificate
+    certificates certify credential credentials course courses taken take took hold holds got get earned earn
+    completed complete done licence license licences licenses training program programs some anything""".split()
+)
+_STUDENT = re.compile(
+    r"\b(is|are|was) (he|aditya)\b.{0,15}\b(a |an )?(student|undergrad\w*|studying|pursuing|enrolled)\b|\bis (he|aditya) (still )?(in|at) (college|university|school)\b",
+    re.I,
+)
 _EDU = re.compile(
     r"\b(educat\w*|degree|universit\w*|college|studies|studied|study|graduat\w*|coursework|b\.?tech|major|school|gguipu|ggsipu)\b",
     re.I,
@@ -33,15 +50,19 @@ _COMPANY = [
     ("15FORTEEN", re.compile(r"\b15 ?forteen\b|\bfounder'?s office\b", re.I)),
 ]
 _EXPERIENCE = re.compile(
-    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at)\b",
+    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?|positions?|jobs?|held|titles?|employed|before|previous(ly)?|earlier|past|formerly)\b",
     re.I,
 )
 _SKILLS = re.compile(
     r"\b(skills?|tech stack|technolog\w*|tools?|languages?|frameworks?|librar(y|ies)|proficien\w*|expertise|good at|strengths?|infra\w*|stack)\b",
     re.I,
 )
+_KNOWS2 = re.compile(
+    r"\b(?:any|some|much|real|hands-on|practical|professional)\s+(?P<term>[\w.+#&/-]{2,30}(?: [\w.+#&/-]{2,20})?)\s+experience\b",
+    re.I,
+)
 _KNOWS = re.compile(
-    r"\b(know|knows|use|uses|using|used|work(ed|s)? (with|on)|experience (with|in|of)|familiar (with)?|proficient (in|with)|skilled (in|at|with)|knowledge of|expertise in|comfortable with|handled?)\s+(?:the |any |of |in |with )?(?P<term>[\w .+#&/-]{2,40}?)\s*[?.!]*$",
+    r"\b(know|knows|use|uses|using|used|work(ed|s)? (with|on)|experience (with|in|of)|experienced (with|in|at)|familiar (with)?|proficient (in|with)|skilled (in|at|with)|knowledge of|expertise in|comfortable with|tried|touched|handled?)\s+(?:the |any |of |in |with )?(?P<term>[\w .+#&/-]{2,40}?)\s*[?.!]*$",
     re.I,
 )
 _PROJECTS_SHORT = re.compile(r"\bprojects?\b(?:\W+\w+){0,4}\W*$", re.I)
@@ -143,15 +164,31 @@ class Profile:
         items = _bullets(text)
         if not items:
             return None
-        want = [
-            w for w in ("deeplearning", "linkedin", "coursera", "deloitte") if w in question.lower()
+        words = [
+            w
+            for w in re.findall(r"[a-z0-9.+&-]+", question.lower())
+            if w not in _CERT_STOP and len(w) > 1
         ]
-        picked = [i for i in items if any(w in i.lower() for w in want)] or items
-        head = (
-            f"He lists {len(items)} certifications:"
-            if picked is items
-            else f"{len(picked)} of his {len(items)} certifications match:"
-        )
+        picked, phrase = items, ""
+        for n in range(
+            len(words), 0, -1
+        ):  # the longest run of the question's own words that names some
+            for i in range(len(words) - n + 1):
+                part = " ".join(words[i : i + n])
+                hit = [c for c in items if part in c.lower()]
+                if hit and len(hit) < len(items):
+                    picked, phrase = hit, part
+                    break
+            if phrase:
+                break
+        if words and not phrase and picked is items:
+            head = f"None of his {len(items)} listed certifications names {' '.join(words)}. He lists {len(items)}:"
+        elif picked is items:
+            head = f"He lists {len(items)} certifications:"
+        elif len(picked) == 1:
+            head = f"One of his {len(items)} certifications matches:"
+        else:
+            head = f"{len(picked)} of his {len(items)} certifications match:"
         body = (
             "; ".join(f"{i + 1}. {c}" for i, c in enumerate(picked))
             if picked is items
@@ -159,10 +196,24 @@ class Profile:
         )
         note = (
             " His résumé lists five of the seven; the portfolio lists all of them."
-            if re.search(r"r[ée]sum[ée]( PDF)? lists five", text, re.I)
+            if picked is items and re.search(r"r[ée]sum[ée]( PDF)? lists five", text, re.I)
             else ""
         )
         return _fit([head, body + ".", note.strip()] if note else [head, body + "."])
+
+    def student(self) -> str | None:
+        """ "Is he a student?": the degree in progress and the internship he holds alongside it."""
+        items = [
+            i for i in _bullets(self._section("Education")) if not i.lower().startswith("no cgpa")
+        ]
+        if not items:
+            return None
+        parts = [f"Yes, he is studying: {items[0].rstrip('.')}."]
+        for h, _ in self._roles():
+            if re.search(r"\bcurrent\b", h, re.I):
+                parts.append(f"Alongside, he works as {self._role_line(h)}.")
+                break
+        return _fit(parts)
 
     def education(self) -> str | None:
         items = _bullets(self._section("Education"))
@@ -176,6 +227,25 @@ class Profile:
         if not roles:
             return None
         named = [n for n, rx in _COMPANY if rx.search(question)]
+        if re.search(
+            r"\b(before|previous(ly)?|prior|earlier|past|former(ly)?|used to|other than|apart from)\b",
+            question,
+            re.I,
+        ):
+            older = [
+                (h, b)
+                for h, b in roles
+                if not re.search(r"\bcurrent\b", h, re.I)
+                and not any(n.lower() in h.lower() for n in named)
+            ]
+            if older:
+                parts = ["Before his current role he held:"]
+                for h, b in older:
+                    first = next((x for x in b if "no further detail" not in x.lower()), "")
+                    parts.append(
+                        self._role_line(h) + (f": {first.rstrip('.')}" if first else "") + "."
+                    )
+                return _fit(parts)
         if not named and re.search(r"\b(currently|right now|now|current)\b", question, re.I):
             named = ["Ethara"]
         picked = [
@@ -317,16 +387,18 @@ class Profile:
         if _LEAD.search(q) and re.search(rf"\b{_HE}\b|\bteam\b|\bpeople\b|\bleadership\b", q, re.I):
             if a := self.leadership():
                 return a, "leadership"
-        if _CERT.search(q) and (a := self.certifications(q)):
+        if _STUDENT.search(q) and (a := self.student()):
+            return a, "student"
+        if _CERT.search(q) and not _COURSEWORK.search(q) and (a := self.certifications(q)):
             return a, "certifications"
-        m = _KNOWS.search(q)
+        m = _KNOWS.search(q) or _KNOWS2.search(q)
         if m and re.match(
             rf"\s*(does|do|did|has|have|is|can|could|what|which)\b.*\b{_HE}\b", q, re.I
         ):
             term = m.group("term")
             parts = [x for x in re.split(r"\s*(?:,|\band\b|\bor\b|/)\s*", term) if x]
             found = [self.knows(x) for x in parts]
-            if parts and all(f and f.startswith("Yes") for f in found):
+            if len(parts) > 1 and all(f and f.startswith("Yes") for f in found):
                 said = " and ".join(x.strip(" .?!") for x in parts)
                 return f"Yes. {said} are in his skills list or project stacks.", "skill"
             if len(parts) == 1 and found[0] and not _COMPANY[0][1].search(term):

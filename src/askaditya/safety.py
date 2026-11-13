@@ -89,6 +89,20 @@ _INJECTION = [
     ),
     ("delimiter", r"\b(new|updated|additional) (instructions?|rules?|system prompt)\s*[:\-]"),
     (
+        "reveal",  # "repeat the text above", "translate your instructions", "starting with 'You are'"
+        r"\b(repeat|print|output|echo|recite|reproduce|display|show|read back|copy|dump|translate|summari[sz]e|paraphrase|rephrase|tell me|give me|write out|say)\b.{0,40}\b(text|words|messages?|content|everything|conversation|context)\b.{0,25}\b(above|before this|before my|so far|earlier|preceding|verbatim|word for word)\b",
+    ),
+    ("reveal", r"\b(text|everything|words|content|messages?) (above|before this)\b"),
+    ("reveal", r"\bstarting with ['\"“‘]?you are\b"),
+    (
+        "reveal",
+        r"\b(repeat|print|output|echo|recite|reproduce|display|show|reveal|translate|summari[sz]e|paraphrase|rephrase|list|read|share|tell me|give me|leak|dump|write out|disclose|explain)\b.{0,25}\b(your|these|those|the (initial|original|hidden|secret|system|developer|above|previous|first|full|exact))\s+(\w+ )?(instructions?|prompts?|rules|guidelines|directives|configuration|setup|programming|policies|policy)\b",
+    ),
+    ("reveal", r"\b(developer|system) (message|prompt|instructions?)\b"),
+    ("delimiter", r"#{2,}\s*(system|assistant|user|human|instructions?|prompt|new|developer)\b"),
+    ("delimiter", r"<\|[^>]{0,30}\|>|\[/?inst\]|<<\s*/?sys\s*>>|\[/?system\]"),
+    ("delimiter", r"(?:^|[#>\])\n]|\s{2,})\s*(system|assistant|developer|human)\s*:"),
+    (
         "exfil",
         r"\b(your|the (server|system|app|backend|deployment|assistant)'?s?)\s+(\w+\s)?(api[ -]?keys?|secrets?|passwords?|credentials?|environment variables?|env vars?|tokens?)\b.{0,30}\b(print|show|reveal|leak|give|tell|what)",
     ),
@@ -143,6 +157,34 @@ def _email(email: str) -> str:
 _TOPICS = [
     (
         "salary",
+        r"\b(ctc|lpa|lakhs?|pay ?(grade|band|scale|slab|package)|salary band|earn(s|ing|ings)?|earned|income|take[- ]home|paid|what('?s| is| does| do) (he|aditya) (on|get|gets|make|makes|take|takes|draw)|per (annum|month|year)|annual (pay|income|package)|compensation package|total package|package (he|aditya|is|expectations?)|(what|which|roughly|approx\w*|expected|current|desired|his|aditya'?s)\b.{0,25}\bpackage\b(?!.{0,30}\b(manager|python|pip|npm|install|import|librar))|how much (does|do|would|will|is|are)\b.{0,15}\b(he|aditya|they)\b.{0,15}\b(cost|charge|want|ask)|what (does|would|will) he (charge|cost|ask for|want))\b",
+    ),
+    (
+        "start",
+        r"\b(can|could|will|would|does|do) (he|aditya)\b.{0,12}\b(start|join|begin|onboard|come on board|take up)\b|\bwhen\b.{0,20}\b(can|could|will|would|should|is|are|does)\b.{0,10}\b(he|aditya)\b.{0,15}\b(start|join|begin|onboard|be free|be available)|\b(start|starting|joining|join) (on |from |by |in |next |this )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today|next (week|month)|immediately|asap|soon|date)|\bhow soon\b|\bavailable (from|immediately|right away|asap|next|by|on)\b|\bavailability (date|to join|to start)\b|\bimmediate joiner\b|\bserv(e|es|ing) (a|his|the) notice\b|\blast working day\b|\bjoin (us|our|the team|my team|the company|full[- ]?time)\b|\bearliest (start|joining)\b",
+    ),
+    (
+        "grades",
+        r"\b(report card|transcripts?|academic (record|performance|results?|standing)|how did he do in (college|university|his degree|exams)|mark ?sheet|his scores in)\b",
+    ),
+    (
+        "location",
+        r"\b((willing|open|ready|happy|able) to (relocate|move|travel|commute)|where (is|are) he (willing|open) to work|city preference|prefer(red)? (location|city|country)|move (abroad|overseas|to another)|can (he|aditya) work (hybrid|remotely|on-?site|from home|in the office|from)|(prefer|like|want)\w*\b.{0,25}\b(to work|to live|work from|location|city))\b",
+    ),
+    (
+        "visa",
+        r"\b(immigration|eligible to work|legally (allowed|authori[sz]ed)|work in (the )?(us|usa|uk|canada|europe|germany|australia|singapore)|(us|uk|canadian|eu) (work )?(permit|citizen)|oci|opt|stem opt|tn status)\b",
+    ),
+    (
+        "phone",
+        r"\b(dial|landline|can i (call|ring|phone|text|whatsapp)|call (him|aditya)|phone (him|aditya)|(his|aditya'?s) (mobile|cell)\b|digits to call|voice call|speak (to|with) him on the phone)\b",
+    ),
+    (
+        "paper",
+        r"\b(thesis|dissertation|where will (it|the paper) be published|paper (title|topic|venue|submission|status)|(his|aditya'?s) research\b)",
+    ),
+    (
+        "salary",
         r"\b(salary|salaries|ctc|lpa|compensation|pay (expectation|range|scale)|expected (pay|salary)|how much (does|would|will|is|do)\b.{0,25}\b(earn|paid|make|cost to hire|charge)|stipend|remuneration|wage|hourly rate|rate card)\b",
     ),
     (
@@ -171,7 +213,7 @@ _TOPICS = [
     ),
     (
         "fifteenforteen",
-        r"\b(15 ?forteen|fifteen ?forteen)\b.{0,80}\b(what did|responsibilit\w*|achievement|work(ed)? on|duties|do there|did he do|detail|tell me more|accomplish\w*|projects?|impact|day[- ]to[- ]day)\b|\b(what did|responsibilit\w*|duties|did he do|detail|accomplish\w*)\b.{0,60}\b(15 ?forteen|fifteen ?forteen)\b",
+        r"\b(15 ?forteen|fifteen ?forteen)\b.{0,80}\b(what did|responsibilit\w*|achievement|work(ed)? on|duties|do there|did he do|details?|tell me more|accomplish\w*|projects?|impact|day[- ]to[- ]day)\b|\b(what did|responsibilit\w*|duties|did he do|details?|accomplish\w*|tell me more|work(ed)? on|which projects?|any details?)\b.{0,60}\b(15 ?forteen|fifteen ?forteen)\b",
     ),
     (
         "personal",
@@ -184,6 +226,14 @@ def unpublished_topic(question: str) -> str | None:
     q = _normalise(question)
     for topic, pattern in _TOPICS:
         if re.search(pattern, q, flags=re.I):
+            if (
+                topic == "salary"
+                and re.search(
+                    r"\b(python|pip|npm|pypi|librar\w+|install\w*|import|manager|software)\b", q
+                )
+                and not re.search(r"\b(salary|ctc|compensation|pay|paid|earn\w*)\b", q)
+            ):
+                continue  # a software package, not a pay package
             return topic
     return None
 
@@ -220,7 +270,7 @@ _ABOUT_HIM = re.compile(
 
 
 _CONTACT = re.compile(
-    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download))\b",
+    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download)|(portfolio|personal) (website|site|page|url|link)|his (website|site|homepage|portfolio)|where can i (find|see) his (portfolio|work))\b",
     re.I,
 )
 
@@ -240,9 +290,17 @@ _PROJECT_WORDS = re.compile(
 )
 
 
+_SUMMARY2 = re.compile(
+    r"\b(summar(y|ise|ize|ised)|sum up|outline|overview|rundown)\b.{0,25}\b(him|aditya|his (background|profile|career|r[ée]sum[ée]|cv|story|journey))\b|\b(his|aditya'?s) (background|story|journey)\b|\b(describe|outline) (his|aditya'?s) (background|profile|career)\b|\bbackground (of|on) (him|aditya)\b|\bwho is this (person|guy)\b|\bwhat('s| is) he (like|about)\b",
+    re.I,
+)
+
+
 def is_summary_question(question: str) -> bool:
     """ "Tell me about Aditya in two sentences", "who is he": answered from the About passage, no model."""
-    return bool(_SUMMARY.search(question)) and not _PROJECT_WORDS.search(question)
+    return bool(_SUMMARY.search(question) or _SUMMARY2.search(question)) and not (
+        _PROJECT_WORDS.search(question)
+    )
 
 
 _FABRICATE = re.compile(

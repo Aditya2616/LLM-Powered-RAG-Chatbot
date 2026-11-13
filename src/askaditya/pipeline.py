@@ -108,6 +108,9 @@ class AskPipeline:
 
     def _about_passage(self) -> str:
         """The About bullets of the indexed portfolio text, joined in order."""
+        whole = [s["text"] for s in self.index.profile if s["section"] == "About"]
+        if whole:  # the section as written, not chunks that overlap
+            return "\n".join(whole)
         return "\n".join(
             c["text"]
             for c in self.index.chunks
@@ -176,6 +179,7 @@ class AskPipeline:
             return m.group(1).rstrip(".,") if m else ""
 
         email, li, gh, cv = find("Email"), find("LinkedIn"), find("GitHub"), find("R.sum.")
+        site = find("Portfolio")
         if not email:
             return None
         parts = [f"You can reach Aditya by email at **{email}** (preferred)"]
@@ -184,6 +188,8 @@ class AskPipeline:
         if gh:
             parts.append(f"or on GitHub at {gh}")
         text = ", ".join(parts) + "."
+        if site:
+            text += f" His portfolio website is {site}."
         if cv:
             text += f" His résumé is at {cv}."
         text += " Ask me about his projects."
