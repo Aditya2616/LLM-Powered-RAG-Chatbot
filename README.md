@@ -407,7 +407,7 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 
 <!-- END ask_probes -->
 
-**Caveats.** The numbers above come from a 1.5B local model on a shared GPU, not from the models the service will use, so accuracy and latency will differ once real keys are in place; the time-to-first-token figures include a shared machine and are not a claim about the deployed service. The factual questions were also used to tune retrieval and the verifier. The injection screen is a list of patterns and will miss attacks phrased differently, and the topic detector is keyword based, so an unusual phrasing of an unpublished topic can reach the model (where the grounded prompt and the verifier are the remaining defences). Nothing here is called production-ready.
+**Caveats.** The numbers above come from a 1.5B local model on a shared GPU, not from the models the service will use, so accuracy and latency will differ once real keys are in place; the time-to-first-token figures include a shared machine and are not a claim about the deployed service. The factual questions were also used to tune retrieval and the verifier. The verifier is lexical: it cannot catch a sentence that reuses words from the sources in a wrong relation (the local model once attributed VoiceScribe's demo voice to the wrong model and the answer passed), so a more capable generator reduces that risk but nothing here removes it. The injection screen is a list of patterns and will miss attacks phrased differently, and the topic detector is keyword based, so an unusual phrasing of an unpublished topic can reach the model (where the grounded prompt and the verifier are the remaining defences). Nothing here is called production-ready.
 
 ## Limitations
 

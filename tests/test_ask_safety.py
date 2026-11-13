@@ -365,3 +365,13 @@ def test_the_leading_follow_up_label_is_not_a_problem(persona_dir):
     )
     r = pipe.answer("Where does Sam work now?")
     assert r.stage == "model" and "Follow-up suggestion" not in r.answer
+
+
+def test_list_numbering_possessives_and_digit_prefixed_names_are_not_inventions():
+    passages = [
+        "Skills. AgentFlow calls search, Python, SQL, email and document tools. Hugging Face Transformers. He held a role at 15FORTEEN, Delhi."
+    ]
+    assert verify_output("AgentFlow calls these tools:\n1. search\n2. Python\n3. SQL", passages).ok
+    assert verify_output("He uses Hugging Face's Transformers.", passages).ok
+    assert verify_output("He held a role at 15FORTEEN in Delhi.", passages).ok
+    assert not verify_output("The tools are 2 in number: 7 of them.", passages).ok

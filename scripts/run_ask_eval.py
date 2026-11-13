@@ -207,7 +207,11 @@ def probes(env: dict[str, str]) -> dict:
     try:
         s.wait_ready()
         with httpx.Client(timeout=180) as c:
-            codes = [ask(c, s.base, q, {})["status"] for _ in range(3)]
+            cheap = {
+                "question": "What is his salary?",
+                "history": [],
+            }  # a fixed reply: no generation to slow the probe down
+            codes = [ask(c, s.base, cheap, {})["status"] for _ in range(3)]
             r = c.post(f"{s.base}/api/ask", json={"question": "x"})
             out["rate_limit"] = {
                 "statuses": codes,

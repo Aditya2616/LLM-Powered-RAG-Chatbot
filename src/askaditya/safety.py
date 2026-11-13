@@ -328,9 +328,12 @@ _FOLLOW_UP = re.compile(
 )
 
 
+_LIST_MARKER = re.compile(r"(?m)^\s*(?:[-*]\s*)?\d{1,2}[.)]\s+")
+
+
 def numbers_in(text: str) -> set[str]:
     out = set()
-    for m in _NUMBER.finditer(text):
+    for m in _NUMBER.finditer(_LIST_MARKER.sub("", text)):
         n = m.group(0).rstrip("%").replace(",", "").rstrip(".")
         if n:
             out.add(n)
@@ -422,8 +425,11 @@ def _unseen_names(body: str, haystack: str) -> list[str]:
     seen = _seen_tokens(haystack)
     prefixes = {s[:5] for s in seen if len(s) >= 5}
     bad = []
-    for sentence in re.split(r"(?<=[.!?])\s+", body):
-        words = re.findall(r"[A-Za-z][A-Za-z0-9'.+#-]*", sentence)
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", body):
+        words = [
+            w[:-2] if w.endswith("'s") else w
+            for w in re.findall(r"(?<![0-9A-Za-z])[A-Za-z][A-Za-z0-9'.+#-]*", sentence)
+        ]
         for i, w in enumerate(words):
             if i == 0 or not w[0].isupper() or w.lower() in _SKIP_CAPS or len(w) < 3:
                 continue
