@@ -23,7 +23,7 @@ MIN_RELEVANCE = (
     3.0  # best BM25 score below which a question with no mention of Aditya counts as off topic
 )
 
-COVERAGE_MIN = 0.6  # share of a question's content words found in its top three chunks
+COVERAGE_MIN = 0.5  # share of a question's content words found in its top five chunks
 
 SYSTEM_PROMPT = (
     "You answer questions about Aditya Jain for visitors to his portfolio, using ONLY the numbered context "
@@ -94,6 +94,42 @@ class AskPipeline:
             True,
             None,
             "assistant",
+        )
+
+    def _about_passage(self) -> str:
+        """The About bullets of the indexed portfolio text, joined in order."""
+        return "\n".join(
+            c["text"]
+            for c in self.index.chunks
+            if c["title"] == "Portfolio" and c["section"] == "About"
+        )
+
+    def _summary(self) -> Result | None:
+        """Who he is, from the About passage (no model): the degree, what he works on, the current role."""
+        bullets = [b.strip() for b in re.findall(r"(?m)^- (.+(?:\n  .+)*)", self._about_passage())]
+        bullets = [re.sub(r"\s*\n\s*", " ", b) for b in bullets]
+        parts: list[str] = []
+        for b in dict.fromkeys(bullets):  # chunks overlap, so a bullet can appear twice
+            if m := re.match(r"Aditya Jain\.\s*(.+)", b):
+                parts.append(f"Aditya Jain is a {m.group(1).rstrip('.')}.")
+            elif b.startswith("Works mainly"):
+                parts.append(f"He {b[0].lower()}{b[1:].rstrip('.')}.")
+            elif m := re.match(r"Now:\s*(.+)", b):
+                parts.append(f"Right now his role is {m.group(1).rstrip('.')}.")
+            elif b.startswith("Open to"):
+                parts.append(f"He is {b[0].lower()}{b[1:].rstrip('.')}.")
+        if len(parts) < 2:
+            return None
+        text = " ".join(parts) + " Ask me about his projects."
+        return Result(text, [_src("Portfolio", PORTFOLIO)], True, None, "summary")
+
+    def _fabrication(self) -> Result:
+        """A request to add a claim about him: refused, with what the sources do say."""
+        summary = self._summary()
+        base = "I can only say what his résumé, portfolio and READMEs say, so I won't add claims that are not in them."
+        text = f"{base} {summary.answer}" if summary else f"{base} Ask me about his projects."
+        return Result(
+            text, [_src("Portfolio", PORTFOLIO)], False, "refused", "refused", "fabrication"
         )
 
     def _contact(self) -> Result | None:
@@ -169,12 +205,12 @@ class AskPipeline:
     @staticmethod
     def answerable(question: str, hits: list[Hit]) -> bool:
         """An objective sign that the retrieved passages cover the question: most of its content words occur in
-        the top three chunks (at least ``COVERAGE_MIN`` of them, and at least two words)."""
+        the top five chunks (at least ``COVERAGE_MIN`` of them, and at least two words)."""
         words = set(content_tokens(question))
         if len(words) < 2:
             return False
         seen: set[str] = set()
-        for h in hits[:3]:
+        for h in hits[:5]:
             seen |= set(content_tokens(f"{h.chunk['section']} {h.chunk['text']}"))
         return len(words & seen) / len(words) >= COVERAGE_MIN
 
@@ -188,10 +224,16 @@ class AskPipeline:
             rule = safety.screen_injection(text)
             if rule:
                 return self._refused(rule)
+        if safety.is_fabrication_request(question):
+            return self._fabrication()
         topic = safety.unpublished_topic(question)
         if topic:
             d = safety.deflection(topic, self.email)
             return Result(d.text, [_src("Portfolio", PORTFOLIO)], False, "unknown", "topic", topic)
+        if safety.is_summary_question(question):
+            summary = self._summary()
+            if summary:
+                return summary
         if safety.is_contact_question(question):
             contact = self._contact()
             if contact:

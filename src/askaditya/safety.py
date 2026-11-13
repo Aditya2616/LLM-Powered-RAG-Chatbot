@@ -80,8 +80,8 @@ _INJECTION = [
         r"\b(you are now|from now on you|act as|pretend (to be|you)|role-?play|roleplay|imagine you are|behave as|simulate (a|an|being)|your new (role|persona|name))\b",
     ),
     (
-        "persona",
-        r"\b(dan|do anything now|developer mode|jailbreak|god mode|unfiltered|no restrictions|without (any )?(restrictions|filters|rules))\b",
+        "persona",  # instructions aimed at the assistant, not the topic words ("does Sentinel block jailbreaks?")
+        r"\b(do anything now|developer mode|god mode|dan mode)\b|\b(you (are|will be|must be|should be)|you'?re|be|become|act (as|like)|behave (as|like)|respond as|answer as)\b.{0,20}\b(dan|unfiltered|jailbroken|uncensored|unrestricted)\b|\b(enable|activate|enter|switch to|turn on|unlock)\b.{0,15}\b(jailbreak|dan|god|developer) ?(mode)?\b|\b(answer|respond|reply|talk|speak|act|behave|operate)\b.{0,30}\b(no restrictions|without (any )?(restrictions|filters|rules))\b|\b(you have|with) no (restrictions|rules|filters)\b",
     ),
     (
         "delimiter",
@@ -90,19 +90,19 @@ _INJECTION = [
     ("delimiter", r"\b(new|updated|additional) (instructions?|rules?|system prompt)\s*[:\-]"),
     (
         "exfil",
-        r"\b(api[ -]?key|secret|password|credential|token|environment variable|env var)s?\b.{0,30}\b(print|show|reveal|leak|give|tell|what)",
+        r"\b(your|the (server|system|app|backend|deployment|assistant)'?s?)\s+(\w+\s)?(api[ -]?keys?|secrets?|passwords?|credentials?|environment variables?|env vars?|tokens?)\b.{0,30}\b(print|show|reveal|leak|give|tell|what)",
     ),
     (
         "exfil",
-        r"\b(print|show|reveal|leak|give|tell)\b.{0,30}\b(api[ -]?key|secret|password|credential|environment variable)",
+        r"\b(print|show|reveal|leak|dump|give|tell)( me| us)?\s+(your |the |all |every )?(\w+\s)?(api[ -]?keys?|secrets?|passwords?|credentials?|environment variables?|env vars?)\b",
     ),
     (
         "encoded",
         r"\b(base64|rot13|hex[- ]?encoded|decode this|in reverse order)\b.{0,40}\b(instruction|prompt|command)",
     ),
     (
-        "tool",
-        r"\b(execute|run|eval)\b.{0,20}\b(this|the following)?\s*(code|command|script|shell|python|sql)\b",
+        "tool",  # a command to run now, not "does AgentFlow run Python?"
+        r"\b(execute|run|eval)\b.{0,12}\b(this|the following|my|these)\b.{0,12}\b(code|command|script|shell|python|sql)\b|\b(execute|run|eval)\s*:",
     ),
 ]
 _LEET = str.maketrans(
@@ -228,6 +228,32 @@ _CONTACT = re.compile(
 def is_contact_question(question: str) -> bool:
     """How to reach him (email, LinkedIn, GitHub, résumé link): answered from the Contact passage, no model."""
     return bool(_CONTACT.search(question))
+
+
+_SUMMARY = re.compile(
+    r"\b(who is (aditya|he)\b|who'?s (aditya|he)\b|introduce (him|aditya)|(an? )?(short |quick |brief )?(bio|introduction|intro|elevator pitch)\b|summar(y|ise|ize) (of )?(him|aditya)|describe (him|aditya)|what (does|do) (aditya|he) do\b|(tell|say|give) me (something )?about (aditya|him)\b(?! ?(\'s|’s))(?!.{0,40}\b(project|experience|skills?|education|work|certif|contact|role|internship)))",
+    re.I,
+)
+_PROJECT_WORDS = re.compile(
+    r"\b(evalbench|agentflow|promptlab|sft|diffuselab|visionlens|voicescribe|sentinel|modelrouter|rag|chatbot|project)",
+    re.I,
+)
+
+
+def is_summary_question(question: str) -> bool:
+    """ "Tell me about Aditya in two sentences", "who is he": answered from the About passage, no model."""
+    return bool(_SUMMARY.search(question)) and not _PROJECT_WORDS.search(question)
+
+
+_FABRICATE = re.compile(
+    r"\b(add|insert|include|say|state|claim|write|mention|append|pretend|assert)\b.{0,40}\b(that )?(he|aditya|his)\b.{0,40}\b(has|have|is|was|won|holds?|graduated|worked|got|earned|achieved|speaks?|knows?)\b|\b(add|say|claim|state|write|include|mention|insert)\b.{0,40}\b\d+\+? (years?|yrs)\b",
+    re.I,
+)
+
+
+def is_fabrication_request(question: str) -> bool:
+    """A request to put a claim about him into the answer ("... and add that he has 10 years of experience")."""
+    return bool(_FABRICATE.search(question))
 
 
 def is_assistant_question(question: str) -> bool:

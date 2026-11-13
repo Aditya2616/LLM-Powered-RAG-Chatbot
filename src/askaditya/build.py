@@ -79,8 +79,50 @@ def platform_name(private_dir: Path | None = None) -> str:
 
 
 # ---------------------------------------------------------------------------------------- cleaning
+_SEPARATOR = re.compile(r"^\s*\|?\s*:?-{3,}[\s|:-]*$")
+
+
+def _cells(line: str) -> list[str]:
+    return [c.strip() for c in line.strip().strip("|").split("|")]
+
+
+def tables_to_rows(md: str) -> str:
+    """Rewrite every Markdown table so that each row carries its own column names, as one bullet:
+    ``| qwen | 44.6% |`` under ``| Model | Pass rate |`` becomes ``- Model: qwen; Pass rate: 44.6%``.
+    Chunking splits a table anywhere, and a row without its header says nothing."""
+    lines, out, i = md.split("\n"), [], 0
+    in_code = False
+    while i < len(lines):
+        line = lines[i]
+        if line.strip().startswith("```"):
+            in_code = not in_code
+        if (
+            not in_code
+            and line.lstrip().startswith("|")
+            and i + 1 < len(lines)
+            and _SEPARATOR.match(lines[i + 1])
+        ):
+            head = _cells(line)
+            i += 2
+            while i < len(lines) and lines[i].lstrip().startswith("|"):
+                row = _cells(lines[i])
+                pairs = [
+                    f"{h}: {c}" if h else c
+                    for h, c in zip(head, row, strict=False)
+                    if c and c != "-"
+                ]
+                if pairs:
+                    out.append("- " + "; ".join(pairs))
+                i += 1
+            continue
+        out.append(line)
+        i += 1
+    return "\n".join(out)
+
+
 def clean_markdown(md: str) -> str:
     md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
+    md = tables_to_rows(md)
     md = re.sub(r"```mermaid.*?```", "", md, flags=re.S)
     md = re.sub(r"<img[^>]*>", "", md)
     md = re.sub(r"</?(?:p|div|details|summary|br|picture|source)[^>]*>", "", md)

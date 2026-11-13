@@ -61,7 +61,7 @@ GUARDS = [
     ),
     _g(
         "evalbench",
-        r"(judge|reliab|accura|trust|agree|valid|human|score|grade|how well)",
+        r"(judge|reliab|trust|agree|valid|human|rubric|how well|how good)",
         r"(does not claim|not claim|only where no rule|no rule exists|not highly|exact[- ]match)",
         "It does not claim its rubric judge is highly reliable: exact-match and rule checks come first and the judge is used only where no rule exists.",
     ),
@@ -75,9 +75,18 @@ SAFE_FOLLOW_UP = "Ask me about his other projects."
 
 
 def guards_in_scope(question: str, answer: str) -> list[Guard]:
-    """Guards whose project is named in the question or the answer and whose topic words appear in either."""
+    """Guards whose project is named in the question or the answer and whose topic words appear in the
+    question (or whose false claim the answer itself asserts): a question about EvalBench's checkpoints does not
+    get a caveat about its judge."""
     text = _normalise(f"{question} {answer}")
-    return [g for g in GUARDS if g.trap.question.search(text) and g.topic.search(text)]
+    asked = _normalise(question)
+    claimed = asserts_false_claim(answer)
+    return [
+        g
+        for g in GUARDS
+        if g.trap.question.search(text)
+        and (g.topic.search(asked) or (claimed is not None and claimed.key == g.trap.key))
+    ]
 
 
 def enforce_caveats(question: str, answer: str) -> tuple[str, str | None]:

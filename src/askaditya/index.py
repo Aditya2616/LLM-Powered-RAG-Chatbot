@@ -9,10 +9,12 @@ from pathlib import Path
 
 from rag_chatbot.bm25 import BM25Index, bm25_tokens, rrf_fuse
 
+_EXTRA_STOP = {"use", "uses", "used", "using"}  # in nearly every README chunk: only noise
+
 
 def ask_tokens(text: str) -> list[str]:
     """BM25 tokens with possessives removed, so "RouterBench's" matches a question about RouterBench."""
-    return bm25_tokens(re.sub(r"['’]s\b", "", text))
+    return [t for t in bm25_tokens(re.sub(r"['’]s\b", "", text)) if t not in _EXTRA_STOP]
 
 
 PROJECTS = {
@@ -34,6 +36,11 @@ PROJECTS = {
 
 # Words a visitor uses -> the words the documents use for the same thing (appended to the query).
 EXPANSIONS = [
+    (r"\bword error rate\b", "WER"),
+    (
+        r"\b(best|worst|highest|lowest|top|scores?|scored|accuracy|pass rates?|how (well|fast|accurate))\b",
+        "Results found measured",
+    ),
     (r"\b(email|e-mail|contact|reach|linkedin|github|get in touch|message)\b", "Contact"),
     (
         r"\b(work(s|ing)? (now|currently|right now)|currently|current job|employer|intern(ship)?)\b",
@@ -45,6 +52,11 @@ EXPANSIONS = [
         "Education",
     ),
     (r"\b(skills?|tech stack|technolog\w*|tools?|languages?|frameworks?|libraries)\b", "Skills"),
+    (r"\b(ethara|genesis|15 ?forteen|post-?training|his (role|job|work))\b", "Experience"),
+    (
+        r"\b(introduc\w*|summar(y|ise|ize)|who is|overview|background|bio)\b",
+        "About",
+    ),
     (r"\b(open to|looking for|hiring|opportunit\w*)\b", "About"),
     (r"\b(based|located|where does he live|city|country)\b", "About"),
 ]
@@ -86,6 +98,10 @@ BOILERPLATE = re.compile(r"(Quickstart|Reproduce|Layout|Credits|Licen[cs]e)", re
 BOILERPLATE_FACTOR = 0.6
 
 PROFILE_TITLES = {"Portfolio", "Résumé"}
+ACRONYM_BOOST = (
+    1.4  # a chunk that spells an upper-case term of the question the same way (RLHF, WER, SFT)
+)
+_ACRONYM = re.compile(r"\b[A-Z][A-Z0-9]{1,6}\b")
 
 
 @dataclass
@@ -129,6 +145,12 @@ class AskIndex:
             dense = np.load(npy)
         return cls(data["chunks"], data["version"], data.get("traps", []), dense)
 
+    def _lead_chunk(self, project: str) -> int | None:
+        for i, c in enumerate(self.chunks):
+            if c["title"].startswith(project) and " > " not in c["section"]:
+                return i
+        return None
+
     def search(
         self, query: str, k: int = 5, query_vec: object | None = None, heuristics: bool = True
     ) -> list[Hit]:
@@ -137,8 +159,11 @@ class AskIndex:
         proj = named_project(query) if heuristics else None
         scoring_query = expand_query(query) if heuristics else query
         scores = self._bm25.scores(scoring_query)
+        acronyms = set(_ACRONYM.findall(query)) if heuristics else set()
         if heuristics:
             for i, c in enumerate(self.chunks):
+                if acronyms and acronyms & set(_ACRONYM.findall(c["text"])):
+                    scores[i] *= ACRONYM_BOOST
                 if proj:
                     if c["title"].startswith(proj):
                         scores[i] *= LEAD_BOOST if " > " not in c["section"] else PROJECT_BOOST
@@ -151,6 +176,13 @@ class AskIndex:
                         BOILERPLATE_FACTOR  # commands and file listings rarely hold the answer
                     )
         order = [int(i) for i in scores.argsort()[::-1] if scores[i] > 0][: max(20, 4 * k)]
+        lead = self._lead_chunk(proj) if proj else None
+        if lead is not None and lead not in order[:k]:
+            # the opening summary of a README the visitor named is always eligible: it holds the headline
+            order = [*order[: k - 1], lead, *[i for i in order[k - 1 :] if i != lead]]
+            scores[lead] = max(
+                float(scores[lead]), float(scores[order[k - 2]]) * 0.5 if k > 1 else 0.0
+            )
         if query_vec is not None and self.dense is not None:
             cos = self.dense @ query_vec
             dense_order = [int(i) for i in cos.argsort()[::-1][: max(20, 4 * k)]]

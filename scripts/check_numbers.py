@@ -358,7 +358,7 @@ def b_ask_eval(d: dict) -> str:
     ]
     rows = []
     for tag, r in d["ask"].items():
-        if tag.endswith("heldout"):
+        if tag.endswith("heldout") or tag == "recruiter":
             continue
         g = r["groups"]
         ft = r["first_token_ms"]
@@ -410,6 +410,29 @@ def b_ask_heldout(d: dict) -> str:
     )
 
 
+def b_ask_recruiter(d: dict) -> str:
+    r = d["ask"].get("recruiter")
+    if not r:
+        return "Not run."
+    t = r["total"]
+    ft = r["first_token_ms"]
+    mix: dict[str, int] = {}
+    for x in r["results"]:
+        if x.get("provider"):
+            mix[x["provider"]] = mix.get(x["provider"], 0) + 1
+    miss = [x for x in r["results"] if not x["pass"]]
+    lines = [
+        f"Unseen recruiter-style questions (`eval/ask_aditya_recruiter.jsonl`, {t['n']} questions written from the sources after the fixes above and not tuned on, run once on {r['meta']['date']} against the real API with the backup Groq model first and Gemini only on a 429; answers came from "
+        + ", ".join(f"{k} {v}" for k, v in sorted(mix.items()))
+        + f", the rest were fixed replies): **{t['passed']}/{t['n']} passed** (first token mean {ft['mean_all']:.0f} ms, p95 {ft['p95_all']:.0f} ms)."
+    ]
+    if miss:
+        lines += ["", "Every miss:", ""]
+        for x in miss:
+            lines.append(f'- {x["id"]} "{x["question"]}": {"; ".join(x["failures"])[:160]}')
+    return chr(10).join(lines)
+
+
 def b_ask_probes(d: dict) -> str:
     if not d["ask"]:
         return "Not run."
@@ -459,6 +482,7 @@ BLOCKS = {
     "ask_eval": b_ask_eval,
     "ask_probes": b_ask_probes,
     "ask_heldout": b_ask_heldout,
+    "ask_recruiter": b_ask_recruiter,
     "ask_tokens": b_ask_tokens,
     "ask_retrieval": b_ask_retrieval,
     "chunk_bullet": b_chunk_bullet,
@@ -679,7 +703,7 @@ def claims(d: dict) -> list[tuple[str, bool]]:
             all(
                 {g: v["n"] for g, v in r["groups"].items()} == ev_counts
                 for tag, r in d["ask"].items()
-                if not tag.endswith("heldout")
+                if not (tag.endswith("heldout") or tag == "recruiter")
             ),
         )
     )

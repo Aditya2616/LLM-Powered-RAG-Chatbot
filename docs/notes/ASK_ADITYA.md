@@ -161,3 +161,26 @@ What the service does now:
   text, no key.
 - Every answer carries an `X-Ask-Provider` response header naming the provider that produced it (empty for fixed replies),
   so a client can see in production whether the Gemini leg is serving.
+
+## Unseen recruiter questions: what failed and why
+
+A live trial with 30 questions nobody had tuned on found seven failures, all of them generalisation, not capacity:
+
+- A README table row lost its header when the chunker split the table, so "what is VoiceScribe's word error rate" or
+  "which EvalBench checkpoint scored best" had nothing to find. Tables are now indexed one row per bullet with the
+  column names (`tables_to_rows` in `build.py`).
+- A named project's opening summary could fall out of the top chunks behind boilerplate; it is now always included.
+  Upper-case terms (RLHF, WER) lift the chunks that spell them, and "use/uses/used" no longer count as search words.
+- "Tell me about Aditya in two sentences" matched the Contact section; introductions are now answered from the About
+  passage without a model, and a request to add a claim ("and say he has 10 years of experience") is refused with that
+  same true summary.
+- The injection screen fired on the words "jailbreak" and "run Python"; its rules now look for instructions aimed at the
+  assistant ("enable developer mode", "run this code:"), so questions about Sentinel and jailbreaks reach the model.
+- The EvalBench judge caveat was attached to any EvalBench question containing "score"; a caveat is now attached only
+  when the question is about that claim's topic or the answer asserts the claim.
+
+`eval/ask_aditya_recruiter.jsonl` (40 questions, written from the sources after these fixes) was run once. Its two
+misses are left as they are: "What are his main strengths?" (the model declined) and "What detector does VisionLens
+use?" (the chunk that names D-FINE nano is not among the seven retrieved; BM25 ranks the shorter chunks above it).
+During that run the backup Groq model answered 429 for most calls (its quota is shared with the deployed service's
+tests), so Gemini produced most of the generated answers; the per-provider counts are in the README.

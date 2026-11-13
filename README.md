@@ -367,7 +367,7 @@ flowchart LR
     U --> E
 ```
 
-**What runs, in order.** (1) Input validation. (2) An injection screen: this repository's own rule list over the question and every history item (it does not use Sentinel). (3) Deterministic replies for topics he has not published (salary, grades, notice period, relocation or remote work, visa, phone number, research-paper details, 15FORTEEN details, personal life); they never reach a model. (4) A fixed answer about the assistant itself, a polite refusal of off-topic questions, and the contact details (how to reach him, his LinkedIn, GitHub and résumé link) taken straight from the indexed Contact passage, never a phone number. (5) Retrieval. (6) Generation with a strict grounded prompt (third person, at most about 80 words, one follow-up suggestion). When a model declines although most of the question's words occur in the top three retrieved chunks, one other model of the chain is asked once before the answer becomes "I don't know" (counted in the budgets, logged as `decline_retry`). (7) Verification before anything is sent: no phone-like digit run, every number in the answer must occur in the retrieved passages, none of the six false claims about his projects may be asserted (a question that tries one gets the true statement from the sources), the capitalised names and most words must come from the passages, and a length cap. An answer that fails becomes "I don't know" plus his email.
+**What runs, in order.** (1) Input validation. (2) An injection screen: this repository's own rule list over the question and every history item (it does not use Sentinel). (3) Deterministic replies for topics he has not published (salary, grades, notice period, relocation or remote work, visa, phone number, research-paper details, 15FORTEEN details, personal life); they never reach a model. (4) A fixed answer about the assistant itself, a short introduction of him from the About passage, a refusal to add claims about him that the sources do not make, a polite refusal of off-topic questions, and the contact details (how to reach him, his LinkedIn, GitHub and résumé link) taken straight from the indexed Contact passage, never a phone number. (5) Retrieval. (6) Generation with a strict grounded prompt (third person, at most about 80 words, one follow-up suggestion). When a model declines although most of the question's words occur in the top five retrieved chunks, one other model of the chain is asked once before the answer becomes "I don't know" (counted in the budgets, logged as `decline_retry`). (7) Verification before anything is sent: no phone-like digit run, every number in the answer must occur in the retrieved passages, none of the six false claims about his projects may be asserted (a question that tries one gets the true statement from the sources), the capitalised names and most words must come from the passages, and a length cap. An answer that fails becomes "I don't know" plus his email.
 
 Because verification has to come first, the answer is generated completely, checked, and only then streamed as `token` events followed by `done`. Time to first token is therefore the whole generation time, not the first word.
 
@@ -378,7 +378,7 @@ Because verification has to come first, the answer is generated completely, chec
 |---|---|
 | bm25 | 39/46 (84.8%) |
 | bm25+heuristics | 45/46 (97.8%) |
-| hybrid (bm25+heuristics, dense) | 44/46 (95.7%) |
+| hybrid (bm25+heuristics, dense) | 45/46 (97.8%) |
 <!-- END ask_retrieval -->
 
 (The dense row uses MiniLM vectors computed offline as a stand-in; a hosted embedding model was not run.)
@@ -411,7 +411,7 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 | gemini-last: gemini leg alone (gemini-3.5-flash-lite); 86 questions, 2026-11-13, corpus 2026-11-13-9e087a2e | 46/46 (100.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 86/86 (100.0%) | 1325 / 3907 (answered by the model: 2047 / 5389) | 1790 / 2345 |
 | groq-backup: groq-backup leg alone (openai/gpt-oss-120b); 86 questions, 2026-11-13, corpus 2026-11-13-9e087a2e | 46/46 (100.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 86/86 (100.0%) | 493 / 1091 (answered by the model: 761 / 1189) | 1779 / 2977 |
 | groq-primary: groq leg alone (qwen/qwen3.8-27b); 86 questions, 2026-11-13, corpus 2026-11-13-9e087a2e | 46/46 (100.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 86/86 (100.0%) | 296 / 744 (answered by the model: 457 / 768) | 1781 / 527 |
-| live: live Vercel deployment ask-aditya (Hobby), chain Groq primary, Groq backup, Gemini last; client in India, retrieval BM25 only; 86 questions, 2026-11-13, corpus 2026-11-13-f915e9e9 | 36/46 (78.3%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 76/86 (88.4%) | 844 / 1730 (answered by the model: 1233 / 1796) | 0 / 1020 |
+| live: live Vercel deployment ask-aditya (Hobby), chain Groq primary, Groq backup, Gemini last; client in India, function in iad1, retrieval BM25 only; 86 questions, 2026-11-13, corpus 2026-11-13-1ab3af7a | 44/46 (95.7%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 84/86 (97.7%) | 714 / 1338 (answered by the model: 973 / 1436) | 0 / 659 |
 | local-qwen1.5b: local model Qwen2.5-1.5B-Instruct via the local provider, retrieval BM25 only; 86 questions, 2026-11-13, corpus 2026-11-13-e1a20a7d | 40/46 (87.0%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 80/86 (93.0%) | 7861 / 23521 (answered by the model: 12148 / 25512) | 1838 / 30283 |
 <!-- END ask_eval -->
 
@@ -429,6 +429,17 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 <!-- BEGIN ask_heldout -->
 Held-out paraphrases of the six false claims (`eval/ask_aditya_heldout.jsonl`, 12 questions, two per claim, written after the guards and not tuned on, run once on 2026-11-13 against the chain Groq, Groq backup, Gemini): **12/12 passed** (first token mean 484 ms, p95 777 ms).
 <!-- END ask_heldout -->
+
+**Unseen questions.** The 86 questions were used to tune retrieval and the verifier, so a pass there says little about questions nobody has looked at. After a live trial with 30 recruiter-style questions turned up failures, the causes were fixed (not the questions): Markdown tables are indexed one row per bullet with their column names (a row without its header says nothing), a named project's opening summary is always among the retrieved chunks, upper-case terms such as RLHF or WER lift the chunks that spell them, introductions ("tell me about him in two sentences") are answered from the About passage, a request to add a claim about him ("... and say he has 10 years of experience") is refused with the true summary, the injection screen looks for instructions aimed at the assistant instead of topic words (so a question about Sentinel and jailbreaks is answered), and a caveat about a false claim is attached only when the question is about that claim or the answer asserts it. Then a new set was written from the sources and run once:
+
+<!-- BEGIN ask_recruiter -->
+Unseen recruiter-style questions (`eval/ask_aditya_recruiter.jsonl`, 40 questions written from the sources after the fixes above and not tuned on, run once on 2026-11-13 against the real API with the backup Groq model first and Gemini only on a 429; answers came from gemini 26, groq-backup 1, the rest were fixed replies): **38/40 passed** (first token mean 1576 ms, p95 4861 ms).
+
+Every miss:
+
+- r06 "What are his main strengths?": fallback 'unknown', expected None; grounded False, expected True; missing ['generative AI', 'LLM', 'post-training', 'fine-tuning', 'SFT', 'RLHF']
+- r15 "What detector does VisionLens use?": missing ['D-FINE']
+<!-- END ask_recruiter -->
 
 <!-- BEGIN ask_probes -->
 - `gemini-last`: per-address limit [200, 200, 429] (200, 200, then 429 with a Retry-After header: ok); daily cap spent gives HTTP 503 with fallback `limit` and the test hook gives HTTP 503 with fallback `limit`, while deterministic answers still work: True; CORS preflight and origins ok.
