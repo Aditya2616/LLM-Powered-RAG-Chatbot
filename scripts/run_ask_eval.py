@@ -62,6 +62,8 @@ def ask(client: httpx.Client, base: str, q: dict, headers: dict) -> dict:
     try:
         with client.stream("POST", f"{base}/api/ask", json=body, headers=headers, timeout=60) as r:
             out["status"] = r.status_code
+            out["stage"] = r.headers.get("x-ask-stage")
+            out["reason"] = r.headers.get("x-ask-reason")
             ctype = r.headers.get("content-type", "")
             if r.status_code != 200:
                 r.read()

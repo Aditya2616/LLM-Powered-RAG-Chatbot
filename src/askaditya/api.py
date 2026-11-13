@@ -150,6 +150,7 @@ def create_app(
         }
         if cfg.test_hooks:
             headers["X-Ask-Stage"] = result.stage
+            headers["X-Ask-Reason"] = re.sub(r"[^ -~]", "?", result.reason)[:120]
         return StreamingResponse(events(), media_type="text/event-stream", headers=headers)
 
     return app

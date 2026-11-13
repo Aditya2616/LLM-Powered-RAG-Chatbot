@@ -162,7 +162,7 @@ class AskPipeline:
             SYSTEM_PROMPT, user, force_fail
         )  # raises Unavailable -> 503 in the API
         t_gen = time.perf_counter()
-        raw = gen.text.strip()
+        raw = re.sub(r"(?im)^\s*follow-?up( suggestion)?s?\s*:\s*", "", gen.text.strip()).strip()
         timings = {
             "retrieve_ms": round((t_retrieve - t0) * 1000, 1),
             "generate_ms": round((t_gen - t_retrieve) * 1000, 1),

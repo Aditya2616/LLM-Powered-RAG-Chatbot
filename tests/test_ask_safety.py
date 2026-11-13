@@ -333,3 +333,35 @@ def test_numbers_in_extracts_percentages_and_decimals():
         "1200",
         "2026",
     }
+
+
+def test_hyphenated_terms_months_and_word_forms_are_not_mistaken_for_inventions():
+    passages = [
+        "Experience. LLM Post-Training Intern at Ethara AI, Gurugram, Feb 2026 to present. "
+        "Co-Lead at Genesis, Oct 2025 to Feb 2026, led a team of developers working on AI-driven projects.",
+        "Education. B.Tech Computer Science, Aug 2023 to Jun 2027 (graduating 2027).",
+    ]
+    for answer in [
+        "He works as an LLM Post-Training Intern at Ethara AI. Ask me about his projects.",
+        "He was Co-Lead at Genesis from October 2025 to February 2026.",
+        "He led a team of developers working on AI-driven projects.",
+        "He graduates in June 2027.",
+        "His internship at Ethara AI started in February 2026.",
+    ]:
+        v = verify_output(answer, passages)
+        assert v.ok, (answer, v.reason)
+    assert not verify_output("He was Co-Lead at Initech from October 2025.", passages).ok
+    assert not verify_output("He graduates in June 2028.", passages).ok
+
+
+def test_the_leading_follow_up_label_is_not_a_problem(persona_dir):
+    from askaditya.index import AskIndex
+    from askaditya.pipeline import AskPipeline
+    from tests.ask_fakes import ScriptedProvider, make_chain
+
+    raw = "Sam works at Northwind Labs as a Data Engineer.\n\nFollow-up suggestion:\nAsk me about his projects."
+    pipe = AskPipeline(
+        AskIndex.load(persona_dir), make_chain([ScriptedProvider("fake", [raw])]), "me@example.test"
+    )
+    r = pipe.answer("Where does Sam work now?")
+    assert r.stage == "model" and "Follow-up suggestion" not in r.answer

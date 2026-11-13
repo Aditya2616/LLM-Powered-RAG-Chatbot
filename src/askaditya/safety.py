@@ -352,7 +352,7 @@ class Verdict:
 
 
 MAX_WORDS = 110
-SUPPORT_MIN = 0.55
+SUPPORT_MIN = 0.5
 _SKIP_CAPS = {
     "he",
     "his",
@@ -382,15 +382,55 @@ _SKIP_CAPS = {
 }
 
 
+_MONTHS = {
+    "january": "jan",
+    "february": "feb",
+    "march": "mar",
+    "april": "apr",
+    "june": "jun",
+    "july": "jul",
+    "august": "aug",
+    "september": "sep",
+    "sept": "sep",
+    "october": "oct",
+    "november": "nov",
+    "december": "dec",
+}
+
+
+def _canon(word: str) -> str:
+    w = word.lower().strip(".'")
+    return _MONTHS.get(w, w)
+
+
+def _seen_tokens(text: str) -> set[str]:
+    out: set[str] = set()
+    for tok in tokens(text):
+        for part in re.split(r"[-+:]", tok):
+            if part:
+                out.add(_canon(part))
+                out.add(_canon(part).rstrip("s"))
+    return out
+
+
+def _supported(word: str, seen: set[str], prefixes: set[str]) -> bool:
+    w = _canon(word)
+    return w in seen or w.rstrip("s") in seen or (len(w) >= 5 and w[:5] in prefixes)
+
+
 def _unseen_names(body: str, haystack: str) -> list[str]:
-    seen = set(tokens(haystack))
+    seen = _seen_tokens(haystack)
+    prefixes = {s[:5] for s in seen if len(s) >= 5}
     bad = []
     for sentence in re.split(r"(?<=[.!?])\s+", body):
         words = re.findall(r"[A-Za-z][A-Za-z0-9'.+#-]*", sentence)
         for i, w in enumerate(words):
             if i == 0 or not w[0].isupper() or w.lower() in _SKIP_CAPS or len(w) < 3:
                 continue
-            if w.lower().strip(".'") not in seen and w.lower().rstrip("s") not in seen:
+            parts = [p for p in re.split(r"[-+:]", w) if len(p) >= 2 and not p.isdigit()]
+            if parts and not all(
+                _supported(p, seen, prefixes) or p.lower() in _SKIP_CAPS for p in parts
+            ):
                 bad.append(w)
     return bad
 
@@ -415,8 +455,9 @@ def verify_output(answer: str, passages: list[str], question: str = "") -> Verdi
     check = body or text
     words = content_tokens(check)
     if words:
-        ctx = set(content_tokens(haystack))
-        support = sum(w in ctx for w in words) / len(words)
+        seen = _seen_tokens(haystack)
+        prefixes = {s[:5] for s in seen if len(s) >= 5}
+        support = sum(_supported(w, seen, prefixes) for w in words) / len(words)
         if support < SUPPORT_MIN:
             return Verdict(False, "", f"low support {support:.2f}")
     names = _unseen_names(check, haystack)
