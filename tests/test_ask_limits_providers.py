@@ -241,7 +241,12 @@ def test_the_chain_falls_over_to_the_next_provider():
     a = ScriptedProvider("groq", [ProviderUnavailable("groq: 429", "rate_limit")])
     b = ScriptedProvider("gemini", ["from gemini"])
     gen = make_chain([a, b]).generate("s", "u")
-    assert gen.text == "from gemini" and gen.provider == "gemini" and gen.attempts == ["groq: 429"]
+    assert (
+        gen.text == "from gemini"
+        and gen.provider == "gemini"
+        and gen.attempts[0] == "groq: 429"
+        and gen.attempts[1].startswith("groq: cooldown_set")
+    )
     assert len(a.calls) == 1 and len(b.calls) == 1
 
 

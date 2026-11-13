@@ -196,7 +196,7 @@ def test_failures_are_coded_and_a_daily_block_waits_for_the_next_day():
     chain = make_chain([ScriptedProvider("groq", ["x"]), gemini], s)
     with pytest.raises(Unavailable) as exc:
         chain.generate("s", "u" * 100)
-    assert exc.value.attempts == ["groq: budget_tokens_day", "gemini: 429"]
+    assert exc.value.attempts[:2] == ["groq: budget_tokens_day", "gemini: 429"]
     assert exc.value.retry_after >= 1
 
 
@@ -240,9 +240,9 @@ def test_a_503_and_a_fallthrough_are_logged_without_question_or_keys(capsys):
     err = capsys.readouterr().err
     lines = [json.loads(line)["ask"] for line in err.splitlines() if line.startswith('{"ask"')]
     assert any(
-        e["status"] == 200 and e["attempts"] == ["groq: 429"] and e["provider"] == "gemini"
+        e["status"] == 200 and e["attempts"][:1] == ["groq: 429"] and e["provider"] == "gemini"
         for e in lines
     )
-    assert any(e["status"] == 503 and e["attempts"] == ["groq: 429"] for e in lines)
+    assert any(e["status"] == 503 and e["attempts"][:1] == ["groq: 429"] for e in lines)
     assert "zebra-unique-token" not in err and "Northwind" not in err
     logging.getLogger("askaditya").handlers.clear()

@@ -47,12 +47,33 @@ class Provider(Protocol):
     def complete(self, system: str, user: str, max_tokens: int) -> str: ...
 
 
-def _retry_after(response: httpx.Response, default: int) -> int:
-    """Seconds from a Retry-After header (plain seconds; anything else falls back to ``default``)."""
+_DURATION = re.compile(
+    r"(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m(?!s))?(?:(\d+(?:\.\d+)?)s)?(?:(\d+(?:\.\d+)?)ms)?$"
+)
+
+
+def _duration_s(text: str) -> float | None:
+    """Seconds from a plain number or a Groq-style duration such as ``7.66s``, ``1m5.2s`` or ``250ms``."""
+    text = (text or "").strip()
     try:
-        return max(1, min(int(float(response.headers.get("retry-after", ""))), 3600))
+        return float(text)
     except ValueError:
-        return default
+        pass
+    m = _DURATION.match(text)
+    if not text or not m or not any(m.groups()):
+        return None
+    h, mi, sec, ms = (float(g) if g else 0.0 for g in m.groups())
+    return h * 3600 + mi * 60 + sec + ms / 1000
+
+
+def _retry_after(response: httpx.Response, default: int) -> int:
+    """How long to leave a rate-limited model alone: the ``Retry-After`` header, else the time Groq says its
+    token (then request) window needs to reset (``x-ratelimit-reset-tokens``), else ``default``."""
+    for name in ("retry-after", "x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+        seconds = _duration_s(response.headers.get(name, ""))
+        if seconds is not None:
+            return max(1, min(int(seconds) + 1, 3600))
+    return default
 
 
 def _strip_thinking(text: str) -> str:
@@ -237,7 +258,9 @@ class ProviderChain:
                 return "budget_tokens_minute", max(1, wait)
         return None
 
-    def generate(self, system: str, user: str, force_fail: bool = False) -> Generation:
+    def generate(
+        self, system: str, user: str, force_fail: bool = False, exclude: set[str] | None = None
+    ) -> Generation:
         attempts: list[str] = []
         waits: list[int] = []
         if force_fail or not self.providers:
@@ -254,6 +277,8 @@ class ProviderChain:
                 int(86400 - lim.clock() % 86400) + 1,
             )
         for p in self.providers:
+            if exclude and p.name in exclude:
+                continue
             now = lim.clock()
             cool = self._cooldown.get(p.name, 0.0)
             if cool > now:
@@ -285,6 +310,7 @@ class ProviderChain:
                 if exc.kind == "rate_limit":
                     ra = exc.retry_after or 20
                     self._cooldown[p.name] = lim.clock() + ra
+                    attempts.append(f"{p.name}: cooldown_set {ra}s")
                     waits.append(ra)
                 else:
                     waits.append(5)

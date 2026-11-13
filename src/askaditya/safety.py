@@ -219,6 +219,17 @@ _ABOUT_HIM = re.compile(
 )
 
 
+_CONTACT = re.compile(
+    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download))\b",
+    re.I,
+)
+
+
+def is_contact_question(question: str) -> bool:
+    """How to reach him (email, LinkedIn, GitHub, résumé link): answered from the Contact passage, no model."""
+    return bool(_CONTACT.search(question))
+
+
 def is_assistant_question(question: str) -> bool:
     return bool(_META.search(_normalise(question)))
 

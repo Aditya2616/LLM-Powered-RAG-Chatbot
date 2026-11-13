@@ -14,14 +14,16 @@ from dataclasses import dataclass, field
 from rag_chatbot.text import content_tokens, is_abstention
 
 from . import safety
-from .build import GITHUB, PORTFOLIO
+from .build import GITHUB, PORTFOLIO, phone_like
 from .guards import enforce_caveats, sanitise_follow_up
 from .index import AskIndex, Hit, contextual_query
-from .providers import ProviderChain
+from .providers import Generation, ProviderChain, Unavailable
 
 MIN_RELEVANCE = (
     3.0  # best BM25 score below which a question with no mention of Aditya counts as off topic
 )
+
+COVERAGE_MIN = 0.6  # share of a question's content words found in its top three chunks
 
 SYSTEM_PROMPT = (
     "You answer questions about Aditya Jain for visitors to his portfolio, using ONLY the numbered context "
@@ -94,6 +96,39 @@ class AskPipeline:
             "assistant",
         )
 
+    def _contact(self) -> Result | None:
+        """How to reach him, straight from the indexed Contact passage (no model, never a phone number)."""
+        chunk = next(
+            (
+                c
+                for c in self.index.chunks
+                if c["title"] == "Portfolio" and c["section"] == "Contact"
+            ),
+            None,
+        )
+        if not chunk:
+            return None
+
+        def find(label: str) -> str:
+            m = re.search(rf"{label}[^:\n]*:\s*(\S+)", chunk["text"])
+            return m.group(1).rstrip(".,") if m else ""
+
+        email, li, gh, cv = find("Email"), find("LinkedIn"), find("GitHub"), find("R.sum.")
+        if not email:
+            return None
+        parts = [f"You can reach Aditya by email at **{email}** (preferred)"]
+        if li:
+            parts.append(f"on LinkedIn at {li}")
+        if gh:
+            parts.append(f"or on GitHub at {gh}")
+        text = ", ".join(parts) + "."
+        if cv:
+            text += f" His résumé is at {cv}."
+        text += " Ask me about his projects."
+        if phone_like(text):
+            return None
+        return Result(text, [_src(chunk["title"], chunk["url"])], True, None, "contact")
+
     # --------------------------------------------------------------------------------- retrieval
     def retrieve(self, question: str, history: list[dict]) -> list[Hit]:
         query = contextual_query(question, history)
@@ -123,6 +158,26 @@ class AskPipeline:
                 break
         return out or [_src(hits[0].chunk["title"], hits[0].chunk["url"])]
 
+    @staticmethod
+    def _clean(text: str) -> tuple[str, bool]:
+        raw = re.sub(r"(?im)^\s*follow-?up( suggestion)?s?\s*:\s*", "", text.strip()).strip()
+        raw = re.sub(
+            r"\s*(【[^】]*】|\[\d{1,2}(?:\s*[,;–-]\s*\d{1,2})*\])", "", raw
+        )  # citation markers some models add
+        return raw, raw.upper().startswith("UNKNOWN") or is_abstention(raw)
+
+    @staticmethod
+    def answerable(question: str, hits: list[Hit]) -> bool:
+        """An objective sign that the retrieved passages cover the question: most of its content words occur in
+        the top three chunks (at least ``COVERAGE_MIN`` of them, and at least two words)."""
+        words = set(content_tokens(question))
+        if len(words) < 2:
+            return False
+        seen: set[str] = set()
+        for h in hits[:3]:
+            seen |= set(content_tokens(f"{h.chunk['section']} {h.chunk['text']}"))
+        return len(words & seen) / len(words) >= COVERAGE_MIN
+
     # ------------------------------------------------------------------------------------ answer
     def answer(
         self, question: str, history: list[dict] | None = None, force_fail: bool = False
@@ -137,6 +192,10 @@ class AskPipeline:
         if topic:
             d = safety.deflection(topic, self.email)
             return Result(d.text, [_src("Portfolio", PORTFOLIO)], False, "unknown", "topic", topic)
+        if safety.is_contact_question(question):
+            contact = self._contact()
+            if contact:
+                return contact
         if safety.is_assistant_question(question):
             return self._about_me()
         if safety.is_offtopic_pattern(question):
@@ -166,16 +225,30 @@ class AskPipeline:
         gen = self.chain.generate(
             SYSTEM_PROMPT, user, force_fail
         )  # raises Unavailable -> 503 in the API
+        raw, declined = self._clean(gen.text)
+        retried = False
+        if declined and not trap and self.answerable(question, hits):
+            # the passages cover the question, so one other model gets to answer before "I don't know"
+            retried = True
+            try:
+                gen2 = self.chain.generate(SYSTEM_PROMPT, user, exclude={gen.provider})
+            except Unavailable:
+                gen2 = None
+            if gen2 is not None:
+                gen = Generation(
+                    gen2.text,
+                    gen2.provider,
+                    [*gen.attempts, f"{gen.provider}: declined", *gen2.attempts],
+                    gen2.usage,
+                )
+                raw, declined = self._clean(gen2.text)
+            else:
+                gen.attempts = [*gen.attempts, f"{gen.provider}: declined", "decline_retry: none"]
         t_gen = time.perf_counter()
-        raw = re.sub(r"(?im)^\s*follow-?up( suggestion)?s?\s*:\s*", "", gen.text.strip()).strip()
-        raw = re.sub(
-            r"\s*(【[^】]*】|\[\d{1,2}(?:\s*[,;–-]\s*\d{1,2})*\])", "", raw
-        )  # citation markers some models add
         timings = {
             "retrieve_ms": round((t_retrieve - t0) * 1000, 1),
             "generate_ms": round((t_gen - t_retrieve) * 1000, 1),
         }
-        declined = raw.upper().startswith("UNKNOWN") or is_abstention(raw)
         verdict = None
         if not declined:
             verdict = safety.verify_output(
@@ -183,6 +256,8 @@ class AskPipeline:
             )
         if declined or not verdict.ok:
             reason = "model declined" if declined else verdict.reason
+            if retried:
+                reason = f"decline_retry; {reason}"
             if (
                 trap
             ):  # a question that tries one of the six false claims always gets the true statement
@@ -210,7 +285,14 @@ class AskPipeline:
         ):  # a caveat was added: drop the follow-up before cutting facts
             text = safety.split_follow_up(text)[0]
         r = Result(
-            text, self._sources(hits, text), True, None, "model", note or "", gen.provider, timings
+            text,
+            self._sources(hits, text),
+            True,
+            None,
+            "model",
+            "; ".join(x for x in ("decline_retry" if retried else "", note or "") if x),
+            gen.provider,
+            timings,
         )
         r.usage, r.attempts = gen.usage, gen.attempts
         return r
