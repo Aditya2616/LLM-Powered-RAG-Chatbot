@@ -252,7 +252,7 @@ TRAPS = [
         "PromptLab",
         r"promptlab|evolution\w* prompt|prompt ?lab",
         r"(evolution\w*|promptlab|it)\b.{0,60}\b(beats?|outperform\w*|better than|superior to|wins? against|surpass\w*)\b.{0,40}\brandom",
-        "No. On the two real tasks, PromptLab's evolutionary search ties the random-search baseline rather than beating it; its README reports the measured comparison.",
+        "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search ties random search at equal budget instead of beating it; it is ahead only on a synthetic task. Its README reports the measured comparison.",
     ),
     _t(
         "modelrouter",

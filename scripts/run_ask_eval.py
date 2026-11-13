@@ -206,7 +206,7 @@ def probes(env: dict[str, str]) -> dict:
     s = Server({**base_env, "ASK_IP_PER_MINUTE": "2"})
     try:
         s.wait_ready()
-        with httpx.Client() as c:
+        with httpx.Client(timeout=180) as c:
             codes = [ask(c, s.base, q, {})["status"] for _ in range(3)]
             r = c.post(f"{s.base}/api/ask", json={"question": "x"})
             out["rate_limit"] = {
@@ -220,7 +220,7 @@ def probes(env: dict[str, str]) -> dict:
     s = Server({**base_env, "ASK_GLOBAL_DAILY_CAP": "1", "ASK_TEST_HOOKS": "1"})
     try:
         s.wait_ready()
-        with httpx.Client() as c:
+        with httpx.Client(timeout=180) as c:
             first = ask(c, s.base, q, {})
             second = c.post(f"{s.base}/api/ask", json=q)
             hook = c.post(f"{s.base}/api/ask", json=q, headers={"x-ask-test": "limit"})
@@ -256,7 +256,7 @@ def probes(env: dict[str, str]) -> dict:
     s = Server(base_env)
     try:
         s.wait_ready()
-        with httpx.Client() as c:
+        with httpx.Client(timeout=180) as c:
             ok = c.options(
                 f"{s.base}/api/ask",
                 headers={
@@ -369,6 +369,8 @@ def main() -> int:
                         "pass": not fails,
                         "failures": fails,
                         "status": res["status"],
+                        "stage": res.get("stage"),
+                        "reason": res.get("reason"),
                         "first_token_ms": res["first_token_ms"],
                         "total_ms": res["total_ms"],
                         "answer": done.get("answer"),
@@ -386,7 +388,10 @@ def main() -> int:
     finally:
         if server:
             server.stop()
-    extra = {} if args.no_probes or not args.spawn else probes(env)
+    try:
+        extra = {} if args.no_probes or not args.spawn else probes(env)
+    except Exception as exc:  # a probe failure must not lose the question results
+        extra = {"error": {"pass": False, "detail": f"{type(exc).__name__}: {exc}"}}
     groups = {}
     for g in GROUPS:
         rs = [r for r in results if r["group"] == g]

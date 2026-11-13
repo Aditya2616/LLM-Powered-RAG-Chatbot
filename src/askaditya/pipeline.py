@@ -167,26 +167,23 @@ class AskPipeline:
             "retrieve_ms": round((t_retrieve - t0) * 1000, 1),
             "generate_ms": round((t_gen - t_retrieve) * 1000, 1),
         }
-        if raw.upper().startswith("UNKNOWN") or is_abstention(raw):
-            r = self._unknown("model", "model declined")
-            r.provider, r.timings = gen.provider, timings
-            return r
-        verdict = safety.verify_output(
-            raw, [f"{h.chunk['section']}. {h.chunk['text']}" for h in hits], question
-        )
-        if not verdict.ok:
-            if trap:
+        declined = raw.upper().startswith("UNKNOWN") or is_abstention(raw)
+        verdict = None
+        if not declined:
+            verdict = safety.verify_output(
+                raw, [f"{h.chunk['section']}. {h.chunk['text']}" for h in hits], question
+            )
+        if declined or not verdict.ok:
+            reason = "model declined" if declined else verdict.reason
+            if (
+                trap
+            ):  # a question that tries one of the six false claims always gets the true statement
                 src = [_src(f"{trap.project} README", f"{GITHUB}/{trap.project.replace(' ', '-')}")]
                 r = Result(
-                    trap.safe + " Ask me about his projects.",
-                    src,
-                    True,
-                    None,
-                    "trap",
-                    verdict.reason,
+                    trap.safe + " Ask me about his projects.", src, True, None, "trap", reason
                 )
             else:
-                r = self._unknown("verify", verdict.reason)
+                r = self._unknown("model" if declined else "verify", reason)
             r.provider, r.timings = gen.provider, timings
             return r
         text = re.sub(r"\n{3,}", "\n\n", verdict.answer)
