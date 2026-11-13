@@ -42,139 +42,139 @@
   },
   "torch_threads": 4,
   "logical_cpus": 12,
-  "cpu_load_percent_before": 7.0,
-  "cpu_load_percent_after": 14.0
+  "cpu_load_percent_before": 17.0,
+  "cpu_load_percent_after": 23.0
  },
  "queries": 14,
  "startup_seconds": {
-  "embedder_load": 0.4404733000001215,
-  "index_build": 1.6824233000006643,
-  "llm_load_and_first_call": 1.2068167999996149,
+  "embedder_load": 0.5007735999997749,
+  "index_build": 1.2829846000004181,
+  "llm_load_and_first_call": 1.3687536999996155,
   "chunks": 90
  },
  "retrieve_ms": {
-  "p50": 9.55,
-  "p95": 10.979999999999999
+  "p50": 9.6,
+  "p95": 10.370000000000001
  },
  "generate_ms": {
-  "p50": 3329.5,
-  "p95": 4343.51
+  "p50": 3148.5,
+  "p95": 4233.525000000001
  },
  "total_ms": {
-  "p50": 3337.8028000001905,
-  "p95": 4354.187080000156
+  "p50": 3157.618849999835,
+  "p95": 4243.983385000365
  },
  "rows": [
   {
    "id": "a01",
    "answerable": true,
-   "retrieve_ms": 8.1,
-   "generate_ms": 4194.3,
-   "total_ms": 4203.229199999441,
+   "retrieve_ms": 9.1,
+   "generate_ms": 3473.0,
+   "total_ms": 3482.924400000229,
    "answer_tokens": 17
   },
   {
    "id": "a09",
    "answerable": true,
-   "retrieve_ms": 7.6,
-   "generate_ms": 3209.4,
-   "total_ms": 3217.461100000037,
+   "retrieve_ms": 9.9,
+   "generate_ms": 2645.0,
+   "total_ms": 2655.2622999997766,
    "answer_tokens": 4
   },
   {
    "id": "a17",
    "answerable": true,
-   "retrieve_ms": 10.0,
-   "generate_ms": 4281.7,
-   "total_ms": 4292.411800000082,
+   "retrieve_ms": 9.6,
+   "generate_ms": 4119.6,
+   "total_ms": 4130.109800000355,
    "answer_tokens": 23
   },
   {
    "id": "a25",
    "answerable": true,
-   "retrieve_ms": 9.5,
-   "generate_ms": 3979.8,
-   "total_ms": 3990.4207999998107,
+   "retrieve_ms": 9.9,
+   "generate_ms": 3898.5,
+   "total_ms": 3909.3603000001167,
    "answer_tokens": 13
   },
   {
    "id": "a33",
    "answerable": true,
-   "retrieve_ms": 9.7,
-   "generate_ms": 4458.3,
-   "total_ms": 4468.912600000294,
+   "retrieve_ms": 9.5,
+   "generate_ms": 4445.1,
+   "total_ms": 4455.462900000384,
    "answer_tokens": 26
   },
   {
    "id": "a41",
    "answerable": true,
-   "retrieve_ms": 9.7,
-   "generate_ms": 2820.8,
-   "total_ms": 2830.9407000006104,
+   "retrieve_ms": 10.0,
+   "generate_ms": 2576.0,
+   "total_ms": 2586.3155999995797,
    "answer_tokens": 4
   },
   {
    "id": "a49",
    "answerable": true,
-   "retrieve_ms": 8.7,
-   "generate_ms": 2714.2,
-   "total_ms": 2723.31209999993,
+   "retrieve_ms": 7.4,
+   "generate_ms": 2616.7,
+   "total_ms": 2624.4950999998764,
    "answer_tokens": 4
   },
   {
    "id": "a57",
    "answerable": true,
-   "retrieve_ms": 7.8,
-   "generate_ms": 3449.6,
-   "total_ms": 3458.144500000344,
+   "retrieve_ms": 8.5,
+   "generate_ms": 3333.9,
+   "total_ms": 3343.1697999994867,
    "answer_tokens": 8
   },
   {
    "id": "u01",
    "answerable": false,
    "retrieve_ms": 10.3,
-   "generate_ms": 3053.6,
-   "total_ms": 3064.388400000098,
+   "generate_ms": 2854.6,
+   "total_ms": 2865.406500000063,
    "answer_tokens": 4
   },
   {
    "id": "u05",
    "answerable": false,
-   "retrieve_ms": 10.7,
-   "generate_ms": 3462.1,
-   "total_ms": 3473.612300000241,
+   "retrieve_ms": 8.4,
+   "generate_ms": 3707.4,
+   "total_ms": 3716.5791999996145,
    "answer_tokens": 11
   },
   {
    "id": "u09",
    "answerable": false,
-   "retrieve_ms": 9.4,
-   "generate_ms": 3161.1,
-   "total_ms": 3170.968599999469,
+   "retrieve_ms": 8.5,
+   "generate_ms": 2963.1,
+   "total_ms": 2972.0679000001837,
    "answer_tokens": 4
   },
   {
    "id": "u13",
    "answerable": false,
    "retrieve_ms": 9.6,
-   "generate_ms": 2838.4,
-   "total_ms": 2848.465099999885,
+   "generate_ms": 2451.1,
+   "total_ms": 2461.0756000001857,
    "answer_tokens": 4
   },
   {
    "id": "u17",
    "answerable": false,
-   "retrieve_ms": 11.5,
-   "generate_ms": 4278.7,
-   "total_ms": 4291.087399999924,
+   "retrieve_ms": 10.3,
+   "generate_ms": 3889.7,
+   "total_ms": 3900.713399999404,
    "answer_tokens": 19
   },
   {
    "id": "u21",
    "answerable": false,
-   "retrieve_ms": 9.3,
-   "generate_ms": 3168.7,
-   "total_ms": 3178.4732000005533,
+   "retrieve_ms": 10.5,
+   "generate_ms": 2534.5,
+   "total_ms": 2545.7477999998446,
    "answer_tokens": 4
   }
  ]

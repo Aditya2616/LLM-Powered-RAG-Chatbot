@@ -15,7 +15,7 @@ The interface in `docs/` walks the pipeline step by step (ingest, chunk, embed, 
 ## Read this before trusting any number
 
 - **The corpus is small and invented.** 11 documents about a fictional outdoor-gear retailer, written by me so that they are licence-clean and so that no model has seen them. The questions are also mine. Retrieval scores are high partly because the corpus is easy: the documents are short and cleanly sectioned. This measures whether the pipeline works and which options help, not how it will do on your messy PDFs.
-- **Small samples.** 75 answerable and 25 unanswerable questions. Rates carry 95% Wilson intervals in the tables, and a difference of one or two questions is noise.
+- **Small samples.** 75 answerable and 25 unanswerable questions. Tables give counts as k/n; at 75 questions a 95% Wilson interval is roughly plus or minus 10 percentage points (the intervals are in the `results/*.json` files), and a difference of one or two questions is noise.
 - **Answer correctness is a word match.** An answer counts as correct if it contains every required fact (a number, a name) after normalising currency and punctuation. It is strict about wording and blind to meaning, so it can fail a right answer phrased differently and pass a wrong answer that happens to include the right words. "Grounded" is likewise lexical: the share of the answer's words that appear in the retrieved text. Neither is a human judgement.
 - **The generator is tiny.** The default model has 0.5 billion parameters. It follows "answer only from the context, otherwise say I don't know" only partly, and the tables show where it does not.
 - **Hosted providers were not run.** The OpenAI-compatible and Gemini adapters are tested against a stubbed HTTP transport. I have no keys, so they have never called a real service. The Docker image was not built here either (no Docker on the machine I developed on).
@@ -32,7 +32,7 @@ The corpus is 11 invented policy documents (5,403 words, 30,830 characters) for 
 
 <!-- BEGIN headline -->
 - Retrieval (500-character chunks): hybrid MRR 0.920, dense 0.874, BM25 0.869; hybrid puts a chunk holding the gold passage in the top 3 for 98.7% of the 75 answerable questions.
-- With Qwen2.5-0.5B-Instruct, RAG answers 53/75 (70.7%) of the answerable questions correctly (without retrieval: 2/75 (2.7%)).
+- With Qwen2.5-0.5B-Instruct, RAG answers 52/75 (69.3%) of the answerable questions correctly (without retrieval: 2/75 (2.7%)).
 - It says "I don't know" on 14/25 (56.0%) of the unanswerable questions, and wrongly on 11/75 (14.7%) of the answerable ones.
 - Qwen2.5-1.5B-Instruct: 70/75 (93.3%) correct, 18/25 (72.0%) abstentions on unanswerable, 0/75 (0.0%) false abstentions.
 <!-- END headline -->
@@ -42,7 +42,7 @@ The corpus is 11 invented policy documents (5,403 words, 30,830 characters) for 
 Each statement below is checked against the results files by `scripts/check_numbers.py`.
 
 - **Hybrid retrieval is the safest choice, not a large win.** It beats dense search on MRR at every chunk size and is within a few points of the best single retriever everywhere. On a corpus this easy the retrievers are close, and the differences are a handful of questions.
-- **The cross-encoder reranker raises MRR at every chunk size, but it did not make the answers better.** It lowers Recall@3 at 500 characters, and with the 0.5B model it gives no more correct answers than plain hybrid retrieval. It stays optional (`RERANKER_MODEL`) and off by default.
+- **The cross-encoder reranker raises MRR at every chunk size, but it barely moved the answers.** It lowers Recall@3 at 500 characters, and at that chunk size it changes the number of correct answers by at most two questions for either model, which is noise. It stays optional (`RERANKER_MODEL`) and off by default.
 - **500-character chunks are the default because of the generator, not the retriever.** Larger chunks retrieve about as well (1,000 characters has the best hybrid recall), but the 0.5B model answers more questions correctly from 500-character chunks than from 1,000-character ones.
 - **Retrieval is what makes the model useful here.** Without it the 0.5B model answers almost nothing correctly, because the documents are invented and it cannot know them. The no-retrieval row is a sanity check that the questions really need the documents.
 - **The "I don't know" path is the weak spot.** Neither model declines on more than three quarters of the unanswerable questions, and the questions about a detail the documents leave out (near-miss) are declined less often than the off-topic ones. The small model is more likely to produce a plausible sentence from a chunk that mentions the topic.
@@ -64,15 +64,15 @@ Recall@k: some chunk in the top k covers the gold passage (at least half of it, 
 | 250 | 212 | hybrid+rerank | 94.7% | 98.7% | 100.0% | 0.969 | 97.3% | 754 |
 | 500 | 90 | dense | 77.3% | 97.3% | 98.7% | 0.874 | 98.7% | 1417 |
 | 500 | 90 | bm25 | 78.7% | 97.3% | 98.7% | 0.869 | 97.3% | 1405 |
-| 500 | 90 | hybrid | 85.3% | 98.7% | 98.7% | 0.920 | 98.7% | 1439 |
+| 500 | 90 | hybrid | 85.3% | 98.7% | 98.7% | 0.920 | 98.7% | 1440 |
 | 500 | 90 | hybrid+rerank | 92.0% | 96.0% | 97.3% | 0.947 | 97.3% | 1455 |
-| 1000 | 39 | dense | 84.0% | 93.3% | 97.3% | 0.892 | 96.0% | 3208 |
+| 1000 | 39 | dense | 84.0% | 94.7% | 97.3% | 0.894 | 96.0% | 3208 |
 | 1000 | 39 | bm25 | 80.0% | 96.0% | 100.0% | 0.882 | 96.0% | 3146 |
-| 1000 | 39 | hybrid | 89.3% | 98.7% | 100.0% | 0.937 | 100.0% | 3199 |
+| 1000 | 39 | hybrid | 89.3% | 98.7% | 100.0% | 0.937 | 100.0% | 3201 |
 | 1000 | 39 | hybrid+rerank | 96.0% | 100.0% | 100.0% | 0.980 | 100.0% | 3226 |
-| 2000 | 22 | dense | 73.3% | 88.0% | 94.7% | 0.820 | 90.7% | 5941 |
+| 2000 | 22 | dense | 73.3% | 88.0% | 94.7% | 0.820 | 90.7% | 5928 |
 | 2000 | 22 | bm25 | 88.0% | 97.3% | 98.7% | 0.923 | 97.3% | 5979 |
-| 2000 | 22 | hybrid | 84.0% | 100.0% | 100.0% | 0.911 | 100.0% | 6148 |
+| 2000 | 22 | hybrid | 84.0% | 100.0% | 100.0% | 0.911 | 100.0% | 6130 |
 | 2000 | 22 | hybrid+rerank | 92.0% | 98.7% | 100.0% | 0.956 | 100.0% | 6112 |
 <!-- END retrieval -->
 
@@ -95,10 +95,10 @@ Split by how the question is worded (the default chunk size):
 | Setup | Correct on answerable | Wrong answer | False "I don't know" | "I don't know" on unanswerable | near-miss | off-topic | Right decision overall | Grounded (>=80% of words in context) |
 |---|---|---|---|---|---|---|---|---|
 | No retrieval (question only) | 2/75 (2.7%) | 73/75 (97.3%) | 0/75 (0.0%) | 0/25 (0.0%) | 0/17 (0.0%) | 0/8 (0.0%) | 2/100 (2.0%) | n/a |
-| RAG, plain prompt | 53/75 (70.7%) | 11/75 (14.7%) | 11/75 (14.7%) | 14/25 (56.0%) | 8/17 (47.1%) | 6/8 (75.0%) | 67/100 (67.0%) | 55/75 (73.3%) |
+| RAG, plain prompt | 52/75 (69.3%) | 12/75 (16.0%) | 11/75 (14.7%) | 14/25 (56.0%) | 8/17 (47.1%) | 6/8 (75.0%) | 66/100 (66.0%) | 55/75 (73.3%) |
 | RAG + cross-encoder reranker | 53/75 (70.7%) | 11/75 (14.7%) | 11/75 (14.7%) | 12/25 (48.0%) | 6/17 (35.3%) | 6/8 (75.0%) | 65/100 (65.0%) | 59/77 (76.6%) |
 | RAG, two worked examples in the prompt | 53/75 (70.7%) | 21/75 (28.0%) | 1/75 (1.3%) | 5/25 (20.0%) | 1/17 (5.9%) | 4/8 (50.0%) | 58/100 (58.0%) | 67/94 (71.3%) |
-| RAG + retrieval-score gate | 34/75 (45.3%) | 7/75 (9.3%) | 34/75 (45.3%) | 22/25 (88.0%) | 14/17 (82.4%) | 8/8 (100.0%) | 56/100 (56.0%) | 37/44 (84.1%) |
+| RAG + retrieval-score gate | 33/75 (44.0%) | 8/75 (10.7%) | 34/75 (45.3%) | 22/25 (88.0%) | 14/17 (82.4%) | 8/8 (100.0%) | 55/100 (55.0%) | 37/44 (84.1%) |
 | RAG, worked examples + gate | 33/75 (44.0%) | 16/75 (21.3%) | 26/75 (34.7%) | 21/25 (84.0%) | 13/17 (76.5%) | 8/8 (100.0%) | 54/100 (54.0%) | 43/53 (81.1%) |
 <!-- END gen_qwen2.5-0.5b-instruct_c500 -->
 
@@ -159,9 +159,9 @@ Judged on the 50 odd-numbered questions (half B) only (Qwen2.5-0.5B-Instruct):
 
 | Setup | Correct on answerable | Wrong answer | False "I don't know" | "I don't know" on unanswerable | near-miss | off-topic | Right decision overall | Grounded (>=80% of words in context) |
 |---|---|---|---|---|---|---|---|---|
-| RAG, plain prompt | 27/37 (73.0%) | 6/37 (16.2%) | 4/37 (10.8%) | 10/13 (76.9%) | 6/9 (66.7%) | 4/4 (100.0%) | 37/50 (74.0%) | 29/36 (80.6%) |
+| RAG, plain prompt | 26/37 (70.3%) | 7/37 (18.9%) | 4/37 (10.8%) | 10/13 (76.9%) | 6/9 (66.7%) | 4/4 (100.0%) | 36/50 (72.0%) | 29/36 (80.6%) |
 | RAG, two worked examples in the prompt | 28/37 (75.7%) | 8/37 (21.6%) | 1/37 (2.7%) | 4/13 (30.8%) | 1/9 (11.1%) | 3/4 (75.0%) | 32/50 (64.0%) | 34/45 (75.6%) |
-| RAG + retrieval-score gate | 20/37 (54.1%) | 5/37 (13.5%) | 12/37 (32.4%) | 11/13 (84.6%) | 7/9 (77.8%) | 4/4 (100.0%) | 31/50 (62.0%) | 22/27 (81.5%) |
+| RAG + retrieval-score gate | 19/37 (51.4%) | 6/37 (16.2%) | 12/37 (32.4%) | 11/13 (84.6%) | 7/9 (77.8%) | 4/4 (100.0%) | 30/50 (60.0%) | 22/27 (81.5%) |
 | RAG, worked examples + gate | 21/37 (56.8%) | 5/37 (13.5%) | 11/37 (29.7%) | 10/13 (76.9%) | 6/9 (66.7%) | 4/4 (100.0%) | 31/50 (62.0%) | 23/29 (79.3%) |
 <!-- END gate -->
 
@@ -172,7 +172,7 @@ CPU timing, end to end for one question (embed the question, search, generate), 
 <!-- BEGIN latency -->
 | Model | Device | Threads | Queries | Retrieve p50 / p95 (ms) | Generate p50 / p95 (ms) | Total p50 / p95 (ms) | CPU load before / after |
 |---|---|---|---|---|---|---|---|
-| Qwen2.5-0.5B-Instruct (float32) | cpu | 4 of 12 logical | 14 | 10 / 11 | 3330 / 4344 | 3338 / 4354 | 7.0% / 14.0% |
+| Qwen2.5-0.5B-Instruct (float32) | cpu | 4 of 12 logical | 14 | 10 / 10 | 3148 / 4234 | 3158 / 4244 | 17.0% / 23.0% |
 <!-- END latency -->
 
 GPU generation time per question during the runs above (not a CPU claim):
@@ -180,9 +180,9 @@ GPU generation time per question during the runs above (not a CPU claim):
 <!-- BEGIN gpu_latency -->
 | Model | Device | Mean generation per question (ms) | p95 (ms) | Questions |
 |---|---|---|---|---|
-| Qwen2.5-0.5B-Instruct (float16, 1000-char chunks) | cuda | 374 | 783 | 100 |
-| Qwen2.5-0.5B-Instruct (float16, 500-char chunks) | cuda | 442 | 964 | 100 |
-| Qwen2.5-1.5B-Instruct (float16, 500-char chunks) | cuda | 690 | 1323 | 100 |
+| Qwen2.5-0.5B-Instruct (float16, 1000-char chunks) | cuda | 327 | 731 | 100 |
+| Qwen2.5-0.5B-Instruct (float16, 500-char chunks) | cuda | 459 | 1067 | 100 |
+| Qwen2.5-1.5B-Instruct (float16, 500-char chunks) | cuda | 566 | 1060 | 100 |
 <!-- END gpu_latency -->
 
 ## Architecture

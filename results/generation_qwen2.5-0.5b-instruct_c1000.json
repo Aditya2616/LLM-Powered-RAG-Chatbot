@@ -146,8 +146,8 @@
    "gate": null,
    "closed_book": true,
    "k": 4,
-   "mean_generate_ms": 700.7528149999688,
-   "p95_generate_ms": 1811.67135499968,
+   "mean_generate_ms": 760.939700000081,
+   "p95_generate_ms": 2162.1129800003014,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -1485,8 +1485,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 373.73599999999993,
-   "p95_generate_ms": 783.4699999999999,
+   "mean_generate_ms": 326.545,
+   "p95_generate_ms": 730.7950000000001,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -1581,7 +1581,7 @@
       0.6153561567991945
      ]
     },
-    "mean_support": 0.8533417025346723,
+    "mean_support": 0.8484297784154312,
     "grounded": {
      "k": 61,
      "n": 82,
@@ -2322,9 +2322,9 @@
      "unsupported_numbers": [],
      "retrieved": [
       "leave_and_time_off.txt#0",
-      "store_operations.txt#2",
       "customer_support_handbook.txt#3",
-      "leave_and_time_off.txt#2"
+      "store_operations.txt#2",
+      "it_security_policy.txt#2"
      ]
     },
     {
@@ -2927,14 +2927,14 @@
      "id": "u08",
      "kind": "near_miss",
      "answerable": false,
-     "answer": "Text message codes are not accepted as a valid method of multi-factor authentication.",
+     "answer": "No information about dress code for office staff is provided in the given text.",
      "abstained": false,
      "correct": false,
-     "support": 0.7777777777777778,
+     "support": 0.375,
      "unsupported_numbers": [],
      "retrieved": [
-      "it_security_policy.txt#0",
       "employee_onboarding.txt#0",
+      "it_security_policy.txt#0",
       "employee_onboarding.txt#2",
       "leave_and_time_off.txt#0"
      ]
@@ -3337,8 +3337,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 385.74299999999994,
-   "p95_generate_ms": 805.785,
+   "mean_generate_ms": 354.21899999999994,
+   "p95_generate_ms": 757.925,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -3433,7 +3433,7 @@
       0.6813284290433533
      ]
     },
-    "mean_support": 0.8377318429068243,
+    "mean_support": 0.8449048386874151,
     "grounded": {
      "k": 59,
      "n": 79,
@@ -5017,10 +5017,10 @@
      "id": "u23",
      "kind": "off_topic",
      "answerable": false,
-     "answer": "For an expedition to Antarctica, you should purchase a tent made of waterproof material like Gore-Tex.",
+     "answer": "For an expedition to Antarctica, you should purchase a tent that has been pitched once on a lawn for a fit check.",
      "abstained": false,
      "correct": false,
-     "support": 0.1,
+     "support": 0.6666666666666666,
      "unsupported_numbers": [],
      "retrieved": [
       "returns_and_refunds.txt#1",
@@ -5156,7 +5156,7 @@
       0.6883801278976466
      ]
     },
-    "mean_support": 0.8306791677534712,
+    "mean_support": 0.8455914484552255,
     "grounded": {
      "k": 29,
      "n": 38,
@@ -5183,8 +5183,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 513.2450000000001,
-   "p95_generate_ms": 848.9749999999999,
+   "mean_generate_ms": 554.9,
+   "p95_generate_ms": 1012.2999999999998,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -5279,7 +5279,7 @@
       0.5573531460647615
      ]
     },
-    "mean_support": 0.8288363756126913,
+    "mean_support": 0.8290034599903021,
     "grounded": {
      "k": 68,
      "n": 95,
@@ -6022,9 +6022,9 @@
      "unsupported_numbers": [],
      "retrieved": [
       "leave_and_time_off.txt#0",
-      "store_operations.txt#2",
       "customer_support_handbook.txt#3",
-      "leave_and_time_off.txt#2"
+      "store_operations.txt#2",
+      "it_security_policy.txt#2"
      ]
     },
     {
@@ -6625,14 +6625,14 @@
      "id": "u08",
      "kind": "near_miss",
      "answerable": false,
-     "answer": "The dress code for office staff is to wear a uniform consisting of two fleeces.",
+     "answer": "The dress code for office staff is to wear two fleeces.",
      "abstained": false,
      "correct": false,
-     "support": 0.5555555555555556,
+     "support": 0.5714285714285714,
      "unsupported_numbers": [],
      "retrieved": [
-      "it_security_policy.txt#0",
       "employee_onboarding.txt#0",
+      "it_security_policy.txt#0",
       "employee_onboarding.txt#2",
       "leave_and_time_off.txt#0"
      ]
@@ -7037,8 +7037,8 @@
    "gate": 0.4,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 275.445,
-   "p95_generate_ms": 766.17,
+   "mean_generate_ms": 242.917,
+   "p95_generate_ms": 639.5449999999996,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -7871,9 +7871,9 @@
      "unsupported_numbers": [],
      "retrieved": [
       "leave_and_time_off.txt#0",
-      "store_operations.txt#2",
       "customer_support_handbook.txt#3",
-      "leave_and_time_off.txt#2"
+      "store_operations.txt#2",
+      "it_security_policy.txt#2"
      ]
     },
     {
@@ -8480,8 +8480,8 @@
      "support": 1.0,
      "unsupported_numbers": [],
      "retrieved": [
-      "it_security_policy.txt#0",
       "employee_onboarding.txt#0",
+      "it_security_policy.txt#0",
       "employee_onboarding.txt#2",
       "leave_and_time_off.txt#0"
      ]
@@ -8880,8 +8880,8 @@
    "gate": 0.4,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 376.86800000000005,
-   "p95_generate_ms": 803.225,
+   "mean_generate_ms": 309.673,
+   "p95_generate_ms": 698.215,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -9716,9 +9716,9 @@
      "unsupported_numbers": [],
      "retrieved": [
       "leave_and_time_off.txt#0",
-      "store_operations.txt#2",
       "customer_support_handbook.txt#3",
-      "leave_and_time_off.txt#2"
+      "store_operations.txt#2",
+      "it_security_policy.txt#2"
      ]
     },
     {
@@ -10325,8 +10325,8 @@
      "support": 1.0,
      "unsupported_numbers": [],
      "retrieved": [
-      "it_security_policy.txt#0",
       "employee_onboarding.txt#0",
+      "it_security_policy.txt#0",
       "employee_onboarding.txt#2",
       "leave_and_time_off.txt#0"
      ]

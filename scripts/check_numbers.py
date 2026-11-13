@@ -411,8 +411,15 @@ def claims(d: dict) -> list[tuple[str, bool]]:
             and by[(500, "hybrid+rerank")]["recall"]["3"] < by[(500, "hybrid")]["recall"]["3"],
         ),
         (
-            "the reranker does not raise 0.5B answer accuracy at 500 characters",
-            ok(g05, "rag_rerank") <= ok(g05, "rag"),
+            "the reranker changes the number of correct answers by at most two questions at 500 characters, for both models",
+            all(
+                abs(
+                    g["rag_rerank"]["summary"]["correct_on_answerable"]["k"]
+                    - g["rag"]["summary"]["correct_on_answerable"]["k"]
+                )
+                <= 2
+                for g in (g05, g15)
+            ),
         ),
         (
             "the 1.5B model answers more correctly than the 0.5B model",

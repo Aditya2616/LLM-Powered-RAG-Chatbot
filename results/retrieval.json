@@ -82,7 +82,7 @@
      "mrr": 0.8316498316498316
     }
    },
-   "seconds_for_100_queries": 1.09
+   "seconds_for_100_queries": 0.83
   },
   {
    "chunk_size": 250,
@@ -141,7 +141,7 @@
     "3": 0.9333333333333333,
     "5": 0.9733333333333334
    },
-   "mean_context_chars_k4": 688.12,
+   "mean_context_chars_k4": 688.2266666666667,
    "by_kind": {
     "direct": {
      "n": 42,
@@ -162,7 +162,7 @@
      "mrr": 0.8260942760942761
     }
    },
-   "seconds_for_100_queries": 0.94
+   "seconds_for_100_queries": 1.02
   },
   {
    "chunk_size": 250,
@@ -202,7 +202,7 @@
      "mrr": 0.9545454545454546
     }
    },
-   "seconds_for_100_queries": 4.42
+   "seconds_for_100_queries": 3.45
   },
   {
    "chunk_size": 500,
@@ -242,7 +242,7 @@
      "mrr": 0.8619528619528619
     }
    },
-   "seconds_for_100_queries": 1.05
+   "seconds_for_100_queries": 0.91
   },
   {
    "chunk_size": 500,
@@ -282,7 +282,7 @@
      "mrr": 0.8191919191919191
     }
    },
-   "seconds_for_100_queries": 1.0
+   "seconds_for_100_queries": 0.76
   },
   {
    "chunk_size": 500,
@@ -301,7 +301,7 @@
     "3": 0.9866666666666667,
     "5": 0.9866666666666667
    },
-   "mean_context_chars_k4": 1439.4533333333334,
+   "mean_context_chars_k4": 1439.88,
    "by_kind": {
     "direct": {
      "n": 42,
@@ -322,7 +322,7 @@
      "mrr": 0.8787878787878788
     }
    },
-   "seconds_for_100_queries": 1.06
+   "seconds_for_100_queries": 0.76
   },
   {
    "chunk_size": 500,
@@ -362,7 +362,7 @@
      "mrr": 0.9204545454545454
     }
    },
-   "seconds_for_100_queries": 4.78
+   "seconds_for_100_queries": 3.81
   },
   {
    "chunk_size": 1000,
@@ -372,16 +372,16 @@
    "n": 75,
    "recall": {
     "1": 0.84,
-    "3": 0.9333333333333333,
+    "3": 0.9466666666666667,
     "5": 0.9733333333333334
    },
-   "mrr": 0.8922222222222222,
+   "mrr": 0.894,
    "answer_in_context": {
     "1": 0.84,
     "3": 0.96,
     "5": 0.9733333333333334
    },
-   "mean_context_chars_k4": 3208.2,
+   "mean_context_chars_k4": 3207.6666666666665,
    "by_kind": {
     "direct": {
      "n": 42,
@@ -396,13 +396,13 @@
      "n": 33,
      "recall": {
       "1": 0.8484848484848485,
-      "3": 0.9393939393939394,
+      "3": 0.9696969696969697,
       "5": 1.0
      },
-     "mrr": 0.895959595959596
+     "mrr": 0.9
     }
    },
-   "seconds_for_100_queries": 1.05
+   "seconds_for_100_queries": 0.78
   },
   {
    "chunk_size": 1000,
@@ -442,7 +442,7 @@
      "mrr": 0.8681818181818182
     }
    },
-   "seconds_for_100_queries": 1.02
+   "seconds_for_100_queries": 0.78
   },
   {
    "chunk_size": 1000,
@@ -461,7 +461,7 @@
     "3": 1.0,
     "5": 1.0
    },
-   "mean_context_chars_k4": 3198.693333333333,
+   "mean_context_chars_k4": 3200.84,
    "by_kind": {
     "direct": {
      "n": 42,
@@ -482,7 +482,7 @@
      "mrr": 0.9343434343434343
     }
    },
-   "seconds_for_100_queries": 1.09
+   "seconds_for_100_queries": 0.82
   },
   {
    "chunk_size": 1000,
@@ -522,7 +522,7 @@
      "mrr": 0.9696969696969697
     }
    },
-   "seconds_for_100_queries": 6.36
+   "seconds_for_100_queries": 5.58
   },
   {
    "chunk_size": 2000,
@@ -541,7 +541,7 @@
     "3": 0.9066666666666666,
     "5": 0.9733333333333334
    },
-   "mean_context_chars_k4": 5941.2266666666665,
+   "mean_context_chars_k4": 5928.293333333333,
    "by_kind": {
     "direct": {
      "n": 42,
@@ -562,7 +562,7 @@
      "mrr": 0.7442760942760942
     }
    },
-   "seconds_for_100_queries": 0.91
+   "seconds_for_100_queries": 0.79
   },
   {
    "chunk_size": 2000,
@@ -602,7 +602,7 @@
      "mrr": 0.9166666666666667
     }
    },
-   "seconds_for_100_queries": 0.84
+   "seconds_for_100_queries": 0.99
   },
   {
    "chunk_size": 2000,
@@ -621,7 +621,7 @@
     "3": 1.0,
     "5": 1.0
    },
-   "mean_context_chars_k4": 6147.613333333334,
+   "mean_context_chars_k4": 6130.026666666667,
    "by_kind": {
     "direct": {
      "n": 42,
@@ -642,7 +642,7 @@
      "mrr": 0.8636363636363635
     }
    },
-   "seconds_for_100_queries": 0.91
+   "seconds_for_100_queries": 0.82
   },
   {
    "chunk_size": 2000,
@@ -682,7 +682,7 @@
      "mrr": 0.9303030303030303
     }
    },
-   "seconds_for_100_queries": 6.91
+   "seconds_for_100_queries": 6.42
   }
  ]
 }

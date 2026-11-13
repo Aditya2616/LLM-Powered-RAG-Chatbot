@@ -146,8 +146,8 @@
    "gate": null,
    "closed_book": true,
    "k": 4,
-   "mean_generate_ms": 1197.8453160000574,
-   "p95_generate_ms": 2454.9202749998126,
+   "mean_generate_ms": 808.0604659999699,
+   "p95_generate_ms": 1706.6975749999074,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -1485,8 +1485,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 690.424,
-   "p95_generate_ms": 1323.4349999999997,
+   "mean_generate_ms": 565.749,
+   "p95_generate_ms": 1060.0349999999999,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -2664,7 +2664,7 @@
      "id": "a66",
      "kind": "direct",
      "answerable": true,
-     "answer": "CCTV footage in shops is kept for 31 days.",
+     "answer": "CCTV footage from the shops is kept for 31 days.",
      "abstained": false,
      "correct": true,
      "support": 1.0,
@@ -2673,7 +2673,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
@@ -3347,8 +3347,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 717.9899999999999,
-   "p95_generate_ms": 1557.8149999999998,
+   "mean_generate_ms": 834.7329999999998,
+   "p95_generate_ms": 1788.4499999999998,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -5209,8 +5209,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 751.789,
-   "p95_generate_ms": 1427.2549999999999,
+   "mean_generate_ms": 606.573,
+   "p95_generate_ms": 1223.92,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -6386,7 +6386,7 @@
      "id": "a66",
      "kind": "direct",
      "answerable": true,
-     "answer": "CCTV footage in shops is kept for 31 days.",
+     "answer": "CCTV footage from the shops is kept for 31 days.",
      "abstained": false,
      "correct": true,
      "support": 1.0,
@@ -6395,7 +6395,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
@@ -7066,8 +7066,8 @@
    "gate": 0.55,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 451.41900000000004,
-   "p95_generate_ms": 1361.95,
+   "mean_generate_ms": 331.825,
+   "p95_generate_ms": 1036.945,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -8237,7 +8237,7 @@
      "id": "a66",
      "kind": "direct",
      "answerable": true,
-     "answer": "CCTV footage in shops is kept for 31 days.",
+     "answer": "CCTV footage from the shops is kept for 31 days.",
      "abstained": false,
      "correct": true,
      "support": 1.0,
@@ -8246,7 +8246,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
@@ -8920,8 +8920,8 @@
    "gate": 0.55,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 444.59600000000006,
-   "p95_generate_ms": 1329.11,
+   "mean_generate_ms": 441.855,
+   "p95_generate_ms": 1306.145,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -10089,7 +10089,7 @@
      "id": "a66",
      "kind": "direct",
      "answerable": true,
-     "answer": "CCTV footage in shops is kept for 31 days.",
+     "answer": "CCTV footage from the shops is kept for 31 days.",
      "abstained": false,
      "correct": true,
      "support": 1.0,
@@ -10098,7 +10098,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {

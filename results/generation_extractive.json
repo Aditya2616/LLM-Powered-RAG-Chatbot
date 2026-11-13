@@ -49,7 +49,7 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 0.503,
+   "mean_generate_ms": 0.472,
    "p95_generate_ms": 0.6,
    "summary": {
     "n": 100,
@@ -1224,7 +1224,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {

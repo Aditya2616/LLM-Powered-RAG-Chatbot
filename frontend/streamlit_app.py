@@ -56,8 +56,12 @@ def render_sources(sources: list[dict]) -> None:
             score = source.get("score")
             score_label = f" | Score: {score:.3f}" if isinstance(score, (int, float)) else ""
             support = source.get("support")
-            support_label = f" | Answer support: {support:.0%}" if isinstance(support, (int, float)) else ""
-            st.caption(f"Source: {source_name}{page_label}{chunk_label}{score_label}{support_label}")
+            support_label = (
+                f" | Answer support: {support:.0%}" if isinstance(support, (int, float)) else ""
+            )
+            st.caption(
+                f"Source: {source_name}{page_label}{chunk_label}{score_label}{support_label}"
+            )
             snippet = source.get("text") or source.get("snippet")
             if snippet:
                 st.write(snippet)
@@ -107,7 +111,9 @@ if st.sidebar.button("Upload"):
             else:
                 if response.ok:
                     body = response.json()
-                    st.sidebar.success(f"{body.get('message', 'Uploaded')}: {body.get('chunks_added', 0)} chunks")
+                    st.sidebar.success(
+                        f"{body.get('message', 'Uploaded')}: {body.get('chunks_added', 0)} chunks"
+                    )
                     for item in body.get("rejected", []):
                         st.sidebar.warning(f"{item['file']}: {item['reason']}")
                 else:
@@ -169,7 +175,9 @@ if prompt:
                             "low_retrieval_score": "the best match was below the similarity threshold",
                             "empty_index": "no documents are indexed yet",
                         }
-                        st.caption("Declined: " + reasons.get(result.get("abstain_reason"), "no answer"))
+                        st.caption(
+                            "Declined: " + reasons.get(result.get("abstain_reason"), "no answer")
+                        )
 
                     if cached:
                         st.caption("Cached response")

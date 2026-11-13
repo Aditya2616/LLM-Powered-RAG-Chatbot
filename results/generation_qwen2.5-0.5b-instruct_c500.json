@@ -146,8 +146,8 @@
    "gate": null,
    "closed_book": true,
    "k": 4,
-   "mean_generate_ms": 1212.6288840000052,
-   "p95_generate_ms": 3266.5337650004853,
+   "mean_generate_ms": 1265.4265889999897,
+   "p95_generate_ms": 3345.311184999627,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -1485,19 +1485,19 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 441.781,
-   "p95_generate_ms": 963.9099999999999,
+   "mean_generate_ms": 459.41200000000003,
+   "p95_generate_ms": 1067.2149999999997,
    "summary": {
     "n": 100,
     "n_answerable": 75,
     "n_unanswerable": 25,
     "correct_on_answerable": {
-     "k": 53,
+     "k": 52,
      "n": 75,
-     "rate": 0.7066666666666667,
+     "rate": 0.6933333333333334,
      "ci": [
-      0.5955934132076389,
-      0.7976000278184184
+      0.5816933204791398,
+      0.7861328017710428
      ]
     },
     "false_abstention_on_answerable": {
@@ -1510,12 +1510,12 @@
      ]
     },
     "wrong_answer_on_answerable": {
-     "k": 11,
+     "k": 12,
      "n": 75,
-     "rate": 0.14666666666666667,
+     "rate": 0.16,
      "ci": [
-      0.08391630937003362,
-      0.24384974306928775
+      0.09396421323774289,
+      0.25916915797745316
      ]
     },
     "abstained_on_unanswerable": {
@@ -1555,12 +1555,12 @@
      ]
     },
     "correct_on_direct": {
-     "k": 33,
+     "k": 32,
      "n": 42,
-     "rate": 0.7857142857142857,
+     "rate": 0.7619047619047619,
      "ci": [
-      0.6405986210195627,
-      0.8829433146894876
+      0.6147216491768113,
+      0.8651917918898182
      ]
     },
     "correct_on_paraphrase": {
@@ -1573,12 +1573,12 @@
      ]
     },
     "decision_accuracy": {
-     "k": 67,
+     "k": 66,
      "n": 100,
-     "rate": 0.67,
+     "rate": 0.66,
      "ci": [
-      0.5730516033971139,
-      0.7543701620610456
+      0.5627754565831095,
+      0.74538620502457
      ]
     },
     "mean_support": 0.8406616015563384,
@@ -2657,16 +2657,16 @@
      "id": "a66",
      "kind": "direct",
      "answerable": true,
-     "answer": "CCTV footage in shops is kept for 31 days.",
+     "answer": "90 days",
      "abstained": false,
-     "correct": true,
+     "correct": false,
      "support": 1.0,
      "unsupported_numbers": [],
      "retrieved": [
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
@@ -3224,12 +3224,12 @@
     "n_answerable": 37,
     "n_unanswerable": 13,
     "correct_on_answerable": {
-     "k": 27,
+     "k": 26,
      "n": 37,
-     "rate": 0.7297297297297297,
+     "rate": 0.7027027027027027,
      "ci": [
-      0.5702152452607867,
-      0.8460270175300932
+      0.5421656082795643,
+      0.825106976535918
      ]
     },
     "false_abstention_on_answerable": {
@@ -3242,12 +3242,12 @@
      ]
     },
     "wrong_answer_on_answerable": {
-     "k": 6,
+     "k": 7,
      "n": 37,
-     "rate": 0.16216216216216217,
+     "rate": 0.1891891891891892,
      "ci": [
-      0.07651103235297099,
-      0.31136799295455864
+      0.09479858757337126,
+      0.342050115709556
      ]
     },
     "abstained_on_unanswerable": {
@@ -3287,12 +3287,12 @@
      ]
     },
     "correct_on_direct": {
-     "k": 18,
+     "k": 17,
      "n": 22,
-     "rate": 0.8181818181818182,
+     "rate": 0.7727272727272727,
      "ci": [
-      0.6148297802336213,
-      0.9269323397589488
+      0.5655964393704065,
+      0.8987710920517964
      ]
     },
     "correct_on_paraphrase": {
@@ -3305,12 +3305,12 @@
      ]
     },
     "decision_accuracy": {
-     "k": 37,
+     "k": 36,
      "n": 50,
-     "rate": 0.74,
+     "rate": 0.72,
      "ci": [
-      0.6044657801100008,
-      0.8412862034863262
+      0.5833461285401034,
+      0.8252598564231963
      ]
     },
     "mean_support": 0.9148195250168933,
@@ -3340,8 +3340,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 451.596,
-   "p95_generate_ms": 934.525,
+   "mean_generate_ms": 476.7650000000001,
+   "p95_generate_ms": 1135.8149999999998,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -5192,8 +5192,8 @@
    "gate": null,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 364.423,
-   "p95_generate_ms": 774.025,
+   "mean_generate_ms": 532.29,
+   "p95_generate_ms": 1133.0349999999996,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -6371,7 +6371,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
@@ -7046,19 +7046,19 @@
    "gate": 0.55,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 188.888,
-   "p95_generate_ms": 680.5,
+   "mean_generate_ms": 253.047,
+   "p95_generate_ms": 865.9049999999991,
    "summary": {
     "n": 100,
     "n_answerable": 75,
     "n_unanswerable": 25,
     "correct_on_answerable": {
-     "k": 34,
+     "k": 33,
      "n": 75,
-     "rate": 0.4533333333333333,
+     "rate": 0.44,
      "ci": [
-      0.3456961212759212,
-      0.5655182630085175
+      0.3333127597678485,
+      0.5525343057407155
      ]
     },
     "false_abstention_on_answerable": {
@@ -7071,12 +7071,12 @@
      ]
     },
     "wrong_answer_on_answerable": {
-     "k": 7,
+     "k": 8,
      "n": 75,
-     "rate": 0.09333333333333334,
+     "rate": 0.10666666666666667,
      "ci": [
-      0.04594793932894482,
-      0.1803488380068779
+      0.05504846963856164,
+      0.19661562647313574
      ]
     },
     "abstained_on_unanswerable": {
@@ -7116,12 +7116,12 @@
      ]
     },
     "correct_on_direct": {
-     "k": 22,
+     "k": 21,
      "n": 42,
-     "rate": 0.5238095238095238,
+     "rate": 0.5,
      "ci": [
-      0.3772221394020704,
-      0.6664063552403504
+      0.3552574591652803,
+      0.6447425408347197
      ]
     },
     "correct_on_paraphrase": {
@@ -7134,12 +7134,12 @@
      ]
     },
     "decision_accuracy": {
-     "k": 56,
+     "k": 55,
      "n": 100,
-     "rate": 0.56,
+     "rate": 0.55,
      "ci": [
-      0.4622792771125631,
-      0.6532813459903167
+      0.45244427031643447,
+      0.6438562489359654
      ]
     },
     "mean_support": 0.9198853611832081,
@@ -8213,16 +8213,16 @@
      "id": "a66",
      "kind": "direct",
      "answerable": true,
-     "answer": "CCTV footage in shops is kept for 31 days.",
+     "answer": "90 days",
      "abstained": false,
-     "correct": true,
+     "correct": false,
      "support": 1.0,
      "unsupported_numbers": [],
      "retrieved": [
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
@@ -8775,12 +8775,12 @@
     "n_answerable": 37,
     "n_unanswerable": 13,
     "correct_on_answerable": {
-     "k": 20,
+     "k": 19,
      "n": 37,
-     "rate": 0.5405405405405406,
+     "rate": 0.5135135135135135,
      "ci": [
-      0.38383779524767364,
-      0.6896167217154228
+      0.3589463722598092,
+      0.6655384667278896
      ]
     },
     "false_abstention_on_answerable": {
@@ -8793,12 +8793,12 @@
      ]
     },
     "wrong_answer_on_answerable": {
-     "k": 5,
+     "k": 6,
      "n": 37,
-     "rate": 0.13513513513513514,
+     "rate": 0.16216216216216217,
      "ci": [
-      0.059132072625076235,
-      0.2797772747070557
+      0.07651103235297099,
+      0.31136799295455864
      ]
     },
     "abstained_on_unanswerable": {
@@ -8838,12 +8838,12 @@
      ]
     },
     "correct_on_direct": {
-     "k": 13,
+     "k": 12,
      "n": 22,
-     "rate": 0.5909090909090909,
+     "rate": 0.5454545454545454,
      "ci": [
-      0.38734477382893806,
-      0.7674444033117963
+      0.34659473289041554,
+      0.7307998556799515
      ]
     },
     "correct_on_paraphrase": {
@@ -8856,12 +8856,12 @@
      ]
     },
     "decision_accuracy": {
-     "k": 31,
+     "k": 30,
      "n": 50,
-     "rate": 0.62,
+     "rate": 0.6,
      "ci": [
-      0.4815019502239357,
-      0.7413740415742278
+      0.4618118910275937,
+      0.7239181021375425
      ]
     },
     "mean_support": 0.9142038111336357,
@@ -8891,8 +8891,8 @@
    "gate": 0.55,
    "closed_book": false,
    "k": 4,
-   "mean_generate_ms": 177.68,
-   "p95_generate_ms": 609.74,
+   "mean_generate_ms": 184.64900000000006,
+   "p95_generate_ms": 667.4249999999997,
    "summary": {
     "n": 100,
     "n_answerable": 75,
@@ -10067,7 +10067,7 @@
       "customer_data_and_privacy.txt#2",
       "store_operations.txt#3",
       "store_operations.txt#0",
-      "customer_support_handbook.txt#8"
+      "it_security_policy.txt#6"
      ]
     },
     {
