@@ -173,3 +173,5 @@ table.results { width: 100%; border-collapse: collapse; font: 400 12.5px var(--m
   .chunk, .scores .bar i { transition: none; }
   .ans .caret { animation: none; }
 }
+[hidden] { display: none !important; }
+#answerCard, .chunk { scroll-margin-top: 76px; }

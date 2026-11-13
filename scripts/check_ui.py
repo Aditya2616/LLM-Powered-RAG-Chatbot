@@ -116,8 +116,9 @@ def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -
     page.goto(url, wait_until="load")
     page.wait_for_function("document.querySelector('#qchips .qchip')", timeout=20000)
     if live:
-        page.click("#loadSample")
-        page.wait_for_selector("#loadSample", state="hidden", timeout=30000)
+        if page.locator("#loadSample").is_visible():
+            page.click("#loadSample")
+            page.wait_for_selector("#loadSample", state="hidden", timeout=30000)
         page.fill("#liveQ", "When are PayPal refunds issued?")
         page.click("#liveForm button[type=submit]")
         page.wait_for_function(
@@ -132,6 +133,10 @@ def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -
     if shots:
         page.locator("#lab").scroll_into_view_if_needed()
         page.screenshot(path=str(shots / f"{size}-{name}-answered.png"), full_page=False)
+        page.evaluate("document.querySelector('#answerCard').scrollIntoView()")
+        page.wait_for_timeout(1500)
+        page.screenshot(path=str(shots / f"{size}-{name}-answered-chunks.png"), full_page=False)
+        page.evaluate("document.querySelector('#lab').scrollIntoView()")
     # a question the documents cannot answer
     if not live:
         idx = page.evaluate(
@@ -145,7 +150,8 @@ def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -
         if shots:
             page.screenshot(path=str(shots / f"{size}-{name}-declined.png"), full_page=False)
         page.evaluate("document.querySelector('#answerCard').scrollIntoView()")
-        if shots and size == "phone":
+        page.wait_for_timeout(1500)
+        if shots:
             page.screenshot(path=str(shots / f"{size}-{name}-declined-answer.png"), full_page=False)
     overflow = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
     if overflow > 0:
@@ -155,7 +161,7 @@ def run_one(p, name: str, url: str, size: str, shots: Path | None, live: bool) -
         problems.append("targets under 44px: " + "; ".join(small[:6]))
     if shots and not live:
         page.evaluate("document.querySelector('#results').scrollIntoView()")
-        page.wait_for_timeout(300)
+        page.wait_for_timeout(1500)
         page.screenshot(path=str(shots / f"{size}-{name}-results.png"), full_page=False)
     for entry in logs:
         problems.append(entry)
@@ -184,6 +190,7 @@ def main() -> int:
             with tempfile.TemporaryDirectory() as tmp, live_server(Path(tmp)) as url:
                 for size in SIZES:
                     if args.only in (None, size):
+                        print("served", size, flush=True)
                         report[f"served/{size}"] = run_one(p, "served", url, size, shots, True)
     print(json.dumps(report, indent=1))
     return 1 if any(report.values()) else 0

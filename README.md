@@ -10,7 +10,7 @@ The interface in `docs/` walks the pipeline step by step (ingest, chunk, embed, 
 
 | Desktop: a question the documents cannot answer | Phone (390 px) |
 |---|---|
-| ![](docs/assets/desktop-static-declined.png) | ![](docs/assets/phone-static-declined.png) |
+| ![](docs/assets/desktop-static-declined-answer.png) | ![](docs/assets/phone-static-declined-answer.png) |
 
 ## Read this before trusting any number
 

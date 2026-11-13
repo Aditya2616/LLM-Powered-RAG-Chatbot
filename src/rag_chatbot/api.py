@@ -13,7 +13,7 @@ from typing import Annotated, Literal
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -328,6 +328,11 @@ def create_app(
                 for c, (x, y) in zip(st.chunks, xy, strict=True)
             ],
         }
+
+    @app.get("/config.js", include_in_schema=False)
+    def config_js() -> Response:
+        # the static build ships its own config.js with RAG_LIVE = false; here the service is the backend
+        return Response("window.RAG_LIVE = true;", media_type="text/javascript")
 
     if web.is_dir():  # registered last so that it never shadows an API route
         app.mount("/", StaticFiles(directory=web, html=True), name="web")

@@ -58,10 +58,16 @@ class Stage {
     });
   }
   tween(key, to, dur) {
-    if (REDUCED || dur <= 0) { this.v[key] = to; this.kick(); return Promise.resolve(); }
+    if (REDUCED || dur <= 0 || !this.visible) { this.tweens = this.tweens.filter((x) => x.key !== key); this.v[key] = to; this.kick(); return Promise.resolve(); }
     return new Promise((res) => {
       this.tweens = this.tweens.filter((t) => t.key !== key);
-      this.tweens.push({ key, from: this.v[key], to, dur, t0: performance.now(), res });
+      const tw = { key, from: this.v[key], to, dur, t0: performance.now(), res };
+      this.tweens.push(tw);
+      // animation frames stop while the canvas is off screen; never let a step wait on them
+      setTimeout(() => {
+        if (!this.tweens.includes(tw)) return;
+        this.tweens = this.tweens.filter((x) => x !== tw); this.v[key] = to; res(); this.kick();
+      }, dur + 80);
       this.kick();
     });
   }
@@ -341,6 +347,7 @@ async function renderResults() {
 
 // ---- live mode
 async function detectLive() {
+  if (!window.RAG_LIVE) return null;
   try {
     const res = await fetch('health', { headers: { Accept: 'application/json' } });
     if (!res.ok || !(res.headers.get('content-type') || '').includes('json')) return null;
