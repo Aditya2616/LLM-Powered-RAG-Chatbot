@@ -1,10 +1,9 @@
 import uuid
-from typing import Dict, List
 
 import requests
 import streamlit as st
 
-st.set_page_config(page_title="RAG Chatbot", page_icon="💬", layout="wide")
+st.set_page_config(page_title="RAG Chatbot", layout="wide")
 
 DEFAULT_API_URL = "http://localhost:8000"
 
@@ -40,10 +39,10 @@ def init_state() -> None:
     normalize_api_url()
 
 
-def render_sources(sources: List[Dict]) -> None:
+def render_sources(sources: list[dict]) -> None:
     """Render source metadata/snippets in an expandable section.
 
-    Each source dict may include `source`, `page`, and `snippet` keys.
+    Each source dict carries `source`, `chunk`, `page`, `score`, `support`, `snippet` and `text`.
     """
     if not sources:
         return
@@ -52,8 +51,14 @@ def render_sources(sources: List[Dict]) -> None:
             source_name = source.get("source") or "Unknown source"
             page = source.get("page")
             page_label = f" | Page: {page}" if page is not None else ""
-            st.caption(f"Source: {source_name}{page_label}")
-            snippet = source.get("snippet")
+            chunk = source.get("chunk")
+            chunk_label = f" | Chunk: {chunk}" if chunk is not None else ""
+            score = source.get("score")
+            score_label = f" | Score: {score:.3f}" if isinstance(score, (int, float)) else ""
+            support = source.get("support")
+            support_label = f" | Answer support: {support:.0%}" if isinstance(support, (int, float)) else ""
+            st.caption(f"Source: {source_name}{page_label}{chunk_label}{score_label}{support_label}")
+            snippet = source.get("text") or source.get("snippet")
             if snippet:
                 st.write(snippet)
 
@@ -67,9 +72,7 @@ st.sidebar.text_input("API URL", key="api_url", on_change=normalize_api_url)
 api_url = st.session_state.api_url
 
 st.sidebar.subheader("Chat settings")
-top_k_results = st.sidebar.number_input(
-    "Top K results", min_value=1, max_value=20, value=4
-)
+top_k_results = st.sidebar.number_input("Top K results", min_value=1, max_value=20, value=4)
 use_history = st.sidebar.checkbox("Use chat history", value=True)
 return_sources = st.sidebar.checkbox("Return sources", value=True)
 
@@ -103,7 +106,10 @@ if st.sidebar.button("Upload"):
                 st.sidebar.error(str(exc))
             else:
                 if response.ok:
-                    st.sidebar.success(response.json().get("message", "Uploaded"))
+                    body = response.json()
+                    st.sidebar.success(f"{body.get('message', 'Uploaded')}: {body.get('chunks_added', 0)} chunks")
+                    for item in body.get("rejected", []):
+                        st.sidebar.warning(f"{item['file']}: {item['reason']}")
                 else:
                     show_response_error(response)
 
@@ -148,11 +154,7 @@ if prompt:
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                response = requests.post(
-                    f"{api_url}/query",
-                    json=payload,
-                    timeout=120
-                )
+                response = requests.post(f"{api_url}/query", json=payload, timeout=120)
 
                 if response.ok:
                     result = response.json()
@@ -161,18 +163,27 @@ if prompt:
                     cached = result.get("cached", False)
 
                     st.markdown(answer)
+                    if result.get("abstained"):
+                        reasons = {
+                            "model_declined": "the model found no answer in the retrieved passages",
+                            "low_retrieval_score": "the best match was below the similarity threshold",
+                            "empty_index": "no documents are indexed yet",
+                        }
+                        st.caption("Declined: " + reasons.get(result.get("abstain_reason"), "no answer"))
 
                     if cached:
                         st.caption("Cached response")
 
                     render_sources(sources)
 
-                    st.session_state.messages.append({
-                        "role": "assistant",
-                        "content": answer,
-                        "sources": sources,
-                        "cached": cached,
-                    })
+                    st.session_state.messages.append(
+                        {
+                            "role": "assistant",
+                            "content": answer,
+                            "sources": sources,
+                            "cached": cached,
+                        }
+                    )
                 else:
                     st.error(response.text)
 
