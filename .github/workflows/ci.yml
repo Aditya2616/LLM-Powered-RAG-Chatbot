@@ -20,3 +20,53 @@ jobs:
         run: ruff check .
       - name: Fast tests (offline, CPU, fake embeddings and generator; includes the README sync check)
         run: pytest
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t rag-chatbot .
+      - name: Run it with the no-model providers and query it over HTTP
+        run: |
+          docker run -d --name rag -p 8000:8000 \
+            -e EMBEDDINGS_PROVIDER=hashing -e LLM_PROVIDER=extractive rag-chatbot
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8000/health && break
+            sleep 2
+          done
+          curl -fsS http://localhost:8000/health
+          curl -fsS -X POST http://localhost:8000/documents/sample | tee sample.json
+          curl -fsS -X POST http://localhost:8000/query -H 'Content-Type: application/json' \
+            -d '{"question": "What is the warranty period on tents?"}' | tee answer.json
+          python3 - <<'PY'
+          import json
+          a = json.load(open("answer.json"))
+          assert a["sources"], "no sources returned"
+          assert a["sources"][0]["source"] == "warranty_policy.txt", a["sources"][0]
+          assert "3 years" in a["answer"] or a["abstained"] is False, a
+          print("container answered:", a["answer"][:200])
+          PY
+          curl -fsS http://localhost:8000/ | grep -qi "<html"
+          docker logs rag | tail -20
+          docker rm -f rag
+      - name: Run it with the default local models (only when the commit message asks for it)
+        if: contains(github.event.head_commit.message, '[docker-models]')
+        run: |
+          docker run -d --name ragm -p 8001:8000 rag-chatbot
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8001/health && break
+            sleep 2
+          done
+          curl -fsS --max-time 900 -X POST http://localhost:8001/documents/sample
+          curl -fsS --max-time 900 -X POST http://localhost:8001/query -H 'Content-Type: application/json' \
+            -d '{"question": "What is the warranty period on tents?"}' | tee answer_models.json
+          python3 - <<'PY'
+          import json
+          a = json.load(open("answer_models.json"))
+          print(json.dumps({k: a[k] for k in ("answer", "abstained", "model", "timings")}, indent=1))
+          assert a["sources"] and not a["abstained"], a
+          assert "3" in a["answer"], a["answer"]
+          PY
+          docker logs ragm | tail -20
+          docker rm -f ragm
