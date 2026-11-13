@@ -329,6 +329,17 @@ GROUP_LABEL = {
 }
 
 
+def ask_label(meta: dict) -> str:
+    env = meta.get("server_env", {})
+    model = env.get("ASK_LOCAL_MODEL")
+    who = (
+        f"local model {model.split('/')[-1]} via the local provider"
+        if model
+        else meta.get("note") or meta["mode"]
+    )
+    return f"{who}, retrieval BM25 only"
+
+
 def b_ask_eval(d: dict) -> str:
     if not d["ask"]:
         return "Not run."
@@ -348,7 +359,7 @@ def b_ask_eval(d: dict) -> str:
             for k in GROUP_LABEL
         ]
         rows.append(
-            f"| {tag}: {r['meta']['note'] or r['meta']['mode']}; {r['meta']['n_questions']} questions, {r['meta']['date']}, corpus {r['meta']['corpus_version']} | "
+            f"| {tag}: {ask_label(r['meta'])}; {r['meta']['n_questions']} questions, {r['meta']['date']}, corpus {r['meta']['corpus_version']} | "
             + " | ".join(cells)
             + f" | {r['total']['passed']}/{r['total']['n']} ({pct(r['total']['passed'] / r['total']['n'])}%) | {ft['mean_all']:.0f} / {ft['p95_all']:.0f} (answered by the model: {ft['mean_generated']:.0f} / {ft['p95_generated']:.0f}) | "
             + f"{cold.get('ready_ms', 0):.0f} / {cold.get('first_ask_ms', 0):.0f} |"
@@ -592,6 +603,28 @@ def claims(d: dict) -> list[tuple[str, bool]]:
             g05["closed_book"]["summary"]["correct_on_answerable"]["rate"] < 0.05,
         ),
     ]
+    ev_rows = [
+        json.loads(x)
+        for x in (ROOT / "eval" / "ask_aditya_eval.jsonl").read_text(encoding="utf-8").splitlines()
+        if x.strip()
+    ]
+    ev_counts = {g: sum(r["group"] == g for r in ev_rows) for g in GROUP_LABEL}
+    out.append(
+        (
+            "the README's question counts (84 = 44 + 15 + 10 + 10 + 5) match eval/ask_aditya_eval.jsonl",
+            len(ev_rows) == 84
+            and ev_counts
+            == {"factual": 44, "unpublished": 15, "trap": 10, "injection": 10, "offtopic": 5},
+        )
+    )
+    out.append(
+        (
+            "every recorded Ask-Aditya run covers exactly the questions in the eval file",
+            all(
+                {g: v["n"] for g, v in r["groups"].items()} == ev_counts for r in d["ask"].values()
+            ),
+        )
+    )
     demo = d["demo"]["meta"]
     corpus = d["retrieval"]["meta"]["corpus"]
     out.append(

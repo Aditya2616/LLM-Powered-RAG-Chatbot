@@ -409,6 +409,7 @@ def main() -> int:
     summary = {
         "meta": {
             "tag": args.tag,
+            "note": args.note,
             "date": dt.date.today().isoformat(),
             "mode": "spawned local server" if args.spawn else "base url",
             "corpus_version": health.get("corpus_version"),

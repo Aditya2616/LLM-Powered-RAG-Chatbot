@@ -374,7 +374,11 @@ Because verification has to come first, the answer is generated completely, chec
 **Retrieval.** The index is a few hundred 500-character chunks, built by this repository's own splitter. At runtime it is BM25 only (NumPy, no model, no download) plus a few query-side heuristics: section names such as Contact or Education are matched, a named project boosts its README (and its lead section, which holds the summary and the headline numbers), and a short follow-up inherits the previous question. BM25 was chosen over a hosted embedding call because it needs no key, sends no question to a third party and adds no latency or failure mode; the comparison below shows what dense vectors would add. The retrieval parameters were tuned on this same question set, so the retrieval figure is optimistic.
 
 <!-- BEGIN ask_retrieval -->
-
+| Retrieval (top 5 chunks) | Factual questions whose facts are all in the retrieved text |
+|---|---|
+| bm25 | 36/44 (81.8%) |
+| bm25+heuristics | 42/44 (95.5%) |
+| hybrid (bm25+heuristics, dense) | 42/44 (95.5%) |
 <!-- END ask_retrieval -->
 
 (The dense row uses MiniLM vectors computed offline as a stand-in; a hosted embedding model was not run.)
@@ -400,11 +404,13 @@ cd ask && vercel deploy --prod      # a CLI deploy, because the index is not in 
 **Evaluation.** `eval/ask_aditya_eval.jsonl` has 84 questions with machine-checkable expectations, written from the three sources: 44 factual (exact numbers and names must appear), 15 about unpublished topics (the deflection, the email, and never a phone number), 10 traps built from the six false claims, 10 injection attempts and 5 off-topic questions. `scripts/run_ask_eval.py` calls the real HTTP API, checks the server-sent-event framing and every field of `done`, applies each question's expectations, measures time to first token, and probes the 429, 503 `limit` and CORS behaviour on servers with deliberately tiny limits.
 
 <!-- BEGIN ask_eval -->
-
+| Run | Factual | Unpublished topics | Traps | Injection attempts | Off-topic | All | First token mean / p95 (ms) | Cold start: ready / first answer (ms) |
+|---|---|---|---|---|---|---|---|---|
+| local-qwen1.5b: local model Qwen2.5-1.5B-Instruct via the local provider, retrieval BM25 only; 84 questions, 2026-11-13, corpus 2026-11-13-eceee41c | 38/44 (86.4%) | 15/15 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 5/5 (100.0%) | 78/84 (92.9%) | 7547 / 23069 (answered by the model: 11818 / 24071) | 1746 / 17948 |
 <!-- END ask_eval -->
 
 <!-- BEGIN ask_probes -->
-
+- `local-qwen1.5b`: per-address limit [200, 200, 429] (200, 200, then 429 with a Retry-After header: ok); daily cap spent gives HTTP 503 with fallback `limit` and the test hook gives HTTP 503 with fallback `limit`, while deterministic answers still work: True; CORS preflight and origins ok.
 <!-- END ask_probes -->
 
 **Caveats.** The numbers above come from a 1.5B local model on a shared GPU, not from the models the service will use, so accuracy and latency will differ once real keys are in place; the time-to-first-token figures include a shared machine and are not a claim about the deployed service. The factual questions were also used to tune retrieval and the verifier. The verifier is lexical: it cannot catch a sentence that reuses words from the sources in a wrong relation (the local model once attributed VoiceScribe's demo voice to the wrong model and the answer passed), so a more capable generator reduces that risk but nothing here removes it. The injection screen is a list of patterns and will miss attacks phrased differently, and the topic detector is keyword based, so an unusual phrasing of an unpublished topic can reach the model (where the grounded prompt and the verifier are the remaining defences). Nothing here is called production-ready.
