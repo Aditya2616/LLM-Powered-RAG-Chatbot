@@ -1,0 +1,1777 @@
+{
+ "meta": {
+  "date": "2026-11-13",
+  "device": "cuda",
+  "versions": {
+   "python": "3.13.15",
+   "platform": "Windows-11-10.0.26300-SP0",
+   "torch": "2.11.0+cu128",
+   "transformers": "5.7.0",
+   "sentence_transformers": "5.4.1",
+   "faiss": "1.13.2",
+   "langchain_core": "1.3.2",
+   "numpy": "2.4.4"
+  },
+  "corpus": {
+   "documents": 11,
+   "words": 5403,
+   "characters": 30830
+  },
+  "questions": {
+   "total": 100,
+   "answerable": 75,
+   "unanswerable": 25,
+   "direct": 42,
+   "paraphrase": 33,
+   "near_miss": 17,
+   "off_topic": 8
+  },
+  "llm": {
+   "model": "extractive (no model)",
+   "revision": null,
+   "dtype": null
+  },
+  "embedder": {
+   "model": "sentence-transformers/all-MiniLM-L6-v2",
+   "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+  },
+  "retrieval": {
+   "chunk_size": 500,
+   "chunk_overlap": 75,
+   "retriever": "hybrid",
+   "k": 4
+  }
+ },
+ "configs": {
+  "extractive": {
+   "name": "extractive",
+   "few_shot": false,
+   "gate": null,
+   "closed_book": false,
+   "k": 4,
+   "mean_generate_ms": 0.503,
+   "p95_generate_ms": 0.6,
+   "summary": {
+    "n": 100,
+    "n_answerable": 75,
+    "n_unanswerable": 25,
+    "correct_on_answerable": {
+     "k": 39,
+     "n": 75,
+     "rate": 0.52,
+     "ci": [
+      0.4087401957316927,
+      0.6293107824321194
+     ]
+    },
+    "false_abstention_on_answerable": {
+     "k": 8,
+     "n": 75,
+     "rate": 0.10666666666666667,
+     "ci": [
+      0.05504846963856164,
+      0.19661562647313574
+     ]
+    },
+    "wrong_answer_on_answerable": {
+     "k": 28,
+     "n": 75,
+     "rate": 0.37333333333333335,
+     "ci": [
+      0.2725580313531414,
+      0.4864524402760493
+     ]
+    },
+    "abstained_on_unanswerable": {
+     "k": 11,
+     "n": 25,
+     "rate": 0.44,
+     "ci": [
+      0.2666537494700256,
+      0.6293298298043557
+     ]
+    },
+    "answered_unanswerable": {
+     "k": 14,
+     "n": 25,
+     "rate": 0.56,
+     "ci": [
+      0.37067017019564436,
+      0.7333462505299744
+     ]
+    },
+    "abstained_on_near_miss": {
+     "k": 5,
+     "n": 17,
+     "rate": 0.29411764705882354,
+     "ci": [
+      0.13279793865556402,
+      0.5313353332621391
+     ]
+    },
+    "abstained_on_off_topic": {
+     "k": 6,
+     "n": 8,
+     "rate": 0.75,
+     "ci": [
+      0.40926987910258916,
+      0.9285223111419724
+     ]
+    },
+    "correct_on_direct": {
+     "k": 23,
+     "n": 42,
+     "rate": 0.5476190476190477,
+     "ci": [
+      0.39948862747122693,
+      0.6877683618136149
+     ]
+    },
+    "correct_on_paraphrase": {
+     "k": 16,
+     "n": 33,
+     "rate": 0.48484848484848486,
+     "ci": [
+      0.32503781646924224,
+      0.6478189541378976
+     ]
+    },
+    "decision_accuracy": {
+     "k": 50,
+     "n": 100,
+     "rate": 0.5,
+     "ci": [
+      0.40382982859014716,
+      0.5961701714098528
+     ]
+    },
+    "mean_support": 1.0,
+    "grounded": {
+     "k": 81,
+     "n": 81,
+     "rate": 1.0,
+     "ci": [
+      0.954720325877871,
+      0.9999999999999999
+     ]
+    },
+    "with_unsupported_number": {
+     "k": 2,
+     "n": 81,
+     "rate": 0.024691358024691357,
+     "ci": [
+      0.0067974449101870366,
+      0.08562891197134277
+     ]
+    }
+   },
+   "records": [
+    {
+     "id": "a01",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#1",
+      "returns_and_refunds.txt#7",
+      "returns_and_refunds.txt#3",
+      "leave_and_time_off.txt#2"
+     ]
+    },
+    {
+     "id": "a02",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Items bought during the Winter Sale, which runs from 1 December to 15 January, get a longer window: they can be returned until 31 January.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#2",
+      "returns_and_refunds.txt#1",
+      "returns_and_refunds.txt#5",
+      "returns_and_refunds.txt#0"
+     ]
+    },
+    {
+     "id": "a03",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#2",
+      "returns_and_refunds.txt#1",
+      "returns_and_refunds.txt#0",
+      "returns_and_refunds.txt#6"
+     ]
+    },
+    {
+     "id": "a04",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Card refunds are issued within 5 working days of the returned item being inspected at the warehouse.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#3",
+      "returns_and_refunds.txt#0",
+      "warranty_policy.txt#7",
+      "returns_and_refunds.txt#7"
+     ]
+    },
+    {
+     "id": "a05",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "A customer may choose store credit instead of a refund to the original payment method.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#4",
+      "returns_and_refunds.txt#8",
+      "returns_and_refunds.txt#3",
+      "returns_and_refunds.txt#2"
+     ]
+    },
+    {
+     "id": "a06",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "The following can never be returned unless they are faulty:",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#5",
+      "returns_and_refunds.txt#6",
+      "returns_and_refunds.txt#7",
+      "returns_and_refunds.txt#1"
+     ]
+    },
+    {
+     "id": "a07",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "The customer does not need to send the damaged item back unless we ask for it.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#6",
+      "returns_and_refunds.txt#7",
+      "shipping_and_delivery.txt#6",
+      "returns_and_refunds.txt#1"
+     ]
+    },
+    {
+     "id": "a08",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Items over 20 kg, such as family tents, are carried by PeakFreight instead of the normal parcel carrier.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#6",
+      "shipping_and_delivery.txt#2",
+      "shipping_and_delivery.txt#6",
+      "store_operations.txt#5"
+     ]
+    },
+    {
+     "id": "a09",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "The customer gets a tracking email as soon as the parcel is handed to the carrier.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#5",
+      "shipping_and_delivery.txt#6",
+      "shipping_and_delivery.txt#4",
+      "returns_and_refunds.txt#5"
+     ]
+    },
+    {
+     "id": "a10",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Shop staff can approve refunds up to 150 pounds.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#8",
+      "expenses_and_travel.txt#2",
+      "returns_and_refunds.txt#0",
+      "customer_support_handbook.txt#4"
+     ]
+    },
+    {
+     "id": "a11",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "It requires a photo ID check, and a customer is limited to 2 receipt-free returns in each calendar year.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#8",
+      "returns_and_refunds.txt#9",
+      "store_operations.txt#3",
+      "returns_and_refunds.txt#0"
+     ]
+    },
+    {
+     "id": "a12",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "If one account makes more than 3 returns in any period of 60 days, the account is flagged automatically and Loss Prevention reviews the pattern before any further refund is paid.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#9",
+      "customer_support_handbook.txt#7",
+      "customer_data_and_privacy.txt#1",
+      "customer_data_and_privacy.txt#2"
+     ]
+    },
+    {
+     "id": "a13",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#2",
+      "warranty_policy.txt#3",
+      "product_care_guide.txt#2",
+      "warranty_policy.txt#0"
+     ]
+    },
+    {
+     "id": "a14",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "A customer who registers a sleeping bag on the website within 28 days of buying it receives one extra year of warranty, which makes it 3 years in total.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#3",
+      "warranty_policy.txt#2",
+      "product_care_guide.txt#3",
+      "warranty_policy.txt#1"
+     ]
+    },
+    {
+     "id": "a15",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "A common example of incorrect washing is using fabric softener on a waterproof jacket, which clogs the membrane.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#1",
+      "warranty_policy.txt#4",
+      "warranty_policy.txt#3",
+      "warranty_policy.txt#2"
+     ]
+    },
+    {
+     "id": "a16",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Between May and August the Repair Centre is busier and a repair can take up to 25 working days.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#7",
+      "warranty_policy.txt#5",
+      "warranty_policy.txt#6",
+      "warranty_policy.txt#1"
+     ]
+    },
+    {
+     "id": "a17",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#6",
+      "warranty_policy.txt#1",
+      "warranty_policy.txt#7",
+      "warranty_policy.txt#8"
+     ]
+    },
+    {
+     "id": "a18",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Between May and August the Repair Centre is busier and a repair can take up to 25 working days.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#7",
+      "warranty_policy.txt#5",
+      "warranty_policy.txt#4",
+      "employee_onboarding.txt#6"
+     ]
+    },
+    {
+     "id": "a19",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Every Harbourline own-brand product comes with a warranty against manufacturing defects.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#3",
+      "warranty_policy.txt#5",
+      "warranty_policy.txt#1",
+      "warranty_policy.txt#8"
+     ]
+    },
+    {
+     "id": "a20",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#2",
+      "warranty_policy.txt#7",
+      "returns_and_refunds.txt#1",
+      "product_care_guide.txt#4"
+     ]
+    },
+    {
+     "id": "a21",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "They can be sent by ground delivery within the UK only, and never to Ireland or the EU.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#1",
+      "shipping_and_delivery.txt#3",
+      "returns_and_refunds.txt#6",
+      "shipping_and_delivery.txt#4"
+     ]
+    },
+    {
+     "id": "a22",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Saturday delivery can be added to next-day delivery for an extra 4 pounds.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#1",
+      "shipping_and_delivery.txt#6",
+      "shipping_and_delivery.txt#4",
+      "leave_and_time_off.txt#2"
+     ]
+    },
+    {
+     "id": "a23",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "An in-stock item is ready for collection in the chosen shop within 2 hours of the order being placed during opening hours.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "store_operations.txt#3",
+      "shipping_and_delivery.txt#1",
+      "shipping_and_delivery.txt#4",
+      "returns_and_refunds.txt#7"
+     ]
+    },
+    {
+     "id": "a24",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Delivery to the Scottish Highlands and to islands adds a surcharge of 5.50 pounds and 2 working days to the usual delivery time.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#3",
+      "shipping_and_delivery.txt#1",
+      "store_operations.txt#5",
+      "shipping_and_delivery.txt#6"
+     ]
+    },
+    {
+     "id": "a25",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Import duty and VAT are charged by the destination country and are the responsibility of the customer.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#3",
+      "shipping_and_delivery.txt#4",
+      "shipping_and_delivery.txt#1",
+      "returns_and_refunds.txt#8"
+     ]
+    },
+    {
+     "id": "a26",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "- Fuel canisters and any other pressurised gas product.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#4",
+      "returns_and_refunds.txt#5",
+      "product_care_guide.txt#5",
+      "shipping_and_delivery.txt#5"
+     ]
+    },
+    {
+     "id": "a27",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "If tracking shows no movement for 7 working days, or the parcel is marked as delivered but the customer has not received it, Logistics opens an investigation with the carrier.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#5",
+      "shipping_and_delivery.txt#4",
+      "shipping_and_delivery.txt#6",
+      "shipping_and_delivery.txt#0"
+     ]
+    },
+    {
+     "id": "a28",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Our courier, Northline Couriers, receives the customer's name, delivery address and phone number so that they can deliver the parcel.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#6",
+      "shipping_and_delivery.txt#4",
+      "shipping_and_delivery.txt#5",
+      "customer_data_and_privacy.txt#1"
+     ]
+    },
+    {
+     "id": "a29",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "After that the parcel is returned to our warehouse and the customer is refunded the item price but not the delivery charge.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#6",
+      "store_operations.txt#5",
+      "shipping_and_delivery.txt#5",
+      "returns_and_refunds.txt#3"
+     ]
+    },
+    {
+     "id": "a30",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Arrive at 9:00 on your first day and collect your ID badge from reception.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [
+      "9",
+      "00"
+     ],
+     "retrieved": [
+      "employee_onboarding.txt#2",
+      "employee_onboarding.txt#0",
+      "employee_onboarding.txt#4",
+      "employee_onboarding.txt#1"
+     ]
+    },
+    {
+     "id": "a31",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Attend the safety induction, which takes 45 minutes and covers fire exits and manual handling.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#2",
+      "customer_data_and_privacy.txt#2",
+      "store_operations.txt#6",
+      "employee_onboarding.txt#6"
+     ]
+    },
+    {
+     "id": "a32",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "The Level 1 product certificate must be completed within 6 weeks of your start date.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#4",
+      "customer_data_and_privacy.txt#2",
+      "employee_onboarding.txt#3",
+      "warranty_policy.txt#5"
+     ]
+    },
+    {
+     "id": "a33",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "During probation the staff discount is 30 percent.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#5",
+      "employee_onboarding.txt#6",
+      "employee_onboarding.txt#7",
+      "customer_data_and_privacy.txt#6"
+     ]
+    },
+    {
+     "id": "a34",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Your line manager holds three check-in meetings: one at 30 days, one at 60 days, and a final review at 90 days.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#6",
+      "employee_onboarding.txt#5",
+      "employee_onboarding.txt#7",
+      "customer_data_and_privacy.txt#2"
+     ]
+    },
+    {
+     "id": "a35",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "A full-time employee receives 28 days of paid annual leave per year, which includes bank holidays.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#7",
+      "leave_and_time_off.txt#0",
+      "leave_and_time_off.txt#5",
+      "leave_and_time_off.txt#3"
+     ]
+    },
+    {
+     "id": "a36",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "After probation every employee can use up to 300 pounds a year on external training, such as first aid or navigation courses, with the line manager's approval.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#7",
+      "employee_onboarding.txt#5",
+      "employee_onboarding.txt#6",
+      "leave_and_time_off.txt#1"
+     ]
+    },
+    {
+     "id": "a37",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Questions go to the People Team lead, Priya Nair, or to your line manager.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#8",
+      "employee_onboarding.txt#0",
+      "employee_onboarding.txt#1",
+      "customer_support_handbook.txt#4"
+     ]
+    },
+    {
+     "id": "a38",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "During probation either side can end the employment with one week of notice.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#6",
+      "employee_onboarding.txt#5",
+      "leave_and_time_off.txt#2",
+      "leave_and_time_off.txt#1"
+     ]
+    },
+    {
+     "id": "a39",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "A full-time employee receives 28 days of paid annual leave per year, which includes bank holidays.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#0",
+      "leave_and_time_off.txt#5",
+      "customer_support_handbook.txt#9",
+      "leave_and_time_off.txt#1"
+     ]
+    },
+    {
+     "id": "a40",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#1",
+      "leave_and_time_off.txt#5",
+      "leave_and_time_off.txt#2",
+      "it_security_policy.txt#7"
+     ]
+    },
+    {
+     "id": "a41",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "If you are ill, phone your line manager before 8:30 am on the first day.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [
+      "30"
+     ],
+     "retrieved": [
+      "leave_and_time_off.txt#3",
+      "customer_support_handbook.txt#9",
+      "it_security_policy.txt#5",
+      "customer_support_handbook.txt#7"
+     ]
+    },
+    {
+     "id": "a42",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "After 6 months of service you receive full pay for up to 10 days of sickness in a leave year.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#3",
+      "employee_onboarding.txt#7",
+      "leave_and_time_off.txt#0",
+      "leave_and_time_off.txt#5"
+     ]
+    },
+    {
+     "id": "a43",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Paternity leave is 2 weeks at full pay, and can be taken at any time in the first 12 weeks after the birth.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#4",
+      "leave_and_time_off.txt#6",
+      "customer_support_handbook.txt#9",
+      "leave_and_time_off.txt#0"
+     ]
+    },
+    {
+     "id": "a44",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "If you are taking a professional exam you can take up to 3 days of paid study leave per leave year.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#4",
+      "leave_and_time_off.txt#5",
+      "leave_and_time_off.txt#6",
+      "leave_and_time_off.txt#1"
+     ]
+    },
+    {
+     "id": "a45",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "During Black Friday week, annual leave is not approved for support staff, and every team leader takes calls for at least two hours a day.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#0",
+      "leave_and_time_off.txt#2",
+      "customer_support_handbook.txt#9",
+      "leave_and_time_off.txt#1"
+     ]
+    },
+    {
+     "id": "a46",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Submit expense claims in the Expenses app within 30 days of the date you spent the money.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#1",
+      "warranty_policy.txt#5",
+      "expenses_and_travel.txt#0",
+      "expenses_and_travel.txt#2"
+     ]
+    },
+    {
+     "id": "a47",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "If you use your own car for work, mileage is paid at 45 pence per mile for the first 10,000 miles in a tax year and 25 pence per mile after that.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#3",
+      "employee_onboarding.txt#7",
+      "expenses_and_travel.txt#6",
+      "employee_onboarding.txt#5"
+     ]
+    },
+    {
+     "id": "a48",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "The maximum room rate is 110 pounds per night, or 150 pounds per night in London.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#3",
+      "expenses_and_travel.txt#0",
+      "store_operations.txt#1",
+      "expenses_and_travel.txt#4"
+     ]
+    },
+    {
+     "id": "a49",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "When you are away overnight you can claim up to 35 pounds a day for meals: 8 pounds for breakfast, 10 pounds for lunch and 17 pounds for dinner.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#4",
+      "expenses_and_travel.txt#6",
+      "expenses_and_travel.txt#2",
+      "expenses_and_travel.txt#1"
+     ]
+    },
+    {
+     "id": "a50",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Employees who work from home can claim a one-off allowance of 250 pounds for a chair, desk or monitor.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#1",
+      "expenses_and_travel.txt#2",
+      "expenses_and_travel.txt#5",
+      "expenses_and_travel.txt#0"
+     ]
+    },
+    {
+     "id": "a51",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#1",
+      "warranty_policy.txt#2",
+      "it_security_policy.txt#2",
+      "customer_data_and_privacy.txt#6"
+     ]
+    },
+    {
+     "id": "a52",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Every employee must keep their passwords in the company password manager, which is called Keyhold.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#1",
+      "it_security_policy.txt#2",
+      "employee_onboarding.txt#8",
+      "customer_support_handbook.txt#2"
+     ]
+    },
+    {
+     "id": "a53",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Security updates must be installed within 7 days of release, and critical updates within 48 hours.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#3",
+      "it_security_policy.txt#4",
+      "it_security_policy.txt#0",
+      "it_security_policy.txt#5"
+     ]
+    },
+    {
+     "id": "a54",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Report a suspected breach, lost laptop or stolen phone to the Security Desk within 1 hour of noticing it.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#5",
+      "returns_and_refunds.txt#7",
+      "it_security_policy.txt#3",
+      "employee_onboarding.txt#1"
+     ]
+    },
+    {
+     "id": "a55",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "If personal data is involved, the company notifies the Information Commissioner's Office within 72 hours of becoming aware of the breach, when notification is required.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#5",
+      "customer_data_and_privacy.txt#3",
+      "customer_data_and_privacy.txt#4",
+      "customer_data_and_privacy.txt#5"
+     ]
+    },
+    {
+     "id": "a56",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_data_and_privacy.txt#2",
+      "it_security_policy.txt#6",
+      "leave_and_time_off.txt#1",
+      "warranty_policy.txt#4"
+     ]
+    },
+    {
+     "id": "a57",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "- Live chat: first reply within 60 seconds.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_support_handbook.txt#1",
+      "customer_support_handbook.txt#0",
+      "employee_onboarding.txt#2",
+      "employee_onboarding.txt#1"
+     ]
+    },
+    {
+     "id": "a58",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "A team leader can approve up to 50 pounds.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_support_handbook.txt#4",
+      "returns_and_refunds.txt#8",
+      "expenses_and_travel.txt#2",
+      "employee_onboarding.txt#0"
+     ]
+    },
+    {
+     "id": "a59",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Every complaint is logged in CaseDesk with one category code: D for delivery, P for product, R for refund, or S for staff conduct.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_support_handbook.txt#5",
+      "customer_support_handbook.txt#6",
+      "customer_support_handbook.txt#1",
+      "customer_support_handbook.txt#3"
+     ]
+    },
+    {
+     "id": "a60",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "During Black Friday week, annual leave is not approved for support staff, and every team leader takes calls for at least two hours a day.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_support_handbook.txt#8",
+      "customer_data_and_privacy.txt#2",
+      "customer_support_handbook.txt#9",
+      "customer_support_handbook.txt#0"
+     ]
+    },
+    {
+     "id": "a61",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "The float is 200 pounds on a normal day and 300 pounds on Saturdays.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "store_operations.txt#1",
+      "store_operations.txt#2",
+      "shipping_and_delivery.txt#1",
+      "store_operations.txt#0"
+     ]
+    },
+    {
+     "id": "a62",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "If the alarm sounds at any other time, leave through the nearest exit and gather at the assembly point marked on the fire plan.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "store_operations.txt#6",
+      "store_operations.txt#1",
+      "customer_data_and_privacy.txt#6",
+      "employee_onboarding.txt#2"
+     ]
+    },
+    {
+     "id": "a63",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "There is a full stocktake twice a year, in January and in July.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "store_operations.txt#3",
+      "leave_and_time_off.txt#1",
+      "leave_and_time_off.txt#0",
+      "shipping_and_delivery.txt#2"
+     ]
+    },
+    {
+     "id": "a64",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Do not carry boxes up the stairs without a second person.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "store_operations.txt#5",
+      "shipping_and_delivery.txt#2",
+      "returns_and_refunds.txt#8",
+      "leave_and_time_off.txt#5"
+     ]
+    },
+    {
+     "id": "a65",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "A lunch break of 45 minutes is unpaid.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "store_operations.txt#6",
+      "leave_and_time_off.txt#5",
+      "expenses_and_travel.txt#4",
+      "leave_and_time_off.txt#6"
+     ]
+    },
+    {
+     "id": "a66",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "- CCTV footage in shops: 31 days.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_data_and_privacy.txt#2",
+      "store_operations.txt#3",
+      "store_operations.txt#0",
+      "customer_support_handbook.txt#8"
+     ]
+    },
+    {
+     "id": "a67",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "The Data Protection Officer is Imran Qureshi.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_data_and_privacy.txt#4",
+      "customer_data_and_privacy.txt#6",
+      "customer_data_and_privacy.txt#0",
+      "customer_data_and_privacy.txt#3"
+     ]
+    },
+    {
+     "id": "a68",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "The website only uses analytics cookies after the visitor has given consent.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_data_and_privacy.txt#5",
+      "customer_data_and_privacy.txt#2",
+      "it_security_policy.txt#3",
+      "store_operations.txt#3"
+     ]
+    },
+    {
+     "id": "a69",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "- Order records: 7 years, because of tax rules.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_data_and_privacy.txt#2",
+      "customer_data_and_privacy.txt#3",
+      "customer_data_and_privacy.txt#1",
+      "customer_data_and_privacy.txt#0"
+     ]
+    },
+    {
+     "id": "a70",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Every employee completes data protection training once a year.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "customer_data_and_privacy.txt#6",
+      "customer_data_and_privacy.txt#4",
+      "employee_onboarding.txt#4",
+      "customer_support_handbook.txt#8"
+     ]
+    },
+    {
+     "id": "a71",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "When water stops beading on the surface, re-proof the jacket with a spray-on or wash-in treatment.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#2",
+      "product_care_guide.txt#1",
+      "product_care_guide.txt#6",
+      "warranty_policy.txt#4"
+     ]
+    },
+    {
+     "id": "a72",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Replace the filter cartridge after 1,500 litres.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#7",
+      "product_care_guide.txt#1",
+      "leave_and_time_off.txt#1",
+      "employee_onboarding.txt#7"
+     ]
+    },
+    {
+     "id": "a73",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Backflush a water filter after every trip with clean water.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#4",
+      "returns_and_refunds.txt#1",
+      "product_care_guide.txt#6",
+      "product_care_guide.txt#7"
+     ]
+    },
+    {
+     "id": "a74",
+     "kind": "direct",
+     "answerable": true,
+     "answer": "Clean the jet of a stove after every 20 hours of use.",
+     "abstained": false,
+     "correct": true,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#5",
+      "warranty_policy.txt#2",
+      "employee_onboarding.txt#3",
+      "product_care_guide.txt#6"
+     ]
+    },
+    {
+     "id": "a75",
+     "kind": "paraphrase",
+     "answerable": true,
+     "answer": "Walking boots",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#6",
+      "product_care_guide.txt#2",
+      "store_operations.txt#4",
+      "product_care_guide.txt#7"
+     ]
+    },
+    {
+     "id": "u01",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "A customer may choose store credit instead of a refund to the original payment method.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#3",
+      "returns_and_refunds.txt#4",
+      "returns_and_refunds.txt#9",
+      "returns_and_refunds.txt#8"
+     ]
+    },
+    {
+     "id": "u02",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "Warranty periods",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "warranty_policy.txt#2",
+      "warranty_policy.txt#1",
+      "warranty_policy.txt#0",
+      "warranty_policy.txt#3"
+     ]
+    },
+    {
+     "id": "u03",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "Standard delivery takes 3 to 5 working days and costs 3.95 pounds.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#1",
+      "shipping_and_delivery.txt#3",
+      "shipping_and_delivery.txt#2",
+      "shipping_and_delivery.txt#6"
+     ]
+    },
+    {
+     "id": "u04",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "After probation every employee can use up to 300 pounds a year on external training, such as first aid or navigation courses, with the line manager's approval.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#6",
+      "employee_onboarding.txt#5",
+      "employee_onboarding.txt#7",
+      "leave_and_time_off.txt#5"
+     ]
+    },
+    {
+     "id": "u05",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "If you use your own car for work, mileage is paid at 45 pence per mile for the first 10,000 miles in a tax year and 25 pence per mile after that.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#3",
+      "expenses_and_travel.txt#6",
+      "product_care_guide.txt#5",
+      "shipping_and_delivery.txt#3"
+     ]
+    },
+    {
+     "id": "u06",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "When using public Wi-Fi, connect through the company VPN, which is called WireLine.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#6",
+      "it_security_policy.txt#0",
+      "customer_data_and_privacy.txt#1",
+      "employee_onboarding.txt#7"
+     ]
+    },
+    {
+     "id": "u07",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "Every employee must keep their passwords in the company password manager, which is called Keyhold.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#5",
+      "it_security_policy.txt#1",
+      "employee_onboarding.txt#7",
+      "leave_and_time_off.txt#0"
+     ]
+    },
+    {
+     "id": "u08",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "All employees, contractors and temporary staff who use Harbourline systems or data, in shops, in the warehouse and in the office.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#1",
+      "it_security_policy.txt#0",
+      "product_care_guide.txt#0",
+      "employee_onboarding.txt#5"
+     ]
+    },
+    {
+     "id": "u09",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#1",
+      "product_care_guide.txt#2",
+      "product_care_guide.txt#3",
+      "product_care_guide.txt#7"
+     ]
+    },
+    {
+     "id": "u10",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#4",
+      "shipping_and_delivery.txt#2",
+      "returns_and_refunds.txt#6",
+      "returns_and_refunds.txt#1"
+     ]
+    },
+    {
+     "id": "u11",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#8",
+      "customer_support_handbook.txt#3",
+      "employee_onboarding.txt#3",
+      "employee_onboarding.txt#0"
+     ]
+    },
+    {
+     "id": "u12",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "All employees, contractors and temporary staff who use Harbourline systems or data, in shops, in the warehouse and in the office.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#0",
+      "shipping_and_delivery.txt#0",
+      "store_operations.txt#0",
+      "employee_onboarding.txt#0"
+     ]
+    },
+    {
+     "id": "u13",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "- Gift cards.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#5",
+      "returns_and_refunds.txt#2",
+      "returns_and_refunds.txt#5",
+      "returns_and_refunds.txt#3"
+     ]
+    },
+    {
+     "id": "u14",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "employee_onboarding.txt#5",
+      "returns_and_refunds.txt#2",
+      "customer_support_handbook.txt#4",
+      "expenses_and_travel.txt#6"
+     ]
+    },
+    {
+     "id": "u15",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "Standard delivery takes 3 to 5 working days and costs 3.95 pounds.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#1",
+      "shipping_and_delivery.txt#3",
+      "shipping_and_delivery.txt#6",
+      "shipping_and_delivery.txt#2"
+     ]
+    },
+    {
+     "id": "u16",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "The first payment includes any days worked in the previous month.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "leave_and_time_off.txt#3",
+      "employee_onboarding.txt#7",
+      "leave_and_time_off.txt#5",
+      "leave_and_time_off.txt#4"
+     ]
+    },
+    {
+     "id": "u17",
+     "kind": "near_miss",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#6",
+      "returns_and_refunds.txt#2",
+      "returns_and_refunds.txt#7",
+      "returns_and_refunds.txt#1"
+     ]
+    },
+    {
+     "id": "u18",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "expenses_and_travel.txt#3",
+      "shipping_and_delivery.txt#2",
+      "expenses_and_travel.txt#6",
+      "store_operations.txt#3"
+     ]
+    },
+    {
+     "id": "u19",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#2",
+      "returns_and_refunds.txt#5",
+      "warranty_policy.txt#6",
+      "employee_onboarding.txt#1"
+     ]
+    },
+    {
+     "id": "u20",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#7",
+      "shipping_and_delivery.txt#2",
+      "product_care_guide.txt#4",
+      "product_care_guide.txt#1"
+     ]
+    },
+    {
+     "id": "u21",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "it_security_policy.txt#6",
+      "expenses_and_travel.txt#5",
+      "customer_support_handbook.txt#2",
+      "product_care_guide.txt#3"
+     ]
+    },
+    {
+     "id": "u22",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "A customer who registers a sleeping bag on the website within 28 days of buying it receives one extra year of warranty, which makes it 3 years in total.",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#3",
+      "warranty_policy.txt#3",
+      "returns_and_refunds.txt#5",
+      "product_care_guide.txt#4"
+     ]
+    },
+    {
+     "id": "u23",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "product_care_guide.txt#4",
+      "returns_and_refunds.txt#1",
+      "warranty_policy.txt#2",
+      "shipping_and_delivery.txt#2"
+     ]
+    },
+    {
+     "id": "u24",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "I don't know",
+     "abstained": true,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "returns_and_refunds.txt#0",
+      "customer_data_and_privacy.txt#6",
+      "customer_support_handbook.txt#6",
+      "employee_onboarding.txt#3"
+     ]
+    },
+    {
+     "id": "u25",
+     "kind": "off_topic",
+     "answerable": false,
+     "answer": "Harbourline Outfitters: Expenses and Travel Policy",
+     "abstained": false,
+     "correct": false,
+     "support": 1.0,
+     "unsupported_numbers": [],
+     "retrieved": [
+      "shipping_and_delivery.txt#0",
+      "warranty_policy.txt#0",
+      "expenses_and_travel.txt#0",
+      "product_care_guide.txt#0"
+     ]
+    }
+   ]
+  }
+ }
+}
