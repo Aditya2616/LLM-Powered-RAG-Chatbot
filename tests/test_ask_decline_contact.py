@@ -58,7 +58,7 @@ def test_the_same_model_retry_uses_the_other_wording_and_can_rescue_the_answer(i
 def test_a_question_the_passages_do_not_cover_is_not_retried(index):
     a, b = ScriptedProvider("groq", ["UNKNOWN"]), ScriptedProvider("groq-backup", [GOOD])
     r = pipe(index, a, b).answer("What is Sam's favourite zebra species?")
-    assert r.fallback == "unknown" and len(b.calls) == 0
+    assert r.fallback in ("unknown", "offtopic") and len(b.calls) == 0
 
 
 def test_the_retry_is_counted_in_the_budgets(index):

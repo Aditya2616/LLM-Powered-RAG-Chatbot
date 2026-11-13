@@ -139,6 +139,7 @@ class AskIndex:
         self.traps = traps or []
         # whole-table chunks repeat text that is already indexed, so they have their own small index and only
         # compete for "best / highest / lowest" questions about a named project (see ``search``)
+        self._vocab: set[str] | None = None
         self._main_ids = [i for i, c in enumerate(chunks) if c.get("kind") != "table"]
         self._table_ids = [i for i, c in enumerate(chunks) if c.get("kind") == "table"]
         self._bm25 = BM25Index(
@@ -172,6 +173,16 @@ class AskIndex:
         return cls(
             data["chunks"], data["version"], data.get("traps", []), dense, data.get("profile", [])
         )
+
+    def coverage(self, text: str) -> float:
+        """The share of the question's search words (stop words and "use" removed) that occur anywhere in the
+        index. A question about something the documents never mention has low coverage."""
+        if self._vocab is None:
+            self._vocab = set(self._bm25.postings) | (
+                set(self._tables.postings) if self._tables else set()
+            )
+        words = set(ask_tokens(text))
+        return sum(w in self._vocab for w in words) / len(words) if words else 1.0
 
     def _lead_chunk(self, project: str) -> int | None:
         for i, c in enumerate(self.chunks):

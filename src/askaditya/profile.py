@@ -8,6 +8,7 @@ sections kept in the index (``profile``), and never reach a provider.
 
 from __future__ import annotations
 
+import datetime as dt
 import re
 
 MAX_WORDS = 100
@@ -50,7 +51,7 @@ _COMPANY = [
     ("15FORTEEN", re.compile(r"\b15 ?forteen\b|\bfounder'?s office\b", re.I)),
 ]
 _EXPERIENCE = re.compile(
-    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?|positions?|jobs?|held|titles?|employed|before|previous(ly)?|earlier|past|formerly)\b",
+    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?|positions?|jobs?|held|titles?|employed|before|previous(ly)?|earlier|past|formerly|company|employer|organi[sz]ation|firm|work(s|ing)? (for|at))\b",
     re.I,
 )
 _SKILLS = re.compile(
@@ -127,6 +128,34 @@ def _bullets(text: str) -> list[str]:
     return [re.sub(r"\s*\n\s*", " ", i).strip() for i in items]
 
 
+_MONTHS = {m: i for i, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split(), 1)}
+_CURRENT = re.compile(
+    r"\b(currently|right now|now|current|present)\b|\b(which|what) (company|organi[sz]ation|firm|employer)\b|\bwho (does|is) (he|aditya) (work|working|employed)\b|\bwork(s|ing)? (for|at)\b|\bemployer\b|\bat his (company|job|workplace)\b",
+    re.I,
+)
+_HOW_LONG = re.compile(
+    r"\b(how long|for how long|duration|tenure|how many (months|years)|since when|how much time)\b",
+    re.I,
+)
+_STOP_TOPIC = set(
+    """which what any are there the and for from with that this does did has have his him aditya built build work
+    working worked projects project deal deals dealing about related around involving involve involves cover covers
+    use uses using like kind kinds type types anything something where who how can could would should into onto over
+    show tell give list name his its our your one some many much more most""".split()
+)
+_GENERIC_TOPIC = {
+    "llm",
+    "llms",
+    "model",
+    "models",
+    "learning",
+    "machine",
+    "data",
+    "language",
+    "large",
+}
+
+
 class Profile:
     """The portfolio sections as kept in the index, and the answers built from them."""
 
@@ -148,6 +177,61 @@ class Profile:
             if k.startswith("Experience > "):
                 out.append((k.split(" > ", 1)[1], _bullets(v)))
         return out
+
+    @staticmethod
+    def _duration(head: str) -> str:
+        """ "about 4 months" for ``Oct 2025 to Feb 2026``; a role that is current runs to today."""
+        m = re.search(
+            r"([A-Za-z]{3})[a-z]* (\d{4}) to (?:([A-Za-z]{3})[a-z]* (\d{4})|Present)", head, re.I
+        )
+        if not m or m.group(1).lower() not in _MONTHS:
+            return ""
+        y1, m1 = int(m.group(2)), _MONTHS[m.group(1).lower()]
+        if m.group(4):
+            y2, m2 = int(m.group(4)), _MONTHS.get(m.group(3).lower(), 12)
+        else:
+            today = dt.date.today()
+            y2, m2 = today.year, today.month
+        n = max(1, (y2 - y1) * 12 + (m2 - m1))
+        years, months = divmod(n, 12)
+        bits = []
+        if years:
+            bits.append(f"{years} year{'s' if years > 1 else ''}")
+        if months:
+            bits.append(f"{months} month{'s' if months > 1 else ''}")
+        return "about " + " and ".join(bits)
+
+    @staticmethod
+    def _span(head: str) -> tuple[int, int] | None:
+        """The months (year * 12 + month) a role covers, or None."""
+        m = re.search(
+            r"([A-Za-z]{3})[a-z]* (\d{4}) to (?:([A-Za-z]{3})[a-z]* (\d{4})|Present)", head, re.I
+        )
+        if not m or m.group(1).lower() not in _MONTHS:
+            return None
+        start = int(m.group(2)) * 12 + _MONTHS[m.group(1).lower()]
+        if m.group(4):
+            end = int(m.group(4)) * 12 + _MONTHS.get(m.group(3).lower(), 12)
+        else:
+            today = dt.date.today()
+            end = today.year * 12 + today.month
+        return start, end
+
+    def in_period(self, question: str) -> str | None:
+        """ "What did he do between June 2025 and February 2026?": the roles that overlap the period."""
+        found = re.findall(r"(?:\b([A-Za-z]{3,9})\s+)?\b((?:19|20)\d\d)\b", question)
+        if not found:
+            return None
+        lows = [int(y) * 12 + (_MONTHS.get(mo[:3].lower()) or 1) for mo, y in found]
+        highs = [int(y) * 12 + (_MONTHS.get(mo[:3].lower()) or 12) for mo, y in found]
+        lo, hi = min(lows), max(highs)  # a bare year covers the whole year
+        parts = []
+        for h, b in self._roles():
+            span = self._span(h)
+            if span and span[0] <= hi and span[1] >= lo:
+                first = next((x for x in b if "no further detail" not in x.lower()), "")
+                parts.append(self._role_line(h) + (f": {first.rstrip('.')}" if first else "") + ".")
+        return _fit(["In that period he held:", *parts]) if parts else None
 
     @staticmethod
     def _role_line(head: str) -> str:
@@ -246,25 +330,31 @@ class Profile:
                         self._role_line(h) + (f": {first.rstrip('.')}" if first else "") + "."
                     )
                 return _fit(parts)
-        if not named and re.search(r"\b(currently|right now|now|current)\b", question, re.I):
-            named = ["Ethara"]
+        if not named and _CURRENT.search(question):
+            named = ["current"]  # the role whose heading is marked current
         picked = [
             (h, b) for h, b in roles if not named or any(n.lower() in h.lower() for n in named)
         ]
         if not picked:
             return None
+        how_long = bool(_HOW_LONG.search(question))
+
+        def line(h: str) -> str:
+            d = self._duration(h) if how_long else ""
+            return self._role_line(h) + (f". That is {d}" if d else "")
+
         if len(picked) == 1:
             h, b = picked[0]
             return _fit(
                 [
-                    self._role_line(h) + ".",
+                    line(h) + ".",
                     *[x.rstrip(".") + "." for x in b if "no further detail" not in x.lower()],
                 ]
             )
         parts = []
         for h, b in picked:
             first = next((x for x in b if "no further detail" not in x.lower()), "")
-            parts.append(self._role_line(h) + (f": {first.rstrip('.')}" if first else "") + ".")
+            parts.append(line(h) + (f": {first.rstrip('.')}" if first else "") + ".")
         return _fit(parts)
 
     def leadership(self) -> str | None:
@@ -326,17 +416,8 @@ class Profile:
         ]
         if stacks:
             return f"Yes. {term.strip(' .?!')} appears in the stack of {', '.join(stacks[:4])}."
-        titles = []
-        for c in self.chunks:
-            if c["title"] not in ("Portfolio", "Résumé") and re.search(
-                rf"(?<![\w-]){re.escape(t)}(?![\w])", c["text"], re.I
-            ):
-                name = c["title"].replace(" README", "")
-                if name not in titles:
-                    titles.append(name)
-        if titles:
-            return f"{term.strip(' .?!')} is mentioned in the README of {', '.join(titles[:4])}, though it is not in his skills list."
-        return f"{term.strip(' .?!')} is not listed among his skills, project stacks or READMEs."
+        # a passing mention in README prose is not a skill
+        return f"{term.strip(' .?!')} is not listed among his skills or project stacks."
 
     def projects(self, question: str) -> str | None:
         text = self._section("Projects")
@@ -366,6 +447,52 @@ class Profile:
                 f"He has {len(entries)} projects, all public on GitHub and MIT-licensed:",
                 listing + ".",
             ]
+        )
+
+    def _project_entries(self) -> list[tuple[str, str, str]]:
+        """(name, one-liner, whole entry text) for each numbered project of the Projects section."""
+        text = self._section("Projects")
+        out = []
+        for block in re.split(r"(?m)^(?=\d+\.\s+\*\*)", text):
+            m = re.match(r"\d+\.\s+\*\*(.+?)\*\*\s*(\([^)]*\))?\s*·\s*([^·\n]+?)(?:\s*·|\n)", block)
+            if m:
+                desc = m.group(3).strip()
+                if desc.startswith("http"):
+                    desc = (m.group(2) or "").strip("() ")
+                out.append((m.group(1), desc, block))
+        return out
+
+    def projects_about(self, question: str) -> str | None:
+        """ "Which projects deal with LLM evaluation or routing?": the projects whose entry mentions the topic words."""
+        words = [
+            w
+            for w in re.findall(r"[a-z0-9+#.-]+", question.lower())
+            if w not in _STOP_TOPIC and len(w) > 2
+        ]
+        specific = [w for w in words if w not in _GENERIC_TOPIC] or words
+        if not specific:
+            return None
+        scored = []
+        for name, desc, block in self._project_entries():
+            low = block.lower()
+            score = sum(
+                bool(re.search(r"(?<![a-z0-9])" + re.escape(w[:5]), low)) for w in set(specific)
+            )
+            if score:
+                scored.append((score, f"{name} ({desc})" if desc else name))
+        if not scored:
+            return None
+        best = max(s for s, _ in scored)
+        hits = [text for s, text in scored if s == best]
+        return _fit(["Projects that match:", "; ".join(hits) + "."])
+
+    def open_source(self) -> str | None:
+        entries = self._project_entries()
+        if not entries:
+            return None
+        return (
+            f"Yes. All {len(entries)} of his projects are public on GitHub and MIT-licensed, and the "
+            f"flagship, the {entries[0][0]}, is open source."
         )
 
     def location(self) -> str | None:
@@ -405,6 +532,9 @@ class Profile:
                 return found[0], "skill"
         if any(rx.search(q) for _, rx in _COMPANY) and (a := self.experience(q)):
             return a, "experience"
+        if re.search(r"open[- ]?source", q, re.I) and re.search(rf"\b{_HE}\b", q, re.I):
+            if a := self.open_source():
+                return a, "open_source"
         if _EDU.search(q) and re.search(
             rf"\b{_HE}\b|\beducation\b|\bdegree\b|\bcoursework\b", q, re.I
         ):
@@ -412,6 +542,20 @@ class Profile:
                 return a, "education"
         if _OPEN.search(q) and re.search(rf"\b{_HE}\b", q, re.I) and (a := self.openness()):
             return a, "open"
+        if (
+            re.search(r"\b(19|20)\d\d\b", q)
+            and re.search(rf"\b{_HE}\b", q, re.I)
+            and re.search(r"\b(what|where|which|who)\b", q, re.I)
+            and (a := self.in_period(q))
+        ):
+            return a, "period"
+        if (
+            re.search(r"\bprojects?\b", q, re.I)
+            and re.search(r"\b(which|what|any|are there)\b", q, re.I)
+            and not _PROJECTS_SHORT.search(q)
+            and (a := self.projects_about(q))
+        ):
+            return a, "projects"
         if (
             _EXPERIENCE.search(q)
             and re.search(rf"\b{_HE}\b", q, re.I)

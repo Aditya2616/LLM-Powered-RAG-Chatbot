@@ -24,6 +24,9 @@ MIN_RELEVANCE = (
     3.0  # best BM25 score below which a question with no mention of Aditya counts as off topic
 )
 
+OFFTOPIC_COVERAGE = (
+    0.8  # below this share of known words, a question that names no entity is off topic
+)
 COVERAGE_MIN = 0.5  # share of a question's content words found in its top five chunks
 
 SYSTEM_PROMPT = (
@@ -277,6 +280,13 @@ class AskPipeline:
             return self._about_me()
         if safety.is_offtopic_pattern(question):
             return self._offtopic()
+        if (
+            not history
+            and not safety.mentions_him(question)
+            and named_project(question) is None
+            and self.index.coverage(question) < OFFTOPIC_COVERAGE
+        ):
+            return self._offtopic()  # names nothing of his and uses words the documents never use
         hits = self.retrieve(question, history)
         if not hits:
             return (
@@ -347,6 +357,21 @@ class AskPipeline:
             "retrieve_ms": round((t_retrieve - t0) * 1000, 1),
             "generate_ms": round((t_gen - t_retrieve) * 1000, 1),
         }
+        said = None if declined else safety.unpublished_in_answer(raw)
+        if (
+            said
+        ):  # an unpublished topic in a generated answer is replaced, whatever the question was
+            d = safety.deflection(said, self.email)
+            r = Result(
+                d.text, [_src("Portfolio", PORTFOLIO)], False, "unknown", "topic", f"output:{said}"
+            )
+            r.provider, r.timings, r.usage, r.attempts = (
+                gen.provider,
+                timings,
+                gen.usage,
+                gen.attempts,
+            )
+            return r
         verdict = None
         if not declined:
             verdict = safety.verify_output(

@@ -103,6 +103,22 @@ _INJECTION = [
     ("delimiter", r"<\|[^>]{0,30}\|>|\[/?inst\]|<<\s*/?sys\s*>>|\[/?system\]"),
     ("delimiter", r"(?:^|[#>\])\n]|\s{2,})\s*(system|assistant|developer|human)\s*:"),
     (
+        "reveal",  # (a) questions about the assistant's own instructions, rules, configuration, hidden text
+        r"\b(your|this assistant'?s|the assistant'?s|the bot'?s|the chatbot'?s)\s+(\w+\s)?(instructions?|prompts?|rules|guidelines|directives|config\w*|constraints|restrictions|programming|policies|policy)\b",
+    ),
+    (
+        "reveal",
+        r"\bwhat (were|was|are|have) (you|they|we) (been )?(told|given|instructed|configured|programmed|prompted|asked)\b|\b(you|assistant) (were|was|have been|had been) (told|given|instructed|configured|programmed|prompted)\b|\bbefore (this|our|the|your) (conversation|chat|session|exchange)\b|\b(hidden|secret|internal|initial|original) (text|message|prompt|instructions?|rules|context)\b|\b(show|print|reveal|display|dump|output|leak|expose)\b.{0,20}\b(config\w*|settings|environment|env vars?|keys?|tokens?|secrets?|credentials)\b",
+    ),
+    (
+        "authority",  # (b) authority, permission and role claims
+        r"\bas your (developer|admin\w*|owner|creator|maker|programmer|boss|operator)\b|\bas the (developer|admin\w*|owner|creator|operator|maker) of (this|the) (bot|assistant|chatbot|system|site)\b|\bas (aditya|anthropic|openai|groq|google)\W+(i|we)\b|\bi ?(am|'m|’m) (aditya|your (developer|admin\w*|owner|creator|boss|operator|maker)|the (developer|admin\w*|owner|creator|operator|maker)|from (anthropic|openai|google|groq))\b|\b(i|we) (hereby )?(authori[sz]e|allow|permit|order|command|instruct|direct|require|demand) you\b|\byou (are|have been|were) (now |hereby )?(allowed|permitted|authori[sz]ed|free|cleared|unlocked)\b|\b(restrictions?|limits?|filters?|rules|guardrails|safeguards?|safety) (are |have been |were |is )?(lifted|removed|disabled|suspended|waived|void)\b|(?:^|[.!?;:,]\s+|\b(?:please|now|just|and|then)\s+)(drop|remove|disable|lift|turn off|bypass|ignore|override|circumvent)\s+(all |any |the |your |these |those )*(restrictions?|limits?|filters?|rules|guardrails|safeguards?|safety|policies|constraints)\b|\b(admin|override|sudo|god) (code|password|mode)\b|\bsudo\b|\bunlock (yourself|your)\b",
+    ),
+    (
+        "persona",  # (c) persona and mode switches
+        r"\b(switch|change|alter|modify|update|reset|enter|activate|enable)\s+(yourself|your)\b.{0,20}\b(mode|persona|role|behaviou?r|personality|name|character)\b|\bstop being (an? )?(assistant|chatbot|bot)\b|\bact (like|as if|as though)\b|\byou('re| are) (no longer|not) (an? )?(assistant|chatbot|bot|bound)\b|\bbreak (character|free)\b",
+    ),
+    (
         "exfil",
         r"\b(your|the (server|system|app|backend|deployment|assistant)'?s?)\s+(\w+\s)?(api[ -]?keys?|secrets?|passwords?|credentials?|environment variables?|env vars?|tokens?)\b.{0,30}\b(print|show|reveal|leak|give|tell|what)",
     ),
@@ -124,22 +140,67 @@ _LEET = str.maketrans(
 )
 
 
+# letters from other alphabets that look like Latin ones (Cyrillic and Greek homoglyphs)
+_HOMOGLYPHS = str.maketrans(
+    {
+        "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x", "і": "i", "ї": "i",
+        "ѕ": "s", "ј": "j", "ԁ": "d", "ɡ": "g", "ӏ": "l", "һ": "h", "ԛ": "q", "ԝ": "w", "к": "k",
+        "м": "m", "н": "h", "т": "t", "в": "b", "ο": "o", "α": "a", "ν": "v", "ι": "i", "ε": "e",
+        "ρ": "p", "τ": "t", "υ": "u", "κ": "k", "χ": "x", "η": "n", "ω": "w", "ɑ": "a", "ǝ": "e",
+    }
+)  # fmt: skip
+
+
 def _normalise(text: str) -> str:
     t = unicodedata.normalize("NFKC", text).lower()
-    t = "".join(ch for ch in t if unicodedata.category(ch) not in ("Cf", "Mn"))
+    t = "".join(ch for ch in t if unicodedata.category(ch) not in ("Cf", "Mn", "Co"))
+    t = t.translate(_HOMOGLYPHS)
     return re.sub(r"\s+", " ", t)
+
+
+def _despace(text: str) -> str:
+    """ "i g n o r e  p r e v i o u s": words separated by two or more spaces, letters by one."""
+    parts = re.split(r"\s{2,}", text.strip())
+    return " ".join(p.replace(" ", "") if re.fullmatch(r"(?:\S ){2,}\S", p) else p for p in parts)
+
+
+_LONG_TOKEN = re.compile(r"(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/]{24,}={0,2}(?![A-Za-z0-9+/])")
+
+
+def _encoded_blob(text: str) -> bool:
+    """A long base64- or hex-looking token is a signal by itself: it is never decoded, only refused."""
+    for m in _LONG_TOKEN.finditer(text):
+        tok = m.group(0)
+        if re.search(r"\d", tok) or re.search(r"[a-z][A-Z]", tok) or tok.endswith("="):
+            return True
+    return False
+
+
+_HIJACK = re.compile(
+    r"\b(respond|reply|answer|output|write|speak|talk|format|return)\b.{0,15}\b(in|as|using|with)\b.{0,4}\b(json|xml|yaml|html|base64|binary|hex|morse|emoji|pirate|l33t|reverse|uppercase|all caps|a poem|rhymes?|code blocks?)\b|\b(reply|respond|answer|say|output|print|type|write|repeat) (only|just|exactly|nothing but|solely)\b|\b(end|start) (every|each|your) (answer|reply|response|message) with\b",
+    re.I,
+)
 
 
 def screen_injection(text: str) -> str | None:
     """The id of the first rule that matches the text, or None. User text and history are screened alike."""
+    if _encoded_blob(unicodedata.normalize("NFKC", text)):
+        return "encoded"
     plain = _normalise(text)
-    candidates = [plain, plain.translate(_LEET), re.sub(r"[^a-z0-9 ]", "", plain)]
+    candidates = [
+        plain,
+        plain.translate(_LEET),
+        re.sub(r"[^a-z0-9 ]", "", plain),
+        _normalise(_despace(text)),
+    ]
     spaced = re.sub(r"(?<=\b\w) (?=\w\b)", "", plain)  # "i g n o r e" -> "ignore"
     candidates.append(spaced)
     for rule, pattern in _INJECTION:
         for c in candidates:
             if re.search(pattern, c, flags=re.I | re.M):
                 return rule
+    if _HIJACK.search(plain) and not _ABOUT_HIM.search(plain):
+        return "format"  # (d) an output-format hijack in a request that is not about him
     return None
 
 
@@ -155,6 +216,14 @@ def _email(email: str) -> str:
 
 
 _TOPICS = [
+    (
+        "salary",
+        r"\b(minimum|expected|current|desired|required|target|base|starting|asking|preferred|ideal)\b.{0,15}\b(pay|salary|compensation|requirements?|package|ctc|stipend|remuneration|rate|wage|income|money)\b|\b(pay|salary|compensation|ctc|stipend)\b.{0,15}\b(requirements?|expectations?|range|figure|number|demands?|ask)\b|\blooking for\b.{0,20}\b(compensation|pay|money|salary)\b",
+    ),
+    (
+        "location",
+        r"\b(hybrid(?! (retrieval|search|ranking|fusion|index|bm25|rag))|remote(?! (api|server|code|repo|service|control|call|procedure))|on-?site|wfh|work from home|in-?office|office-based|telecommut\w*)\s+(arrangement|preference|option|setup|model|work|working|role|job|basis|days?|policy|schedule|position)\b|\b(consider|prefer\w*|open to|willing|okay with|fine with|happy with|comfortable with|up for)\b.{0,25}\b(hybrid(?! (retrieval|search|ranking|fusion|index|bm25|rag))|remote(?! (api|server|code|repo|service|control|call|procedure))|on-?site|wfh|work from home|in-?office|travel\w*)\b",
+    ),
     (
         "salary",
         r"\b(ctc|lpa|lakhs?|pay ?(grade|band|scale|slab|package)|salary band|earn(s|ing|ings)?|earned|income|take[- ]home|paid|what('?s| is| does| do) (he|aditya) (on|get|gets|make|makes|take|takes|draw)|per (annum|month|year)|annual (pay|income|package)|compensation package|total package|package (he|aditya|is|expectations?)|(what|which|roughly|approx\w*|expected|current|desired|his|aditya'?s)\b.{0,25}\bpackage\b(?!.{0,30}\b(manager|python|pip|npm|install|import|librar))|how much (does|do|would|will|is|are)\b.{0,15}\b(he|aditya|they)\b.{0,15}\b(cost|charge|want|ask)|what (does|would|will) he (charge|cost|ask for|want))\b",
@@ -238,6 +307,58 @@ def unpublished_topic(question: str) -> str | None:
     return None
 
 
+_OUTPUT_TOPICS = [
+    (
+        "salary",
+        r"\b(salary|salaries|ctc|lpa|compensation|stipend|remuneration|pay (expectations?|range|band|scale)|expected pay|lakhs?)\b",
+    ),
+    (
+        "start",
+        r"\b(notice period|joining date|start date|available (to|from|for) (join|start)|can (start|join)|earliest (start|joining)|immediate joiner)\b",
+    ),
+    ("grades", r"\b(cgpa|gpa|report card|transcript)\b"),
+    (
+        "location",
+        r"\b(relocat\w*|remote (work|role|only|first)|hybrid (work|role|arrangement|setup)|on-?site (work|role|only)|work from home|wfh|willing to (move|travel))\b",
+    ),
+    (
+        "visa",
+        r"\b(visa|work permit|work authori[sz]ation|citizenship|sponsorship|green card|h-?1b)\b",
+    ),
+    (
+        "personal",
+        r"\b(married|spouse|wife|girlfriend|boyfriend|date of birth|years old|religion|caste)\b",
+    ),
+]
+_PAPER_OK = re.compile(
+    r"coming soon|once (it is |the paper is )?published|working on a research paper", re.I
+)
+_PAPER_ANY = re.compile(
+    r"\b(research paper|his paper|publications?|journal|arxiv|co-?authors?|submitted to|accepted (at|to))\b",
+    re.I,
+)
+_FIFTEEN_DETAIL = re.compile(
+    r"responsib|dut(y|ies)|achiev|worked on|projects?|impact|built|led\b|managed|developed|delivered|reported|team|clients?|tasks?",
+    re.I,
+)
+
+
+def unpublished_in_answer(answer: str) -> str | None:
+    """The unpublished topic an answer talks about, whatever the question was: pay, joining date, grades,
+    relocation or work arrangement, visa, family or age, details of the paper, details of 15FORTEEN beyond the
+    role and dates. A model must not say these even if a passage seems to, so the caller replaces the answer."""
+    text = _normalise(answer)
+    for topic, pattern in _OUTPUT_TOPICS:
+        if re.search(pattern, text, flags=re.I):
+            return topic
+    if _PAPER_ANY.search(text) and not _PAPER_OK.search(text):
+        return "paper"
+    for sentence in re.split(r"(?<=[.!?])\s+", text):
+        if re.search(r"15 ?forteen", sentence) and _FIFTEEN_DETAIL.search(sentence):
+            return "fifteenforteen"
+    return None
+
+
 def deflection(topic: str, email: str) -> Deflection:
     mail = _email(email)
     texts = {
@@ -260,7 +381,7 @@ _META = re.compile(
     re.I,
 )
 _OFFTOPIC = re.compile(
-    r"\b(weather|forecast|temperature outside|joke|poem|song|lyrics|recipe|horoscope|stock price|bitcoin|crypto price|exchange rate|football|cricket score|world cup|election|president of|prime minister of|capital of|population of|translate|(write|generate|create|code|implement)\b.{0,25}\b(code|function|script|program|essay|story|email|poem|song|cover letter|class|sql query|regex)|(fix|debug) (my|this|the) (code|bug|error)|solve (this|the|my)|what is \d+ ?[+*/x-] ?\d+|calculate|derivative of|integral of|who won|latest news|movie|netflix|restaurant|travel plan|how to (cook|bake|lose weight|invest|fix|install|center)|meaning of life|tell me about (yourself|the universe)|best (phone|laptop|programming language|framework))\b",
+    r"\b(weather|forecast|temperature outside|joke|poem|song|lyrics|recipe|horoscope|stock price|bitcoin|crypto price|exchange rate|football|cricket score|world cup|election|president of|prime minister of|capital of|population of|translate|(write|generate|create|code|implement)\b.{0,25}\b(code|function|script|program|essay|story|email|poem|song|cover letter|class|sql query|regex)|(fix|debug) (my|this|the) (code|bug|error)|solve (this|the|my)|what is \d+ ?[+*/x-] ?\d+|calculate|what('s| is)\s+\d+(\.\d+)?\s*(times|plus|minus|divided by|multiplied by|x|\*|\+|/)\s*\d+|derivative of|integral of|who won|latest news|movie|netflix|restaurant|travel plan|how to (cook|bake|lose weight|invest|fix|install|center)|meaning of life|tell me about (yourself|the universe)|best (phone|laptop|programming language|framework))\b",
     re.I,
 )
 _ABOUT_HIM = re.compile(
@@ -270,7 +391,7 @@ _ABOUT_HIM = re.compile(
 
 
 _CONTACT = re.compile(
-    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download)|(portfolio|personal) (website|site|page|url|link)|his (website|site|homepage|portfolio)|where can i (find|see) his (portfolio|work))\b",
+    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download)|(portfolio|personal) (website|site|page|url|link)|his (website|site|homepage|portfolio)|where can i (find|see|view|read|browse) his (portfolio|work|code|projects?|repos?|repositories|source)|his (code|repos|repositories|source code)|link to his (code|repos|projects)|where is (his|the) code)\b",
     re.I,
 )
 
@@ -299,10 +420,13 @@ _SUMMARY2 = re.compile(
 def is_summary_question(question: str) -> bool:
     """ "Tell me about Aditya in two sentences", "who is he": answered from the About passage, no model."""
     return bool(_SUMMARY.search(question) or _SUMMARY2.search(question)) and not (
-        _PROJECT_WORDS.search(question)
+        _PROJECT_WORDS.search(question) or _ENTITY_WORDS.search(question)
     )
 
 
+_ENTITY_WORDS = re.compile(
+    r"\b(ethara|genesis|15 ?forteen|ggsipu|universit\w*|college|degree)\b", re.I
+)
 _FABRICATE = re.compile(
     r"\b(add|insert|include|say|state|claim|write|mention|append|pretend|assert)\b.{0,40}\b(that )?(he|aditya|his)\b.{0,40}\b(has|have|is|was|won|holds?|graduated|worked|got|earned|achieved|speaks?|knows?)\b|\b(add|say|claim|state|write|include|mention|insert)\b.{0,40}\b\d+\+? (years?|yrs)\b",
     re.I,

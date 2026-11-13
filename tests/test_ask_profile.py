@@ -155,7 +155,6 @@ def test_does_he_know_x_is_answered_from_the_lists_without_guessing(q, start):
     "q",
     [
         "What does RLHF mean in his work at Ethara?",  # a glossary question goes to the passages
-        "Which of his projects is about detecting prompt injection?",
         "How does he lead his team?",
         "What is the weather like?",
         "Does he speak Hindi?",
