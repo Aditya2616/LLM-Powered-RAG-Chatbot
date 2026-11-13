@@ -1,0 +1,35 @@
+Harbourline Outfitters: IT Security Policy
+Version 6.0, effective 1 February 2026. Owner: Security Desk.
+
+1. Who this applies to
+All employees, contractors and temporary staff who use Harbourline systems or data, in shops, in the warehouse and in the office.
+
+2. Passwords
+A password must have at least 14 characters. A passphrase made of several random words is recommended. Do not use the same password for two systems. Every employee must keep their passwords in the company password manager, which is called Keyhold. Passwords are only changed when there is a reason to believe they were exposed. We do not force regular changes.
+
+3. Multi-factor authentication
+Multi-factor authentication is required on every company account. Use the authenticator app. Text message codes are not accepted because phone numbers can be hijacked.
+
+4. Laptops and devices
+All laptops use full-disk encryption. The screen locks automatically after 5 minutes without activity. Security updates must be installed within 7 days of release, and critical updates within 48 hours. Install software only from the approved catalogue on the self-service portal.
+
+5. Phishing
+If you receive a suspicious email, use the Report Phish button in the mail client or forward it to security@harbourline.example. The Security Desk replies within 4 hours during business hours. If you clicked a link, tell the Security Desk at once rather than waiting to see what happens.
+
+6. Reporting a security incident
+Report a suspected breach, lost laptop or stolen phone to the Security Desk within 1 hour of noticing it. Call extension 5555 or the out-of-hours number printed on your badge. If personal data is involved, the company notifies the Information Commissioner's Office within 72 hours of becoming aware of the breach, when notification is required.
+
+7. Removable media
+USB drives are banned unless the Security Desk has approved them and they are encrypted. Never plug in a drive you found.
+
+8. Public Wi-Fi
+When using public Wi-Fi, connect through the company VPN, which is called WireLine. Shop and office guest Wi-Fi is on a separate network and has no route to internal systems.
+
+9. Backups
+Company systems are backed up every night. Backups are kept for 35 days. The restore process is tested once every quarter.
+
+10. Leavers
+A leaver's accounts are switched off at 17:00 on their last day. Equipment must be returned within 5 working days, or the replacement cost can be deducted from final pay with the person's written consent.
+
+11. Clear desk
+Do not leave customer paperwork or card receipts visible when you are away from your desk or till. Lock the screen whenever you step away, even for a minute.

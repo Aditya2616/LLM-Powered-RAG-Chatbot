@@ -1,0 +1,36 @@
+Harbourline Outfitters: Customer Data and Privacy Policy
+Version 3.0, effective 1 January 2026. Owner: Data Protection Officer.
+
+1. What we collect
+When a customer shops with us we store their name, email address, delivery address, phone number and order history. We never store full payment card numbers. Card payments are handled by our payment provider, Paystream, and we only see the last four digits of the card.
+
+2. Why we collect it
+We use the data to deliver orders, handle returns and warranty claims, and answer customer support requests. We only send marketing emails to customers who have opted in. A marketing opt-out is applied within 2 working days.
+
+3. Who receives it
+Our courier, Northline Couriers, receives the customer's name, delivery address and phone number so that they can deliver the parcel. Paystream receives the payment details. We do not sell customer data to anyone.
+
+4. How long we keep it
+- Order records: 7 years, because of tax rules.
+- Call recordings: 90 days.
+- CCTV footage in shops: 31 days.
+- Marketing preferences: until the customer withdraws consent.
+- Inactive online accounts: deleted after 3 years without a login. We send a warning email 30 days before the deletion.
+
+5. A customer's rights
+Customers can ask to see all the data we hold about them. This is called a subject access request. It is free, and we answer within one month. We must verify identity before releasing anything. A customer can also ask us to delete their data. We do this within one month unless we have to keep a record by law, for example for tax purposes.
+
+6. Handling a request in the shop
+If a customer asks about their data at the till, take their name and email address and send the request to privacy@harbourline.example the same day. Do not try to look up or print the data yourself.
+
+7. The Data Protection Officer
+The Data Protection Officer is Imran Qureshi. He can be reached at dpo@harbourline.example. Staff should send any doubt about handling personal data to him before acting.
+
+8. Cookies
+The website only uses analytics cookies after the visitor has given consent. Analytics cookies last for 13 months. Cookies needed to keep a basket working do not need consent.
+
+9. Data breaches
+A data breach must be reported to the Security Desk within 1 hour of being noticed. The IT Security Policy describes the steps that follow.
+
+10. Training
+Every employee completes data protection training once a year. The pass mark for the test at the end is 80 percent. Staff who do not pass must retake it within 2 weeks.

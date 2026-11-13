@@ -1,0 +1,39 @@
+Harbourline Outfitters: Customer Support Handbook
+Version 4.0, effective 1 March 2026. Owner: Customer Operations.
+
+1. Channels and opening times
+Phone support is open from 9:00 to 18:00 Monday to Saturday and from 10:00 to 16:00 on Sunday. Live chat runs from 8:00 to 22:00 every day. Email is answered during the phone hours.
+
+2. Response targets
+- Phone: answer within 30 seconds.
+- Live chat: first reply within 60 seconds.
+- Email: first reply within 1 working day.
+- Complaints: acknowledge within 24 hours and resolve within 5 working days.
+- Complaints that were escalated to Tier 2: resolve within 10 working days.
+
+3. How we talk to customers
+Use the customer's name. Apologise once, sincerely, and then move on to fixing the problem. Never tell a customer to calm down. Do not blame the carrier, the warehouse or another team in front of the customer. If you do not know the answer, say so and promise a time when you will come back with it.
+
+4. Support tiers
+Tier 1 advisors handle first contact. Tier 2 senior advisors handle complaints that Tier 1 could not resolve, and anything involving a refund above 150 pounds. Tier 3 is the Customer Operations Manager, who decides on exceptions to policy.
+
+5. Goodwill gestures
+When we have let a customer down, an advisor can offer a voucher worth up to 20 pounds. A team leader can approve up to 50 pounds. Anything higher is decided by the Customer Operations Manager. Always record the reason for a gesture in the case.
+
+6. Logging complaints
+Every complaint is logged in CaseDesk with one category code: D for delivery, P for product, R for refund, or S for staff conduct. A complaint without a category code cannot be closed. If a case touches two topics, choose the one that the customer is most upset about.
+
+7. Final responses
+A written final response must be sent within 8 weeks of the complaint being received. If the customer is still unhappy at that point, the letter must explain that they can take the matter to an independent ombudsman.
+
+8. Vulnerable customers
+If a customer tells you they are in difficulty, for example because of illness, bereavement or a language barrier, add the vulnerable-customer flag to their account. Do not read from a script in these calls. Offer a callback at a time that suits them and keep the same advisor on the case wherever possible.
+
+9. Call recording
+Calls are recorded for training and dispute resolution. Recordings are kept for 90 days. A customer can ask to have a recording played back through a formal request to Customer Operations.
+
+10. Quality checks
+Team leaders score 5 calls per advisor each month against the quality form. The pass mark is 85 percent. An advisor who falls below the pass mark in two consecutive months gets a coaching plan, not a warning.
+
+11. Peak periods
+During Black Friday week, annual leave is not approved for support staff, and every team leader takes calls for at least two hours a day.
