@@ -7,56 +7,16 @@ An optional cross-encoder reranker can be configured; whether it helps is measur
 
 from __future__ import annotations
 
-import math
 import time
-from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
 from langchain_core.documents import Document
 
+from .bm25 import BM25Index, rrf_fuse
 from .config import ConfigError, pick_device
 from .store import VectorStore
-from .text import STOPWORDS, stem, tokens
-
-RRF_K = 60
-
-
-def bm25_tokens(text: str) -> list[str]:
-    return [stem(t) for t in tokens(text) if t not in STOPWORDS]
-
-
-class BM25Index:
-    """Okapi BM25 (k1=1.5, b=0.75) over a list of chunks. Small, exact, dependency-free."""
-
-    def __init__(self, chunks: list[Document], k1: float = 1.5, b: float = 0.75) -> None:
-        self.k1, self.b = k1, b
-        self.docs = [Counter(bm25_tokens(c.page_content)) for c in chunks]
-        self.lengths = np.array([sum(d.values()) for d in self.docs], dtype=np.float32)
-        self.avg = float(self.lengths.mean()) if len(self.docs) else 0.0
-        df: Counter[str] = Counter()
-        for d in self.docs:
-            df.update(d.keys())
-        n = len(self.docs)
-        self.idf = {t: math.log(1 + (n - c + 0.5) / (c + 0.5)) for t, c in df.items()}
-
-    def scores(self, query: str) -> np.ndarray:
-        out = np.zeros(len(self.docs), dtype=np.float32)
-        if not self.docs:
-            return out
-        for term in set(bm25_tokens(query)):
-            idf = self.idf.get(term)
-            if idf is None:
-                continue
-            for i, d in enumerate(self.docs):
-                tf = d.get(term, 0)
-                if tf:
-                    norm = tf + self.k1 * (
-                        1 - self.b + self.b * self.lengths[i] / (self.avg or 1.0)
-                    )
-                    out[i] += idf * tf * (self.k1 + 1) / norm
-        return out
 
 
 @dataclass
@@ -115,7 +75,7 @@ class Retriever:
 
     def _index(self) -> BM25Index:
         if self._bm25 is None or self._bm25_version != self.store.version:
-            self._bm25 = BM25Index(self.store.chunks)
+            self._bm25 = BM25Index([c.page_content for c in self.store.chunks])
             self._bm25_version = self.store.version
         return self._bm25
 
@@ -138,11 +98,7 @@ class Retriever:
         elif mode == "bm25":
             order = [(i, float(bm25[i])) for i in bm25_rank]
         else:
-            fused: dict[int, float] = {}
-            for ranks in (dense_rank, bm25_rank):
-                for r, i in enumerate(ranks):
-                    fused[i] = fused.get(i, 0.0) + 1.0 / (RRF_K + r + 1)
-            order = sorted(fused.items(), key=lambda kv: -kv[1])
+            order = rrf_fuse([dense_rank, bm25_rank])
         if self.reranker and order:
             cand = order[: max(pool, k)]
             scores = self.reranker.score(query, [store.chunks[i].page_content for i, _ in cand])

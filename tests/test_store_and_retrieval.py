@@ -4,7 +4,8 @@ from langchain_core.documents import Document
 
 from rag_chatbot.embeddings import HashingEmbeddings
 from rag_chatbot.loaders import load_documents, split_documents
-from rag_chatbot.retrieval import BM25Index, Retriever
+from rag_chatbot.bm25 import BM25Index, rrf_fuse
+from rag_chatbot.retrieval import Retriever
 from rag_chatbot.store import IndexMismatch, VectorStore
 from tests.conftest import CORPUS
 
@@ -88,7 +89,7 @@ def test_bm25_prefers_the_rare_matching_word():
     docs = [
         Document(page_content=t) for t in ["the cat sat", "the dog barked loudly", "a zebra grazed"]
     ]
-    idx = BM25Index(docs)
+    idx = BM25Index([d.page_content for d in docs])
     assert int(np.argmax(idx.scores("zebra"))) == 2
     assert idx.scores("nonexistent").sum() == 0
     assert int(np.argmax(idx.scores("dogs dog"))) == 1
@@ -127,3 +128,10 @@ def test_reranker_reorders_candidates():
     plain = Retriever(st, "dense").retrieve("refund", 2).hits
     reranked = Retriever(st, "dense", Flip()).retrieve("refund", 2).hits
     assert [h.index for h in plain] != [h.index for h in reranked]
+
+
+def test_rrf_fuse_rewards_agreement():
+    fused = rrf_fuse([[1, 2, 3], [3, 1, 4]])
+    order = [i for i, _ in fused]
+    assert order[0] == 1 and set(order) == {1, 2, 3, 4}
+    assert fused[0][1] > fused[-1][1]
