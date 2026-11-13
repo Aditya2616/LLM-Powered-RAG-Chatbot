@@ -120,6 +120,47 @@ def tables_to_rows(md: str) -> str:
     return "\n".join(out)
 
 
+MAX_TABLE_CHARS = 1500
+
+
+def table_sections(md: str, doc_title: str) -> list[tuple[str, str]]:
+    """(heading path, compact text) for every Markdown table of a document that is short enough to be read whole:
+    the column names once, then one line per row. These are kept as single chunks (never split), so a question
+    about the best or the lowest value can see every row together."""
+    md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
+    lines, path, out, i, in_code = md.split("\n"), {}, [], 0, False
+    while i < len(lines):
+        line = lines[i]
+        if line.strip().startswith("```"):
+            in_code = not in_code
+        m = None if in_code else re.match(r"^(#{1,4})\s+(.*)$", line)
+        if m:
+            level = len(m.group(1))
+            path = {k: v for k, v in path.items() if k < level}
+            path[level] = m.group(2).strip()
+        elif (
+            not in_code
+            and line.lstrip().startswith("|")
+            and i + 1 < len(lines)
+            and _SEPARATOR.match(lines[i + 1])
+        ):
+            head = _cells(line)
+            i += 2
+            rows = []
+            while i < len(lines) and lines[i].lstrip().startswith("|"):
+                rows.append(_cells(lines[i]))
+                i += 1
+            heading = " > ".join(path[k] for k in sorted(path)) or doc_title
+            text = f"Table under {heading.split(' > ')[-1]}. Columns: " + " | ".join(head) + "\n"
+            text += "\n".join(" | ".join(r) for r in rows)
+            text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
+            if 2 <= len(rows) <= 14 and len(text) <= MAX_TABLE_CHARS:
+                out.append((heading, text))
+            continue
+        i += 1
+    return out
+
+
 def clean_markdown(md: str) -> str:
     md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
     md = tables_to_rows(md)
@@ -255,6 +296,11 @@ def build(
             )
         )
     chunks = split_documents(docs, chunk_size, overlap)
+    whole_tables = []
+    for p in projects:
+        raw = (p / "README.md").read_text(encoding="utf-8")
+        for heading, text in table_sections(raw, p.name):
+            whole_tables.append((f"{p.name} README", f"{GITHUB}/{p.name}", heading, text))
     items = [
         {
             "id": n,
@@ -266,6 +312,18 @@ def build(
         for n, c in enumerate(chunks)
         if c.page_content.strip()
     ]
+    for title, url, heading, text in whole_tables:
+        items.append(
+            {
+                "id": len(items),
+                "title": title,
+                "url": url,
+                "section": heading,
+                "text": text,
+                "kind": "table",
+            }
+        )
+    profile = [{"section": s.section, "text": s.text} for s in corpus_sections]
     leaked = [it["id"] for it in items if phone_like(it["text"]) and it["title"] == "Résumé"]
     if leaked:
         raise RuntimeError(f"phone-like digit runs survived in résumé chunks {leaked}")
@@ -289,7 +347,12 @@ def build(
     }
     (out_dir / "index.json").write_text(
         json.dumps(
-            {"version": version["corpus_version"], "chunks": items, "traps": traps},
+            {
+                "version": version["corpus_version"],
+                "chunks": items,
+                "traps": traps,
+                "profile": profile,
+            },
             ensure_ascii=False,
         ),
         encoding="utf-8",

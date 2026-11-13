@@ -7,6 +7,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 from rag_chatbot.bm25 import BM25Index, bm25_tokens, rrf_fuse
 
 _EXTRA_STOP = {"use", "uses", "used", "using"}  # in nearly every README chunk: only noise
@@ -96,8 +98,19 @@ PROFILE_BOOST = 1.5  # résumé and portfolio chunks when no project is named
 
 BOILERPLATE = re.compile(r"(Quickstart|Reproduce|Layout|Credits|Licen[cs]e)", re.I)
 BOILERPLATE_FACTOR = 0.6
+SIDE_SECTION = re.compile(
+    r"(ablation|sweep|optional|perplexity|appendix|alternative|sensitivity)", re.I
+)
+SIDE_FACTOR = 0.6
 
 PROFILE_TITLES = {"Portfolio", "Résumé"}
+TABLE_BOOST = (
+    1.8  # a whole results table, for "best / highest / lowest" questions about a named project
+)
+_SUPERLATIVE = re.compile(
+    r"\b(best|worst|highest|lowest|top|most|least|fastest|slowest|better|largest|smallest|rank\w*|compare|comparison)\b",
+    re.I,
+)
 ACRONYM_BOOST = (
     1.4  # a chunk that spells an upper-case term of the question the same way (RLHF, WER, SFT)
 )
@@ -118,11 +131,24 @@ class AskIndex:
         version: str,
         traps: list[dict] | None = None,
         dense: object | None = None,
+        profile: list[dict] | None = None,
     ) -> None:
         self.chunks = chunks
+        self.profile = profile or []  # the portfolio sections, whole, for the structured answers
         self.version = version
         self.traps = traps or []
-        self._bm25 = BM25Index([self._search_text(c) for c in chunks], tokenizer=ask_tokens)
+        # whole-table chunks repeat text that is already indexed, so they have their own small index and only
+        # compete for "best / highest / lowest" questions about a named project (see ``search``)
+        self._main_ids = [i for i, c in enumerate(chunks) if c.get("kind") != "table"]
+        self._table_ids = [i for i, c in enumerate(chunks) if c.get("kind") == "table"]
+        self._bm25 = BM25Index(
+            [self._search_text(chunks[i]) for i in self._main_ids], tokenizer=ask_tokens
+        )
+        self._tables = (
+            BM25Index([self._search_text(chunks[i]) for i in self._table_ids], tokenizer=ask_tokens)
+            if self._table_ids
+            else None
+        )
         self.dense = dense  # optional (n, d) array of unit vectors, only used offline
 
     @staticmethod
@@ -143,7 +169,9 @@ class AskIndex:
             import numpy as np
 
             dense = np.load(npy)
-        return cls(data["chunks"], data["version"], data.get("traps", []), dense)
+        return cls(
+            data["chunks"], data["version"], data.get("traps", []), dense, data.get("profile", [])
+        )
 
     def _lead_chunk(self, project: str) -> int | None:
         for i, c in enumerate(self.chunks):
@@ -158,7 +186,13 @@ class AskIndex:
         query vector is given. ``heuristics=False`` gives plain BM25, for measuring what they add."""
         proj = named_project(query) if heuristics else None
         scoring_query = expand_query(query) if heuristics else query
-        scores = self._bm25.scores(scoring_query)
+        scores = np.zeros(len(self.chunks), dtype=np.float32)
+        scores[self._main_ids] = self._bm25.scores(scoring_query)
+        if proj and self._tables is not None and _SUPERLATIVE.search(query):
+            table_scores = self._tables.scores(scoring_query)
+            for j, i in enumerate(self._table_ids):
+                if self.chunks[i]["title"].startswith(proj):
+                    scores[i] = table_scores[j] * TABLE_BOOST
         acronyms = set(_ACRONYM.findall(query)) if heuristics else set()
         if heuristics:
             for i, c in enumerate(self.chunks):
@@ -174,6 +208,11 @@ class AskIndex:
                 if c["title"] not in PROFILE_TITLES and BOILERPLATE.search(c["section"]):
                     scores[i] *= (
                         BOILERPLATE_FACTOR  # commands and file listings rarely hold the answer
+                    )
+                m = SIDE_SECTION.search(c["section"]) if c["title"] not in PROFILE_TITLES else None
+                if m and not re.search(m.group(0), query, re.I):
+                    scores[i] *= (
+                        SIDE_FACTOR  # a side experiment's figures must not crowd out the headline
                     )
         order = [int(i) for i in scores.argsort()[::-1] if scores[i] > 0][: max(20, 4 * k)]
         lead = self._lead_chunk(proj) if proj else None

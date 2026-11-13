@@ -1,0 +1,162 @@
+{
+ "meta": {
+  "tag": "followup",
+  "note": "",
+  "date": "2026-11-13",
+  "mode": "spawned local server",
+  "corpus_version": "2026-11-13-e338353e",
+  "n_questions": 4,
+  "models": {},
+  "server_env": {
+   "ASK_PROVIDER_ORDER": "gemini",
+   "GEMINI_MODEL": "gemini-3.5-flash-lite"
+  }
+ },
+ "groups": {
+  "factual": {
+   "passed": 4,
+   "n": 4
+  },
+  "unpublished": {
+   "passed": 0,
+   "n": 0
+  },
+  "trap": {
+   "passed": 0,
+   "n": 0
+  },
+  "injection": {
+   "passed": 0,
+   "n": 0
+  },
+  "offtopic": {
+   "passed": 0,
+   "n": 0
+  }
+ },
+ "total": {
+  "passed": 4,
+  "n": 4
+ },
+ "first_token_ms": {
+  "mean_all": 1298.7791000001987,
+  "p95_all": 2208.7183700012247,
+  "mean_generated": 1298.7791000001987,
+  "p95_generated": 2208.7183700012247,
+  "n_all": 3,
+  "n_generated": 3,
+  "first_request_excluded": true
+ },
+ "cold_start": {
+  "ready_ms": 2465.0256000022637,
+  "first_ask_ms": 2280.37089999998,
+  "first_ask_first_token_ms": 2274.1018000015174
+ },
+ "probes": {},
+ "results": [
+  {
+   "id": "q1",
+   "group": "factual",
+   "question": "What certifications does he have?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": null,
+   "reason": null,
+   "first_token_ms": 319.1723000018101,
+   "total_ms": 332.2163000011642,
+   "provider": "",
+   "tokens_prompt_completion": null,
+   "answer": "He lists 7 certifications: 1. Machine Learning Specialization, DeepLearning.AI / Coursera; 2. Prompt Engineering for Developers, DeepLearning.AI; 3. Becoming an AI-First Product Leader, LinkedIn Learning; 4. Generative AI for Digital Marketers, LinkedIn Learning; 5. Generative AI, Recruiting & Talent Acquisition, LinkedIn Learning; 6. Introduction to Artificial Intelligence, LinkedIn Learning; 7. Technology Job Simulation, Deloitte Australia. His résumé lists five of the seven; the portfolio lists all of them. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    }
+   ]
+  },
+  {
+   "id": "q2",
+   "group": "factual",
+   "question": "Has he led a team before?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": null,
+   "reason": null,
+   "first_token_ms": 1.9680000004882459,
+   "total_ms": 10.00690000000759,
+   "provider": "",
+   "tokens_prompt_completion": null,
+   "answer": "Co-Lead at Genesis, Oct 2025 to Feb 2026 (New Delhi). Led a team of developers working on AI-driven projects. Drove adoption of AI tools and automation workflows within the team, reducing manual work on repetitive tasks. Mentored junior members on Python scripting, API integrations and machine-learning fundamentals. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    }
+   ]
+  },
+  {
+   "id": "q3",
+   "group": "factual",
+   "question": "Which checkpoint scored best in EvalBench?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": null,
+   "reason": null,
+   "first_token_ms": 1620.2674999985902,
+   "total_ms": 1624.033000000054,
+   "provider": "gemini",
+   "tokens_prompt_completion": null,
+   "answer": "In the recorded run, **qwen2.5-0.5b-it** scored best with **44.6%** (182/408) of prompts passed.\n\nAsk me about the categories in the Evalbench run.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "EvalBench README",
+     "url": "https://github.com/Aditya2616/EvalBench"
+    }
+   ]
+  },
+  {
+   "id": "q4",
+   "group": "factual",
+   "question": "What is SFT Forge's false reject rate?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": null,
+   "reason": null,
+   "first_token_ms": 2274.1018000015174,
+   "total_ms": 2280.37089999998,
+   "provider": "gemini",
+   "tokens_prompt_completion": null,
+   "answer": "Aditya Jain's SFT Forge project has a false-reject rate of **1.6%** during its synthetic contamination benchmark.\n\nAsk me about the stack used for SFT Forge.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "SFT-Forge README",
+     "url": "https://github.com/Aditya2616/SFT-Forge"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    }
+   ]
+  }
+ ]
+}

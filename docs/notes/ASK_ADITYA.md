@@ -184,3 +184,19 @@ misses are left as they are: "What are his main strengths?" (the model declined)
 use?" (the chunk that names D-FINE nano is not among the seven retrieved; BM25 ranks the shorter chunks above it).
 During that run the backup Groq model answered 429 for most calls (its quota is shared with the deployed service's
 tests), so Gemini produced most of the generated answers; the per-provider counts are in the README.
+
+## Second round: answers that must not depend on a model
+
+A deployed trial after the first round still lost the certifications and "has he led a team" on some runs (a model
+declined), and gave an ablation figure next to the headline one. Changes:
+
+- `profile.py` answers certifications, education, each role, leadership, skills (and "does he know X": yes with where it
+  appears, or "not listed among his skills, project stacks or READMEs"), the project list, location and openness from the
+  portfolio sections kept whole in `index.json` (`profile`). Glossary questions ("what does RLHF mean") and questions that
+  name a project are left to the normal flow. None of these calls a provider.
+- When a model declines an answerable question and no other model is available, the same model is asked once more with
+  a second wording of the system prompt (`decline_retry_same`).
+- Each README table of at most 14 rows and 1,500 characters is also kept as one whole chunk (columns once, one line per
+  row). It sits in its own small BM25 index and competes only for superlative questions (best, highest, lowest) about a
+  named project, so it does not disturb the ranking of ordinary questions (retrieval stays at 45/46).
+- The system prompt asks for the headline figure first and no ablation rows unless asked.

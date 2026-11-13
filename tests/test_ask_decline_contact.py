@@ -41,7 +41,18 @@ def test_a_second_decline_is_kept_and_costs_one_extra_call_at_most(index):
 def test_no_other_provider_keeps_the_decline(index):
     a = ScriptedProvider("groq", ["UNKNOWN"])
     r = pipe(index, a).answer("Where does Sam work now?")
-    assert r.fallback == "unknown" and len(a.calls) == 1
+    assert (
+        r.fallback == "unknown" and len(a.calls) == 2
+    )  # the first answer and one same-model retry
+    assert "decline_retry_same" in r.reason
+
+
+def test_the_same_model_retry_uses_the_other_wording_and_can_rescue_the_answer(index):
+    a = ScriptedProvider("groq", ["UNKNOWN", GOOD])
+    r = pipe(index, a).answer("Where does Sam work now?")
+    assert r.grounded and "Northwind" in r.answer and "decline_retry_same" in r.reason
+    assert len(a.calls) == 2 and a.calls[0][0] != a.calls[1][0]
+    assert "reply UNKNOWN only if none" in a.calls[1][0]
 
 
 def test_a_question_the_passages_do_not_cover_is_not_retried(index):

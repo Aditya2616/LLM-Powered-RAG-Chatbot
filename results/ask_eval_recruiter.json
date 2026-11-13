@@ -1,16 +1,14 @@
 {
  "meta": {
   "tag": "recruiter",
-  "note": "backup leg first (gpt-oss-120b, low effort), Gemini only on a 429",
+  "note": "second run, Gemini only (both Groq models out of daily quota)",
   "date": "2026-11-13",
   "mode": "spawned local server",
-  "corpus_version": "2026-11-13-7bf0caf5",
+  "corpus_version": "2026-11-13-e338353e",
   "n_questions": 40,
   "models": {},
   "server_env": {
-   "ASK_PROVIDER_ORDER": "groq-backup,gemini",
-   "GROQ_MODEL_BACKUP": "openai/gpt-oss-120b",
-   "GROQ_BACKUP_REASONING_EFFORT": "low",
+   "ASK_PROVIDER_ORDER": "gemini",
    "GEMINI_MODEL": "gemini-3.5-flash-lite"
   }
  },
@@ -41,18 +39,18 @@
   "n": 40
  },
  "first_token_ms": {
-  "mean_all": 1575.628333333626,
-  "p95_all": 4860.768489998373,
-  "mean_generated": 1919.9139375002687,
-  "p95_generated": 5073.306654999942,
+  "mean_all": 864.9948051280286,
+  "p95_all": 2161.9026100001065,
+  "mean_generated": 1053.7358562498866,
+  "p95_generated": 2199.27984499991,
   "n_all": 39,
   "n_generated": 32,
   "first_request_excluded": true
  },
  "cold_start": {
-  "ready_ms": 1801.1501000000862,
-  "first_ask_ms": 481.0189000017999,
-  "first_ask_first_token_ms": 468.82150000237743
+  "ready_ms": 2210.786499999813,
+  "first_ask_ms": 586.6453000016918,
+  "first_ask_first_token_ms": 565.0924000001396
  },
  "probes": {},
  "results": [
@@ -65,8 +63,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 468.82150000237743,
-   "total_ms": 481.0189000017999,
+   "first_token_ms": 565.0924000001396,
+   "total_ms": 586.6453000016918,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Aditya Jain is a Computer Science undergraduate (B.Tech CSE) at Guru Gobind Singh Indraprastha University (GGSIPU), New Delhi, Aug 2023 to Jun 2027 (graduating 2027). Based in New Delhi, India (IST, UTC+5:30). He works mainly on generative AI, machine learning and data science. Right now his role is LLM Post-Training Intern at Ethara AI (Gurugram), Feb 2026 to present: supervised fine-tuning, RLHF workflows, prompt design and evaluation. He is open to AI / ML roles and collaborations. Ask me about his projects.",
@@ -88,8 +86,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1.3173000006645452,
-   "total_ms": 11.197799998626579,
+   "first_token_ms": 9.834500000579283,
+   "total_ms": 27.89879999909317,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Aditya Jain is a Computer Science undergraduate (B.Tech CSE) at Guru Gobind Singh Indraprastha University (GGSIPU), New Delhi, Aug 2023 to Jun 2027 (graduating 2027). Based in New Delhi, India (IST, UTC+5:30). He works mainly on generative AI, machine learning and data science. Right now his role is LLM Post-Training Intern at Ethara AI (Gurugram), Feb 2026 to present: supervised fine-tuning, RLHF workflows, prompt design and evaluation. He is open to AI / ML roles and collaborations. Ask me about his projects.",
@@ -111,8 +109,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1.275599999644328,
-   "total_ms": 9.712200000649318,
+   "first_token_ms": 1.6488999972352758,
+   "total_ms": 36.211099999491125,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Aditya Jain is a Computer Science undergraduate (B.Tech CSE) at Guru Gobind Singh Indraprastha University (GGSIPU), New Delhi, Aug 2023 to Jun 2027 (graduating 2027). Based in New Delhi, India (IST, UTC+5:30). He works mainly on generative AI, machine learning and data science. Right now his role is LLM Post-Training Intern at Ethara AI (Gurugram), Feb 2026 to present: supervised fine-tuning, RLHF workflows, prompt design and evaluation. He is open to AI / ML roles and collaborations. Ask me about his projects.",
@@ -134,21 +132,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2186.382299998513,
-   "total_ms": 2188.750199999049,
-   "provider": "gemini",
+   "first_token_ms": 1.9066999993810896,
+   "total_ms": 6.848400000308175,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain is open to AI / ML roles and collaborations.\n\nAsk me about his current internship.",
+   "answer": "He is open to AI / ML roles and collaborations. For anything more specific, email him: itsaditya1610@gmail.com. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
-    },
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -161,8 +155,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1.9990000000689179,
-   "total_ms": 4.971700000169221,
+   "first_token_ms": 1.9112000009045005,
+   "total_ms": 6.887200001074234,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His notice period and start date aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -179,23 +173,28 @@
    "id": "r06",
    "group": "factual",
    "question": "What are his main strengths?",
-   "pass": false,
-   "failures": [
-    "fallback 'unknown', expected None",
-    "grounded False, expected True",
-    "missing ['generative AI', 'LLM', 'post-training', 'fine-tuning', 'SFT', 'RLHF']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1155.2402000015718,
-   "total_ms": 1158.8368999982777,
-   "provider": "gemini",
+   "first_token_ms": 3.753799999685725,
+   "total_ms": 34.345599997323006,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "I don't know that from his résumé, portfolio or project READMEs. You can ask Aditya directly: itsaditya1610@gmail.com. Ask me about his projects.",
-   "fallback": "unknown",
-   "grounded": false,
-   "sources": []
+   "answer": "Languages: Python, SQL. AI / ML: Machine Learning, Deep Learning, Reinforcement Learning, Model Training, Fine-Tuning, Transfer Learning, Model Evaluation. Generative AI: LLMs, SFT, RLHF, Prompt Engineering, RAG, Agents, LangChain, Hugging Face Transformers, OpenAI API, Anthropic API. ML & data: PyTorch, Hugging Face Datasets & Diffusers, FAISS, OpenCV, Whisper, NumPy, Pandas, Scikit-learn. Tools & infra: FastAPI, Streamlit, Docker, Git, GitHub, Google Colab, VS Code, Codex, Workflow Automation. Identity & access: Microsoft Entra ID, SSO, SAML, SCIM, Conditional Access, Group-Based Access, Privileged Roles, Enterprise Applications. Ask me about his projects.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    }
+   ]
   },
   {
    "id": "r07",
@@ -206,8 +205,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2.263999998831423,
-   "total_ms": 11.374800000339746,
+   "first_token_ms": 6.065599998692051,
+   "total_ms": 31.708700000308454,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Aditya Jain is a Computer Science undergraduate (B.Tech CSE) at Guru Gobind Singh Indraprastha University (GGSIPU), New Delhi, Aug 2023 to Jun 2027 (graduating 2027). Based in New Delhi, India (IST, UTC+5:30). He works mainly on generative AI, machine learning and data science. Right now his role is LLM Post-Training Intern at Ethara AI (Gurugram), Feb 2026 to present: supervised fine-tuning, RLHF workflows, prompt design and evaluation. He is open to AI / ML roles and collaborations. Ask me about his projects.",
@@ -229,11 +228,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1654.727000001003,
-   "total_ms": 1660.3883000025235,
-   "provider": "gemini",
+   "first_token_ms": 1.9455999972706195,
+   "total_ms": 13.673399997060187,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "At **Genesis**, Aditya Jain led a team of developers working on AI-driven projects, drove the adoption of AI tools and automation workflows, and mentored junior members on Python scripting, API integrations, and machine-learning fundamentals.\n\nAsk me about his work at Ethara AI.",
+   "answer": "Co-Lead at Genesis, Oct 2025 to Feb 2026 (New Delhi). Led a team of developers working on AI-driven projects. Drove adoption of AI tools and automation workflows within the team, reducing manual work on repetitive tasks. Mentored junior members on Python scripting, API integrations and machine-learning fundamentals. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -256,11 +255,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1912.8183000029821,
-   "total_ms": 1918.3959000001778,
+   "first_token_ms": 2008.9166999969166,
+   "total_ms": 2016.5592999983346,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "**Aditya**'s RAG chatbot with Qwen2.5-1.5B-Instruct answers 70/75 (93.3%) of the answerable questions correctly and says \"I don't know\" on 18/25 (72.0%) of the unanswerable ones, tested on the 100 questions bundled with the repository.\n\nAsk me about the technologies used in the RAG chatbot.",
+   "answer": "Aditya's RAG chatbot with Qwen2.5-1.5B-Instruct answers 70/75 (93.3%) of the answerable questions correctly and says \"I don't know\" on 18/25 (72.0%) of the unanswerable ones.\n\nAsk me about his flagship project.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -287,11 +286,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1138.3572000013373,
-   "total_ms": 1144.5217000000412,
+   "first_token_ms": 1299.3663000015658,
+   "total_ms": 1302.1292000012181,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "The passages do not state which checkpoint scored best, only that in the recorded run four sub-1B checkpoints (smollm2-135m-it, smollm2-360m-base, smollm2-360m-it, and qwen2.5-0.5b-it) passed between 27.0% and 44.6% of 408 prompts.\n\nAsk me about EvalBench failure modes.",
+   "answer": "In EvalBench, **qwen2.5-0.5b-it** scored best with 44.6% [39.9%, 49.5%] (182/408 prompts passed).\n\nAsk me about EvalBench run details.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -310,11 +309,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1111.222200001066,
-   "total_ms": 1114.2873999997391,
+   "first_token_ms": 1666.7066999980307,
+   "total_ms": 1679.1484999994282,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "On RouterBench, Aditya Jain's ModelRouter keeps 95% of the big model's quality at 37% of the cost.\n\nAsk me about ModelRouter's routing classifier.",
+   "answer": "On RouterBench, Aditya Jain's ModelRouter keeps 95% of the big model's quality at 37% of the cost.\n\nAsk me about ModelRouter's quickstart.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -325,6 +324,10 @@
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
+    },
+    {
+     "title": "LLM-Powered-RAG-Chatbot README",
+     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
     }
    ]
   },
@@ -332,16 +335,18 @@
    "id": "r12",
    "group": "factual",
    "question": "What fraction of SPML attacks does Sentinel block?",
-   "pass": true,
-   "failures": [],
+   "pass": false,
+   "failures": [
+    "missing ['54%']"
+   ],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1434.287399999448,
-   "total_ms": 1443.277999998827,
+   "first_token_ms": 2151.2234000001627,
+   "total_ms": 2160.140100000717,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "On two datasets it was never trained on, **Aditya**'s Sentinel blocks 54% of the SPML attacks, or 70% if flagged prompts count. Specifically, the recall on the SPML OOD-test half using the balanced preset is 54.3%. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about Sentinel's false positive rate.",
+   "answer": "Aditya Jain's Sentinel blocks 54.3% of SPML OOD-test attacks using the balanced preset. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his other projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -360,11 +365,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1493.977599999198,
-   "total_ms": 1500.0652000016998,
+   "first_token_ms": 1925.6547000004502,
+   "total_ms": 1932.8448999985994,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "On the downstream test of a 135M model across three seeds, cleaning with SFT Forge made no practical difference, as the gates are measured against injected defects rather than shown to improve models.\n\nAsk me about the stack used for SFT Forge.",
+   "answer": "On the one downstream test he ran using a 135M model and three seeds, cleaning made no practical difference; the gates are measured against injected defects and were not shown to improve models.\n\nAsk me about the SFT Forge tech stack.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -391,11 +396,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2338.9767999979085,
-   "total_ms": 2345.1986000000034,
+   "first_token_ms": 1584.9527000027592,
+   "total_ms": 1593.442800000048,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain built DiffuseLab, where measured results showed that the linear schedule is clearly better under 1 and the cosine schedule under 0, out of the 3 samplers scored with FID and KID.\n\nAsk me about the training details for DiffuseLab.",
+   "answer": "Aditya Jain found that the linear schedule is clearly better under 1 and the cosine schedule is clearly better under 0, out of the 3 samplers he scored with FID and KID.\n\nAsk me about DiffuseLab's training details.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -413,21 +418,23 @@
    "id": "r15",
    "group": "factual",
    "question": "What detector does VisionLens use?",
-   "pass": false,
-   "failures": [
-    "missing ['D-FINE']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 7031.427000001713,
-   "total_ms": 7035.186500001146,
+   "first_token_ms": 1190.8522000012454,
+   "total_ms": 1196.6787000019394,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain uses the dfine-nano detector in VisionLens, as shown on an end-to-end real clip test with an input of 640px and stride of 3.\n\nAsk me about the end-to-end FPS of VisionLens.",
+   "answer": "Aditya Jain's VisionLens uses the **dfine-nano** detector, though one evaluation missed mentioning **D-FINE**.\n\nAsk me about VisionLens results.",
    "fallback": null,
    "grounded": true,
    "sources": [
+    {
+     "title": "LLM-Powered-RAG-Chatbot README",
+     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
+    },
     {
      "title": "VisionLens README",
      "url": "https://github.com/Aditya2616/VisionLens"
@@ -443,11 +450,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 4800.043299997924,
-   "total_ms": 4815.096899998025,
+   "first_token_ms": 1647.34419999877,
+   "total_ms": 1657.5335000015912,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain tested VoiceScribe's word error rate (WER) across different sets and models: on the LibriSpeech test-clean subset with model small.en it is 3.96%, and with base.en it is 6.12%. On a synthetic demo meeting, the recogniser output gives a WER of 1.49% for model small.en, while a recorded run with names corrected from the attendee list yields a WER of 0.30%.\n\nAsk me about VoiceScribe's transcription time.",
+   "answer": "On the LibriSpeech test-clean subset, Aditya's VoiceScribe achieves a WER of **3.96%** using the small.en model, and **6.12%** using the base.en model. On the synthetic demo meeting, the WER is **1.49%** for the recogniser output and **0.30%** for the recorded run with corrected names.\n\nAsk me about VoiceScribe word-timestamp accuracy.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -466,11 +473,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 3119.536499998503,
-   "total_ms": 3130.6147999966925,
+   "first_token_ms": 2258.015499999601,
+   "total_ms": 2266.566900001635,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "On CommonsenseQA and BoolQ, Aditya's PromptLab evolutionary search ties random search at equal budget instead of beating it. However, on the synthetic task, the evolved prompts are ahead of random search in all 3 seeds, with the pooled interval above zero. \n\nAsk me about PromptLab's tools and stack.",
+   "answer": "On CommonsenseQA and BoolQ, evolution does not beat random search at equal budget; the interval for evolved minus random search is centred on zero in both tasks. On the synthetic task, evolved is ahead of random search in all three seeds, with a pooled interval above zero.\n\nAsk me about PromptLab's dev and test scores.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -489,11 +496,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1392.180400001962,
-   "total_ms": 1399.6874000004027,
+   "first_token_ms": 1484.0457000027527,
+   "total_ms": 1486.998800002766,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "AgentFlow is built as a LangGraph state graph with five tools, including search, Python, SQL, email, and documents. It runs fully offline with a small open model (Qwen3-0.6B) on a CPU or a GPU, and includes OpenAI and Anthropic adapters behind the same interface.\n\nAsk me about the tools available in AgentFlow.",
+   "answer": "Aditya Jain built AgentFlow as a LangGraph state graph.\n\nAsk me about AgentFlow's tools.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -511,16 +518,18 @@
    "id": "r19",
    "group": "factual",
    "question": "What F1 did VoiceScribe reach on action items?",
-   "pass": true,
-   "failures": [],
+   "pass": false,
+   "failures": [
+    "missing ['0.89']"
+   ],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1546.687000001839,
-   "total_ms": 1552.8966999991098,
+   "first_token_ms": 1977.974000001268,
+   "total_ms": 1984.4049999992421,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain's VoiceScribe reached various Action F1 scores depending on the configuration and meeting set, such as 0.86, 1.00, 0.89, 0.91, 0.79, 0.85, and 0.83. \n\nAsk me about VoiceScribe's decision F1 scores.",
+   "answer": "Action F1: 0.90. **Aditya Jain** created VoiceScribe, which turns meeting recordings into transcripts with word-level timestamps, splits them into sentences and topics, and pulls out structured action items, decisions, owners, and deadlines. \n\nAsk me about VoiceScribe's decision F1 scores.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -539,21 +548,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1185.3322999995726,
-   "total_ms": 1197.9678999996395,
+   "first_token_ms": 1406.7842999975255,
+   "total_ms": 1419.2103999994288,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya built **Sentinel**, a prompt-injection guard built with Python, HF Transformers, and FastAPI. Every incoming prompt is scored by a lightweight classifier plus rules for known injection patterns, and suspicious prompts are blocked, flagged, and logged. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about Sentinel.",
+   "answer": "Aditya built **Sentinel**, a prompt-injection guard written in Python using Hugging Face Transformers and FastAPI, which scores incoming prompts with a lightweight classifier and rules for known injection patterns to block, flag, and log suspicious prompts. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his tool-using agent project.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
-    {
      "title": "Résumé",
      "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     },
     {
      "title": "LLM-Powered-RAG-Chatbot README",
@@ -570,11 +579,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2289.147799998318,
-   "total_ms": 2298.9192999993975,
+   "first_token_ms": 1066.5891999960877,
+   "total_ms": 1087.348100001691,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya built **ModelRouter**, which uses a small scikit-learn classifier to route easy requests to a fast, cheap model and hard requests to a larger model. These figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about ModelRouter's GitHub repository.",
+   "answer": "**ModelRouter** is the project by Aditya Jain that routes requests between a cheap and an expensive model using a scikit-learn classifier to lower API cost. On RouterBench, it keeps 95% of the larger model's quality at 37% of the cost. These figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about ModelRouter technologies.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -597,11 +606,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1808.4291000013764,
-   "total_ms": 1814.8349000002781,
+   "first_token_ms": 1500.8760999990045,
+   "total_ms": 1516.3274000005913,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "**VoiceScribe** is the project by Aditya Jain that turns meeting recordings into a transcript with word-level timestamps and extracts decisions, owners, and deadlines as structured action items. \n\nAsk me about VoiceScribe's technology stack",
+   "answer": "**VoiceScribe** is the project that turns meeting recordings into transcripts with word-level timestamps and extracts decisions, owners, and deadlines as structured action items.\n\nAsk me about VoiceScribe's results.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -628,11 +637,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1671.2480999995023,
-   "total_ms": 1676.3838000006217,
+   "first_token_ms": 1423.8611000037054,
+   "total_ms": 1429.437800004962,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya built **DiffuseLab**, a diffusion model explainer that shows each denoising step side by side, including the noise schedule, intermediate predictions, and the final image.\n\nAsk me about his VisionLens project.",
+   "answer": "Aditya Jain built **DiffuseLab**, a diffusion model explainer written in Python, PyTorch, and Hugging Face Diffusers that shows each denoising step side by side, including the noise schedule, intermediate predictions, and the final image. \n\nAsk me about his project **VisionLens**.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -659,11 +668,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1482.152299999143,
-   "total_ms": 1494.2998999977135,
+   "first_token_ms": 1849.0657000002102,
+   "total_ms": 1878.7926000004518,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya built **PromptLab**, an evolutionary prompt search project written in Python using NumPy and an OpenAI-compatible adapter. It mutates prompt variants, scores them on a development set, and carries the strongest into the next generation. On the two real tasks, CommonsenseQA and BoolQ, its evolutionary search ties random search at equal budget; it is ahead only on a synthetic task. Ask me about his other projects.",
+   "answer": "Aditya built **PromptLab**, which is an evolutionary prompt search tool that mutates prompt variants, scores them on a development set, and carries the best into the next generation. Its repository is available at https://github.com/Aditya2616/PromptLab using Python, NumPy, and an OpenAI-compatible adapter. On the two real tasks, CommonsenseQA and BoolQ, its evolutionary search ties random search at equal budget; it is ahead only on a synthetic task. Ask me about EvalBench.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -686,25 +695,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1626.7324000000372,
-   "total_ms": 1630.210100000113,
-   "provider": "gemini",
+   "first_token_ms": 12.097999999241438,
+   "total_ms": 15.695300004153978,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "Yes, Aditya knows SQL, as it is listed under his technical skills and used in his tools like AgentFlow.\n\nAsk me about his projects.",
+   "answer": "Yes. SQL are in his skills list or project stacks. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
-    },
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
-     "title": "AgentFlow README",
-     "url": "https://github.com/Aditya2616/AgentFlow"
     }
    ]
   },
@@ -717,25 +718,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 3830.038299998705,
-   "total_ms": 3833.357399998931,
-   "provider": "gemini",
+   "first_token_ms": 13.688500002899673,
+   "total_ms": 18.149200004700106,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "Yes, Aditya Jain has worked with PyTorch, as listed in his skills and projects like DiffuseLab, where he uses Python, PyTorch, and Hugging Face Diffusers.\n\nAsk me about his internship at Ethara AI.",
+   "answer": "Yes. PyTorch are in his skills list or project stacks. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
-    },
-    {
-     "title": "VisionLens README",
-     "url": "https://github.com/Aditya2616/VisionLens"
     }
    ]
   },
@@ -748,18 +741,14 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 993.4892999990552,
-   "total_ms": 997.1054999987246,
-   "provider": "groq-backup",
+   "first_token_ms": 2.2382000024663284,
+   "total_ms": 13.007400004426017,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He contributes to reinforcement learning from human feedback (RLHF) workflows in his LLM post‑training role. Ask me about his prompt‑engineering work.",
+   "answer": "Yes. RLHF are in his skills list or project stacks. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
@@ -775,11 +764,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 5407.295200002409,
-   "total_ms": 5413.418500000262,
+   "first_token_ms": 2067.619300003571,
+   "total_ms": 2075.158799998462,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain works on reinforcement learning from human feedback (RLHF) workflows as part of his post-training pipelines for large language models at Ethara AI, where he has been an LLM Post-Training Intern since Feb 2026. \n\nAsk me about his undergraduate studies at GGSIPU.",
+   "answer": "At Ethara AI, Aditya Jain contributes to post-training pipelines for large language models that include reinforcement learning from human feedback (RLHF) workflows.\n\nAsk me about his current role at Ethara AI.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -790,6 +779,10 @@
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "LLM-Powered-RAG-Chatbot README",
+     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
     }
    ]
   },
@@ -802,22 +795,14 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2809.655400000338,
-   "total_ms": 2816.567899997608,
-   "provider": "gemini",
+   "first_token_ms": 22.923299999092706,
+   "total_ms": 26.13510000082897,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "Yes, Aditya Jain uses **Docker** as part of his tools and infrastructure, building and querying the Docker image in CI and using it for projects like the LLM-Powered RAG Chatbot.\n\nAsk me about his experience with FastAPI and Streamlit.",
+   "answer": "Yes. Docker are in his skills list or project stacks. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
-     "title": "LLM-Powered-RAG-Chatbot README",
-     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
-    },
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
@@ -833,11 +818,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1543.4765000027255,
-   "total_ms": 1548.4404000017093,
+   "first_token_ms": 1597.5657000017236,
+   "total_ms": 1602.5570999991032,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain lists Microsoft Entra ID in his portfolio skills under identity and access. \n\nAsk me about his certifications.",
+   "answer": "Aditya Jain lists Microsoft Entra ID under identity and access tools on his portfolio site.\n\nAsk me about his certifications.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -864,8 +849,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 27.827800000522984,
-   "total_ms": 33.67250000155764,
+   "first_token_ms": 14.562599993951153,
+   "total_ms": 17.794899998989422,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
@@ -887,8 +872,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2.113300000928575,
-   "total_ms": 8.397300000069663,
+   "first_token_ms": 1.4386000038939528,
+   "total_ms": 6.58829999883892,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
@@ -910,25 +895,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2658.824000001914,
-   "total_ms": 2666.653000000224,
+   "first_token_ms": 2352.101299999049,
+   "total_ms": 2360.506199998781,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain's SFT Forge project does not have data proven to make models better. His own experiment found no measurable benefit from the cleaned data at that scale.\n\nAsk me about SFT Forge's three gates.",
+   "answer": "No, Aditya Jain notes that SFT Forge's own experiment found no measurable benefit from the cleaned data at that scale. On the downstream test run, cleaning made no practical difference; the gates are measured against injected defects and are not shown to improve models.\n\nAsk me about SFT Forge's gates.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
     {
      "title": "SFT-Forge README",
      "url": "https://github.com/Aditya2616/SFT-Forge"
     },
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -941,11 +922,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1780.7640999999421,
-   "total_ms": 1790.5574000033084,
+   "first_token_ms": 1167.928299997584,
+   "total_ms": 1177.5753999972949,
    "provider": "gemini",
    "tokens_prompt_completion": null,
-   "answer": "No, Sentinel is not presented as a complete defence. At its default setting, it misses a large share of unseen attacks. It is one layer of defence that screens prompts for injection before they reach a model by normalising them, checking against **46** rules, and scoring them with a small fine-tuned classifier.\n\nAsk me about how Sentinel works.",
+   "answer": "No, Sentinel is not a complete defence and misses a large share of unseen attacks. It is a safety layer that screens prompts for injection before they reach a model by normalising incoming prompts, checking them against 46 rules for known injection patterns, and scoring them with a small fine-tuned classifier. \n\nAsk me about Sentinel's false-positive rate on everyday benign text.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -964,8 +945,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2.126200000930112,
-   "total_ms": 22.877300001709955,
+   "first_token_ms": 4.5825999986846,
+   "total_ms": 38.466300000436604,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only say what his résumé, portfolio and READMEs say, so I won't add claims that are not in them. Aditya Jain is a Computer Science undergraduate (B.Tech CSE) at Guru Gobind Singh Indraprastha University (GGSIPU), New Delhi, Aug 2023 to Jun 2027 (graduating 2027). Based in New Delhi, India (IST, UTC+5:30). He works mainly on generative AI, machine learning and data science. Right now his role is LLM Post-Training Intern at Ethara AI (Gurugram), Feb 2026 to present: supervised fine-tuning, RLHF workflows, prompt design and evaluation. He is open to AI / ML roles and collaborations. Ask me about his projects.",
@@ -987,8 +968,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1.620899998670211,
-   "total_ms": 6.053799999790499,
+   "first_token_ms": 1.4506000006804243,
+   "total_ms": 17.684400001598988,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Compensation isn't published, and it is best discussed with Aditya directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1010,8 +991,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2.026099999056896,
-   "total_ms": 6.12379999802215,
+   "first_token_ms": 2.0141999993938953,
+   "total_ms": 5.454999998619314,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His grades and CGPA aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1033,8 +1014,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1.2127000009058975,
-   "total_ms": 6.341600001178449,
+   "first_token_ms": 1.2795999937225133,
+   "total_ms": 18.59369999874616,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1051,8 +1032,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1.177100002678344,
-   "total_ms": 7.932000000437256,
+   "first_token_ms": 2.0847999985562637,
+   "total_ms": 7.607899999129586,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1069,8 +1050,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2.0970000005036127,
-   "total_ms": 6.279100001847837,
+   "first_token_ms": 1.927000004798174,
+   "total_ms": 6.141900004877243,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya Jain: his experience, projects, skills, education and contact details. Ask me about his projects, for example.",

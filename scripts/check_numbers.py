@@ -358,7 +358,7 @@ def b_ask_eval(d: dict) -> str:
     ]
     rows = []
     for tag, r in d["ask"].items():
-        if tag.endswith("heldout") or tag == "recruiter":
+        if tag.endswith("heldout") or tag.startswith(("recruiter", "followup")):
             continue
         g = r["groups"]
         ft = r["first_token_ms"]
@@ -410,27 +410,53 @@ def b_ask_heldout(d: dict) -> str:
     )
 
 
+RUNS = [
+    (
+        "recruiter-1",
+        "eval/ask_aditya_recruiter.jsonl",
+        "first run, after the first round of fixes (backup Groq model first, Gemini on a 429)",
+    ),
+    (
+        "recruiter",
+        "eval/ask_aditya_recruiter.jsonl",
+        "second run, after the second round (Gemini only, both Groq models were out of daily quota)",
+    ),
+    (
+        "followup",
+        "eval/ask_aditya_followup.jsonl",
+        "the four questions that failed in the deployed trial (`eval/ask_aditya_followup.jsonl`; Gemini only)",
+    ),
+]
+
+
 def b_ask_recruiter(d: dict) -> str:
-    r = d["ask"].get("recruiter")
-    if not r:
+    out = []
+    for tag, _file, label in RUNS:
+        r = d["ask"].get(tag)
+        if not r:
+            continue
+        t = r["total"]
+        ft = r["first_token_ms"]
+        mix: dict[str, int] = {}
+        for x in r["results"]:
+            if x.get("provider"):
+                mix[x["provider"]] = mix.get(x["provider"], 0) + 1
+        who = ", ".join(f"{k} {v}" for k, v in sorted(mix.items())) or "no model"
+        out.append(
+            f"- **{label}**, {r['meta']['date']}: **{t['passed']}/{t['n']} passed**; "
+            f"answers from {who}, the rest were fixed replies; first token mean {ft['mean_all']:.0f} ms, "
+            f"p95 {ft['p95_all']:.0f} ms."
+        )
+        for x in r["results"]:
+            if not x["pass"]:
+                out.append(f'  - {x["id"]} "{x["question"]}": {"; ".join(x["failures"])[:160]}')
+    if not out:
         return "Not run."
-    t = r["total"]
-    ft = r["first_token_ms"]
-    mix: dict[str, int] = {}
-    for x in r["results"]:
-        if x.get("provider"):
-            mix[x["provider"]] = mix.get(x["provider"], 0) + 1
-    miss = [x for x in r["results"] if not x["pass"]]
-    lines = [
-        f"Unseen recruiter-style questions (`eval/ask_aditya_recruiter.jsonl`, {t['n']} questions written from the sources after the fixes above and not tuned on, run once on {r['meta']['date']} against the real API with the backup Groq model first and Gemini only on a 429; answers came from "
-        + ", ".join(f"{k} {v}" for k, v in sorted(mix.items()))
-        + f", the rest were fixed replies): **{t['passed']}/{t['n']} passed** (first token mean {ft['mean_all']:.0f} ms, p95 {ft['p95_all']:.0f} ms)."
-    ]
-    if miss:
-        lines += ["", "Every miss:", ""]
-        for x in miss:
-            lines.append(f'- {x["id"]} "{x["question"]}": {"; ".join(x["failures"])[:160]}')
-    return chr(10).join(lines)
+    head = (
+        "Unseen recruiter-style questions (`eval/ask_aditya_recruiter.jsonl`, 40 questions written from the sources "
+        "and not tuned on; the 86 questions are not used here), with every miss listed:"
+    )
+    return chr(10).join([head, "", *out])
 
 
 def b_ask_probes(d: dict) -> str:
@@ -703,7 +729,7 @@ def claims(d: dict) -> list[tuple[str, bool]]:
             all(
                 {g: v["n"] for g, v in r["groups"].items()} == ev_counts
                 for tag, r in d["ask"].items()
-                if not (tag.endswith("heldout") or tag == "recruiter")
+                if not (tag.endswith("heldout") or tag.startswith(("recruiter", "followup")))
             ),
         )
     )

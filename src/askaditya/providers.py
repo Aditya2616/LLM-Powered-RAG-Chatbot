@@ -259,7 +259,12 @@ class ProviderChain:
         return None
 
     def generate(
-        self, system: str, user: str, force_fail: bool = False, exclude: set[str] | None = None
+        self,
+        system: str,
+        user: str,
+        force_fail: bool = False,
+        exclude: set[str] | None = None,
+        only: set[str] | None = None,
     ) -> Generation:
         attempts: list[str] = []
         waits: list[int] = []
@@ -277,7 +282,7 @@ class ProviderChain:
                 int(86400 - lim.clock() % 86400) + 1,
             )
         for p in self.providers:
-            if exclude and p.name in exclude:
+            if (exclude and p.name in exclude) or (only and p.name not in only):
                 continue
             now = lim.clock()
             cool = self._cooldown.get(p.name, 0.0)
