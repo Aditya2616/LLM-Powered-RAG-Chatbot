@@ -331,6 +331,13 @@ GROUP_LABEL = {
 
 def ask_label(meta: dict) -> str:
     env = meta.get("server_env", {})
+    models = meta.get("models", {})
+    order = env.get("ASK_PROVIDER_ORDER", "")
+    key = {"groq": "GROQ_MODEL", "groq-backup": "GROQ_MODEL_BACKUP", "gemini": "GEMINI_MODEL"}.get(
+        order
+    )
+    if key and models.get(key):
+        return f"{order} leg alone ({models[key]})"
     model = env.get("ASK_LOCAL_MODEL")
     who = (
         f"local model {model.split('/')[-1]} via the local provider"
@@ -367,6 +374,27 @@ def b_ask_eval(d: dict) -> str:
     return "\n".join(head + rows)
 
 
+def b_ask_tokens(d: dict) -> str:
+    rows = [
+        "| Hosted run | Answers sent to a model | Prompt tokens mean / max | Completion tokens mean / max | Total per question (mean) |",
+        "|---|---|---|---|---|",
+    ]
+    for tag, r in d["ask"].items():
+        pairs = []
+        for x in r["results"]:
+            tp = x.get("tokens_prompt_completion")
+            if tp and x.get("stage") in ("model", "verify", "trap") and tp != "0/0":
+                p, q = tp.split("/")
+                pairs.append((int(p), int(q)))
+        if not pairs:
+            continue
+        n = len(pairs)
+        rows.append(
+            f"| {tag} | {n} | {sum(p for p, _ in pairs) / n:.0f} / {max(p for p, _ in pairs)} | {sum(q for _, q in pairs) / n:.0f} / {max(q for _, q in pairs)} | {sum(p + q for p, q in pairs) / n:.0f} |"
+        )
+    return "\n".join(rows) if len(rows) > 2 else "Not run."
+
+
 def b_ask_probes(d: dict) -> str:
     if not d["ask"]:
         return "Not run."
@@ -381,6 +409,17 @@ def b_ask_probes(d: dict) -> str:
             f"daily cap spent gives HTTP {lim.get('cap_spent_status')} with fallback `{lim.get('cap_spent_fallback')}` "
             f"and the test hook gives HTTP {lim.get('hook_status')} with fallback `{lim.get('hook_fallback')}`, while deterministic answers still work: "
             f"{lim.get('deterministic_still_answers')}; CORS preflight and origins {'ok' if cors.get('pass') else 'FAILED'}."
+        )
+    chain = next(
+        (r["probes"]["chain"] for r in d["ask"].values() if (r.get("probes") or {}).get("chain")),
+        None,
+    )
+    if chain:
+        g, lim = chain["gemini_after_groq_spent"], chain["limit_when_all_spent"]
+        out.append(
+            f"- Fallback order with the real providers: with both Groq token budgets spent the answer came from `{g['provider']}` "
+            f"(HTTP {g['status']}, {'ok' if g['pass'] else 'FAILED'}); with Gemini switched off as well the API answered "
+            f"HTTP {lim['status']} with fallback `{lim['fallback']}` ({'ok' if lim['pass'] else 'FAILED'})."
         )
     return "\n".join(out) or "Not run."
 
@@ -404,6 +443,7 @@ BLOCKS = {
     "intro": b_intro,
     "ask_eval": b_ask_eval,
     "ask_probes": b_ask_probes,
+    "ask_tokens": b_ask_tokens,
     "ask_retrieval": b_ask_retrieval,
     "chunk_bullet": b_chunk_bullet,
     "lead": b_lead,

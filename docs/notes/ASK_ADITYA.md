@@ -74,9 +74,9 @@ No model id is in the repository; all three come from the environment. When none
 
 ## Token budget and caps
 
-A question's prompt is the fixed instructions plus five retrieved chunks of at most 500 characters. Measured on the
-Groq models (`usage` in the response): about 620 to 730 prompt tokens and 25 to 130 completion tokens, so roughly 650 to
-850 tokens a question, well under 1,500. Budgets use a conservative estimate (one token per 3.5 characters plus the whole
+A question's prompt is the fixed instructions plus five retrieved chunks of at most 500 characters. The measured
+tokens per question (prompt and completion, from the providers' `usage`) are in the README's token table; the prompt stays
+well under 1,500 tokens. Budgets use a conservative estimate (one token per 3.5 characters plus the whole
 completion allowance) and are corrected with the reported usage after the call.
 
 | Cap | Default | Why |
@@ -90,3 +90,17 @@ completion allowance) and are corrected with the reported usage after the call.
 When a model is out of budget or answers 429, errors or times out, the chain moves to the next one; when none is left, the
 API answers 503 with `fallback: "limit"`. Deterministic replies (deflections, refusals, the assistant's own description)
 never reach a model and never spend a budget.
+
+## Models chosen (measured 2026-11-13 through the real HTTP API on 127.0.0.1)
+
+Model ids live only in the environment; these are the values the evaluation used. The tables are in the README.
+
+- `GROQ_MODEL=qwen/qwen3.8-27b` (primary): fastest and most accurate in the screening and the full run, mean first token
+  under 0.3 s, no reasoning-token overhead.
+- `GROQ_MODEL_BACKUP=openai/gpt-oss-120b` with `GROQ_BACKUP_REASONING_EFFORT=low`: a reasoning model, so it needs the low
+  effort and a completion allowance of 400 tokens to leave room for the reasoning; slower and a little less accurate.
+- `GEMINI_MODEL=gemini-3.5-flash-lite` (last resort): slowest of the three (mean first token about 1.3 s, p95 about 5 s),
+  and it answered as accurately as the others.
+- `openai/gpt-oss-20b` was screened on three questions only (1 to 2 s each, one wrong "UNKNOWN") and not evaluated fully.
+- `ASK_MAX_NEW_TOKENS=400` for all three; the token budgets count that allowance in their estimate, so they are
+  conservative.

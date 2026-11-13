@@ -6,6 +6,11 @@
   "mode": "spawned local server",
   "corpus_version": "2026-11-13-e1a20a7d",
   "n_questions": 86,
+  "models": {
+   "GROQ_MODEL": "qwen/qwen3.8-27b",
+   "GROQ_MODEL_BACKUP": "openai/gpt-oss-120b",
+   "GEMINI_MODEL": "gemini-3.5-flash-lite"
+  },
   "server_env": {
    "ASK_PROVIDER_ORDER": "groq"
   }
@@ -37,18 +42,18 @@
   "n": 86
  },
  "first_token_ms": {
-  "mean_all": 281.93447411745984,
-  "p95_all": 614.8512799991291,
-  "mean_generated": 434.74836181809553,
-  "p95_generated": 651.5323899999202,
+  "mean_all": 286.00050117632185,
+  "p95_all": 627.8172799989987,
+  "mean_generated": 441.03222181815494,
+  "p95_generated": 689.7607899998546,
   "n_all": 85,
   "n_generated": 55,
   "first_request_excluded": true
  },
  "cold_start": {
-  "ready_ms": 1836.22529999775,
-  "first_ask_ms": 645.6785000009404,
-  "first_ask_first_token_ms": 639.5821000005526
+  "ready_ms": 1823.6953999985417,
+  "first_ask_ms": 540.5462000016996,
+  "first_ask_first_token_ms": 536.6715000018303
  },
  "probes": {
   "rate_limit": {
@@ -99,11 +104,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 628.3495999996376,
-   "total_ms": 633.1495999984327,
+   "first_token_ms": 536.6715000018303,
+   "total_ms": 540.5462000016996,
    "provider": "groq",
-   "tokens_prompt_completion": "713/68",
-   "answer": "Aditya is currently an **LLM Post-Training Intern** at **Ethara AI** in **Gurugram**. He has held this position from **Feb 2026** to present, focusing on supervised fine-tuning, RLHF workflows, prompt design, and evaluation.\n\nAsk me about his university",
+   "tokens_prompt_completion": "713/57",
+   "answer": "Aditya is currently an **LLM Post-Training Intern** at **Ethara AI** in **Gurugram**. He has held this position from **Feb 2026** to present.\n\nAsk me about his specific responsibilities at Ethara AI.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -630,11 +635,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 315.9945000006701,
-   "total_ms": 320.7466000021668,
+   "first_token_ms": 587.2912000013457,
+   "total_ms": 593.1163999994169,
    "provider": "groq",
-   "tokens_prompt_completion": "889/58",
-   "answer": "The passages do not state the number of LLMs or prompts in the RouterBench data. They only mention that the dataset is approximately **100 MB** and is downloaded as `routerbench_slim.parquet`.\n\nAsk me about the cost savings of ModelRouter.",
+   "tokens_prompt_completion": "889/57",
+   "answer": "The passages do not state the number of LLMs or prompts in the RouterBench data. They only mention that the dataset is approximately 100 MB and is downloaded as `routerbench_slim.parquet`.\n\nAsk me about the cost savings of ModelRouter.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1273,11 +1278,11 @@
    "status": 200,
    "stage": "model",
    "reason": "",
-   "first_token_ms": 639.5821000005526,
-   "total_ms": 645.6785000009404,
+   "first_token_ms": 713.8977000031446,
+   "total_ms": 721.4392000023508,
    "provider": "groq",
-   "tokens_prompt_completion": "775/88",
-   "answer": "He lists **[PLATFORM] Team & Enterprise Administration** (SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls) and **MCP & Connector Integrations** (Permissions, Data Flows, Privacy, Logging, Rollback, Support Models). He also lists **Enterprise SaaS Platform Ownership** and **Platform operations** including Governance, Security, and Vendor Management. Ask me about his certifications.",
+   "tokens_prompt_completion": "775/73",
+   "answer": "He lists **[PLATFORM] Team & Enterprise Administration** (SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls), **MCP & Connector Integrations** (Permissions, Data Flows, Privacy, Logging, Rollback, Support Models), and **Enterprise SaaS Platform Ownership**. Ask me about his platform operations skills.",
    "fallback": null,
    "grounded": true,
    "sources": [

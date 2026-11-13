@@ -6,3 +6,4 @@ __pycache__/
 *.pyc
 private/platform_name.txt
 private/index/dense.npy
+.env.example

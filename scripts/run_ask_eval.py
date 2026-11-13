@@ -526,6 +526,11 @@ def main() -> int:
             "mode": "spawned local server" if args.spawn else "base url",
             "corpus_version": health.get("corpus_version"),
             "n_questions": len(results),
+            "models": {
+                k: os.environ[k]
+                for k in ("GROQ_MODEL", "GROQ_MODEL_BACKUP", "GEMINI_MODEL")
+                if os.environ.get(k)
+            },
             "server_env": {
                 k: v
                 for k, v in env.items()

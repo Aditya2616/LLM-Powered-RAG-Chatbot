@@ -328,7 +328,9 @@ _FOLLOW_UP = re.compile(
 )
 
 
-_LIST_MARKER = re.compile(r"(?m)^\s*(?:[-*]\s*)?\d{1,2}[.)]\s+")
+_LIST_MARKER = re.compile(
+    r"(?m)^\s*(?:[-*]\s*)?\d{1,2}[.)]\s+|(?<![\w.,])\(?[1-9]\)(?=\s)|(?<=[\s:;(])\*{0,2}[1-9]\.\*{0,2}\s+(?=[A-Z*])"
+)
 
 
 def numbers_in(text: str) -> set[str]:

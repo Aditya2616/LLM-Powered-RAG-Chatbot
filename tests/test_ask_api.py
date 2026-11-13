@@ -426,3 +426,10 @@ def test_adjacent_bold_runs_are_merged(index):
     client, _ = app_with(index, [reply])
     done, _ = done_of(ask(client))
     assert "**Northwind Labs**" in done["answer"] and "**Data Engineer**" in done["answer"]
+
+
+def test_multi_number_citation_markers_are_removed(index):
+    reply = "Sam works at Northwind Labs [1, 2] as a Data Engineer [1-3] since Mar 2024 [1]. Ask me about his projects."
+    client, _ = app_with(index, [reply])
+    done, _ = done_of(ask(client))
+    assert done["fallback"] is None and "[" not in done["answer"]

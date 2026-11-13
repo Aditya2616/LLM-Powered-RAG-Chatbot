@@ -165,7 +165,9 @@ class AskPipeline:
         )  # raises Unavailable -> 503 in the API
         t_gen = time.perf_counter()
         raw = re.sub(r"(?im)^\s*follow-?up( suggestion)?s?\s*:\s*", "", gen.text.strip()).strip()
-        raw = re.sub(r"\s*(【[^】]*】|\[\d{1,2}\])", "", raw)  # citation markers some models add
+        raw = re.sub(
+            r"\s*(【[^】]*】|\[\d{1,2}(?:\s*[,;–-]\s*\d{1,2})*\])", "", raw
+        )  # citation markers some models add
         timings = {
             "retrieve_ms": round((t_retrieve - t0) * 1000, 1),
             "generate_ms": round((t_gen - t_retrieve) * 1000, 1),

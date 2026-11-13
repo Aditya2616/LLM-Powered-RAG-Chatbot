@@ -1,10 +1,12 @@
 {
  "meta": {
   "tag": "local-qwen1.5b",
+  "note": "",
   "date": "2026-11-13",
   "mode": "spawned local server",
-  "corpus_version": "2026-11-13-eceee41c",
-  "n_questions": 84,
+  "corpus_version": "2026-11-13-e1a20a7d",
+  "n_questions": 86,
+  "models": {},
   "server_env": {
    "ASK_PROVIDER_ORDER": "local",
    "ASK_LOCAL_MODEL": "Qwen/Qwen2.5-1.5B-Instruct",
@@ -13,8 +15,8 @@
  },
  "groups": {
   "factual": {
-   "passed": 38,
-   "n": 44
+   "passed": 40,
+   "n": 46
   },
   "unpublished": {
    "passed": 15,
@@ -34,22 +36,22 @@
   }
  },
  "total": {
-  "passed": 78,
-  "n": 84
+  "passed": 80,
+  "n": 86
  },
  "first_token_ms": {
-  "mean_all": 7546.863059036125,
-  "p95_all": 23069.456549998715,
-  "mean_generated": 11818.103754716882,
-  "p95_generated": 24071.10127999913,
-  "n_all": 83,
-  "n_generated": 53,
+  "mean_all": 7860.688423529406,
+  "p95_all": 23520.50334000014,
+  "mean_generated": 12147.788747272649,
+  "p95_generated": 25512.24646999762,
+  "n_all": 85,
+  "n_generated": 55,
   "first_request_excluded": true
  },
  "cold_start": {
-  "ready_ms": 1745.9892999977455,
-  "first_ask_ms": 17948.376799999096,
-  "first_ask_first_token_ms": 17946.100499997556
+  "ready_ms": 1837.8181000007316,
+  "first_ask_ms": 30283.04620000199,
+  "first_ask_first_token_ms": 30274.42290000181
  },
  "probes": {
   "rate_limit": {
@@ -1119,6 +1121,60 @@
     {
      "title": "EvalBench README",
      "url": "https://github.com/Aditya2616/EvalBench"
+    }
+   ]
+  },
+  {
+   "id": "f45",
+   "group": "factual",
+   "question": "Does he have identity and access management skills?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 30274.42290000181,
+   "total_ms": 30283.04620000199,
+   "provider": "local",
+   "tokens_prompt_completion": "0/0",
+   "answer": "Yes, Aditya Jain has identity and access management skills. He mentions having \"Microsoft Entra ID, SSO, SAML, SCIM, Conditional Access, Group-Based Access, Privileged Roles,\" among others, indicating proficiency in identity and access management.\nAsk me about Ask me about the specific tools and technologies used in identity and access management.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "ModelRouter README",
+     "url": "https://github.com/Aditya2616/ModelRouter"
+    }
+   ]
+  },
+  {
+   "id": "f46",
+   "group": "factual",
+   "question": "What enterprise administration skills does he list?",
+   "pass": true,
+   "failures": [],
+   "status": 200,
+   "stage": "model",
+   "reason": "",
+   "first_token_ms": 11494.459199999255,
+   "total_ms": 11501.031100000546,
+   "provider": "local",
+   "tokens_prompt_completion": "0/0",
+   "answer": "Enterprise administration skills include SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls, MCP & Connector Integrations.\n\nAsk me about Ask me about the specific roles within the [PLATFORM] team mentioned in the portfolio.",
+   "fallback": null,
+   "grounded": true,
+   "sources": [
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },

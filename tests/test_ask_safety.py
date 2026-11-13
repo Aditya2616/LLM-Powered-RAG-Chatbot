@@ -375,3 +375,27 @@ def test_list_numbering_possessives_and_digit_prefixed_names_are_not_inventions(
     assert verify_output("He uses Hugging Face's Transformers.", passages).ok
     assert verify_output("He held a role at 15FORTEEN in Delhi.", passages).ok
     assert not verify_output("The tools are 2 in number: 7 of them.", passages).ok
+
+
+def test_inline_list_markers_are_not_counted_as_numbers():
+    passages = [
+        "Certifications. Machine Learning Specialization, Prompt Engineering for Developers and Technology Job Simulation."
+    ]
+    assert verify_output(
+        "He lists (1) Machine Learning Specialization, (2) Prompt Engineering for Developers and 3) Technology Job Simulation.",
+        passages,
+    ).ok
+    assert not verify_output("He lists 12 certifications.", passages).ok
+
+
+def test_inline_numbered_lists_are_not_counted_as_numbers():
+    passages = [
+        "Certifications. Machine Learning Specialization, Prompt Engineering for Developers, Technology Job Simulation."
+    ]
+    text = "He holds: 1. Machine Learning Specialization 2. Prompt Engineering for Developers 3. Technology Job Simulation."
+    assert verify_output(text, passages).ok
+    assert verify_output(
+        "He holds **1.** Machine Learning Specialization, **2.** Prompt Engineering for Developers.",
+        passages,
+    ).ok
+    assert not verify_output("He holds 7 certifications.", passages).ok
