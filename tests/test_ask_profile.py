@@ -219,3 +219,49 @@ def test_a_whole_table_competes_only_for_superlative_questions_about_its_project
     assert any(h.chunk.get("kind") == "table" for h in best)
     plain = ix.search("What does EvalBench compare?", 3)
     assert all(h.chunk.get("kind") != "table" for h in plain)
+
+
+# ------------------------------------------------------------------ composite table cells
+def test_composite_cells_become_named_values():
+    from askaditya.build import expand_cell
+
+    assert (
+        expand_cell("Action P / R / F1", "0.93 / 0.84 / 0.89")
+        == "Action precision 0.93; Action recall 0.84; Action F1 0.89"
+    )
+    assert (
+        expand_cell("Owners ok / wrong / none", "17 / 0 / 9")
+        == "Owners ok 17; Owners wrong 0; Owners none 9"
+    )
+    assert (
+        expand_cell("CPT 90% / 95% / 99%", "24% / 42% / 76%")
+        == "CPT 90% 24%; CPT 95% 42%; CPT 99% 76%"
+    )
+    assert (
+        expand_cell("First token mean / p95", "480 ms / 770 ms")
+        == "First token mean 480 ms; First token p95 770 ms"
+    )
+
+
+def test_cells_whose_parts_do_not_match_are_left_alone():
+    from askaditya.build import expand_cell, tables_to_rows
+
+    assert expand_cell("Action P / R / F1", "0.93 / 0.84") is None
+    assert expand_cell("Rate", "1 / 2") is None
+    assert expand_cell("A / long header here", "1 / 2") is None
+    md = "| Set | A / B / C |\n|---|---|\n| x | 1 / 2 |\n"
+    assert tables_to_rows(md).strip() == "- Set: x; A / B / C: 1 / 2"
+
+
+def test_a_composite_row_is_written_with_names_and_the_default_row_is_marked():
+    from askaditya.build import tables_to_rows
+
+    md = (
+        "| Config | Held-out | Action P / R / F1 |\n|---|---|---|\n"
+        "| rules (default) | 9 meetings | 0.93 / 0.84 / 0.89 |\n"
+        "| rules + verifier | 9 meetings | 0.90 / 0.80 / 0.85 |\n"
+    )
+    out = tables_to_rows(md).split("\n")
+    assert out[0].startswith("- (default / headline row) Config: rules (default)")
+    assert "Action P / R / F1: Action precision 0.93; Action recall 0.84; Action F1 0.89" in out[0]
+    assert not out[1].startswith("- (default") and "Action F1 0.85" in out[1]

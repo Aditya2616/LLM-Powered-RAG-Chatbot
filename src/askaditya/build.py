@@ -16,6 +16,7 @@ import json
 import os
 import re
 from dataclasses import dataclass
+from itertools import zip_longest
 from pathlib import Path
 
 PLACEHOLDER = "[ASSISTANT-PLATFORM]"
@@ -86,6 +87,34 @@ def _cells(line: str) -> list[str]:
     return [c.strip() for c in line.strip().strip("|").split("|")]
 
 
+_ONE_LETTER = {"P": "precision", "R": "recall"}
+
+
+def expand_cell(head: str, value: str) -> str | None:
+    """A composite cell made unambiguous: header ``Action P / R / F1`` over value ``0.93 / 0.84 / 0.89`` becomes
+    ``Action precision 0.93; Action recall 0.84; Action F1 0.89``. Only when the header and the value split on
+    `` / `` into the same number of parts and every part after the first header part is a single word (so the
+    first part carries the shared prefix, as in ``Owners ok / wrong / none`` or ``CPT 90% / 95% / 99%``);
+    anything else returns None and stays as it was. P and R are spelled out only when both are present."""
+    hp = [p.strip() for p in head.split(" / ")]
+    vp = [p.strip() for p in value.split(" / ")]
+    if len(hp) < 2 or len(hp) != len(vp) or any(not p or " " in p for p in hp[1:]):
+        return None
+    first = hp[0].split()
+    names = [first[-1], *hp[1:]]
+    prefix = " ".join(first[:-1])
+    if {"P", "R"} <= set(names):
+        names = [_ONE_LETTER.get(n, n) for n in names]
+    return "; ".join(
+        f"{prefix + ' ' if prefix else ''}{n} {v}" for n, v in zip(names, vp, strict=True)
+    )
+
+
+def _headline(label: str) -> bool:
+    """The row a README marks as its default or headline: ``(default)`` in the label, or a bold label."""
+    return "(default)" in label.lower() or (label.startswith("**") and label.endswith("**"))
+
+
 def tables_to_rows(md: str) -> str:
     """Rewrite every Markdown table so that each row carries its own column names, as one bullet:
     ``| qwen | 44.6% |`` under ``| Model | Pass rate |`` becomes ``- Model: qwen; Pass rate: 44.6%``.
@@ -107,12 +136,13 @@ def tables_to_rows(md: str) -> str:
             while i < len(lines) and lines[i].lstrip().startswith("|"):
                 row = _cells(lines[i])
                 pairs = [
-                    f"{h}: {c}" if h else c
+                    f"{h}: {expand_cell(h, c) or c}" if h else c
                     for h, c in zip(head, row, strict=False)
                     if c and c != "-"
                 ]
                 if pairs:
-                    out.append("- " + "; ".join(pairs))
+                    mark = "(default / headline row) " if row and _headline(row[0]) else ""
+                    out.append("- " + mark + "; ".join(pairs))
                 i += 1
             continue
         out.append(line)
@@ -152,7 +182,14 @@ def table_sections(md: str, doc_title: str) -> list[tuple[str, str]]:
                 i += 1
             heading = " > ".join(path[k] for k in sorted(path)) or doc_title
             text = f"Table under {heading.split(' > ')[-1]}. Columns: " + " | ".join(head) + "\n"
-            text += "\n".join(" | ".join(r) for r in rows)
+            text += "\n".join(
+                ("(default / headline row) " if r and _headline(r[0]) else "")
+                + " | ".join(
+                    (expand_cell(h, c) or c) if h else c
+                    for h, c in zip_longest(head, r, fillvalue="")
+                )
+                for r in rows
+            )
             text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
             if 2 <= len(rows) <= 14 and len(text) <= MAX_TABLE_CHARS:
                 out.append((heading, text))
