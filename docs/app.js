@@ -77,7 +77,7 @@ class Stage {
     this.tweens.filter((t) => t.done).forEach((t) => t.res());
     this.tweens = this.tweens.filter((t) => !t.done);
     this.draw(now);
-    if (this.tweens.length || (this.v.q > 0.99 && this.hits.size)) this.kick();
+    if (this.tweens.length || (!REDUCED && this.v.q > 0.99 && this.hits.size)) this.kick();
   }
   draw(now) {
     const { ctx, w, h, v } = this;
@@ -224,7 +224,7 @@ function highlight(text, words, cls) {
   });
 }
 
-function renderChunks(sources, question, answer, abstained) {
+function renderChunks(sources, question, answer, abstained, instant = false) {
   const aw = abstained ? contentWords(question) : contentWords(answer || '');
   const cls = abstained ? 'u' : 'mark';
   const maxBm = Math.max(1e-6, ...sources.map((s) => s.bm25));
@@ -239,7 +239,7 @@ function renderChunks(sources, question, answer, abstained) {
       <div>BM25 <b>${s.bm25.toFixed(2)}</b><div class="bar"><i style="--w:${pct(s.bm25 / maxBm)}"></i></div></div>
       <div>rank score <b>${s.score.toFixed(3)}</b><div class="bar"><i style="--w:${pct(s.score / Math.max(...sources.map((x) => x.score), 1e-6))}"></i></div></div></div>`;
     host.appendChild(el);
-    setTimeout(() => el.classList.add('on'), REDUCED ? 0 : 120 + i * 140);
+    if (instant || REDUCED) el.classList.add('on'); else setTimeout(() => el.classList.add('on'), 120 + i * 140);
   });
 }
 
@@ -259,7 +259,7 @@ function finishAnswer(done, q) {
     $('#cites').innerHTML = done.sources.map((s, i) =>
       `<button type="button" class="cite${(s.support ?? 0) >= 0.5 ? '' : ' weak'}" data-i="${i + 1}">[${i + 1}] ${esc(s.chunk_id)} <span>${Math.round((s.support ?? 0) * 100)}%</span></button>`).join('');
     $('#why').textContent = `Percentages are the share of the answer's content words found in that chunk (best ${Math.round(best * 100)}%).`;
-    renderChunks(done.sources, state.current?.question || '', done.answer, false);
+    renderChunks(done.sources, state.current?.question || '', done.answer, false, true);
   }
   $('#timings').innerHTML = `<dt>retrieve</dt><dd>${fmt(t.retrieve_ms, 0)} ms</dd><dt>generate</dt><dd>${t.generate_ms ? fmt(t.generate_ms, 0) + ' ms' : 'not called'}</dd><dt>retriever</dt><dd>${esc(done.retriever)}</dd><dt>model</dt><dd>${esc(done.model.llm.replace('local:', ''))}</dd>`;
 }
@@ -301,9 +301,6 @@ async function showQuery(q, withAnswer) {
     ans.innerHTML = esc(text) + '<span class="caret"></span>';
   }
   finishAnswer(q.done, q);
-  if (!q.done.abstained) renderChunks(q.done.sources, q.question, q.done.answer, false);
-  else renderChunks(q.done.sources, q.question, '', true);
-  document.querySelectorAll('.chunk').forEach((c) => c.classList.add('on'));
 }
 
 function buildChips() {
@@ -388,7 +385,7 @@ async function askLive(question) {
         renderChunks(data.sources, question, '', true); markRail(4); setCaption(`Retrieved ${data.sources.length} chunks in ${fmt(data.retrieve_ms)} ms. Generating...`);
         $('#stateChip').textContent = 'generating';
       } else if (name === 'token') { text += data.text; $('#ans').innerHTML = esc(text) + '<span class="caret"></span>'; }
-      else if (name === 'done') { q.done = data; finishAnswer(data, q); renderChunks(data.sources, question, data.abstained ? '' : data.answer, data.abstained); document.querySelectorAll('.chunk').forEach((c) => c.classList.add('on')); setCaption(data.abstained ? 'Declined.' : 'Answered from the retrieved chunks.'); }
+      else if (name === 'done') { q.done = data; finishAnswer(data, q); if (data.abstained) renderChunks(data.sources, question, '', true, true); setCaption(data.abstained ? 'Declined.' : 'Answered from the retrieved chunks.'); }
       else if (name === 'error') { $('#why').textContent = data.detail; $('#why').className = 'why mono no'; $('#stateChip').textContent = 'error'; }
     }
   }
@@ -421,7 +418,7 @@ async function main() {
   const m = demo.meta;
   $('#modePill').title = `Recorded ${m.date} on ${m.device}; ${m.llm.model}; ${m.embedder.model}`;
   buildChips(); renderResults();
-  $('#replay').addEventListener('click', () => { state.current && 0; playIntro(); });
+  $('#replay').addEventListener('click', () => playIntro());
   await playIntro();
   if (!live) await pickQuery(0);
 }
