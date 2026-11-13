@@ -410,3 +410,19 @@ def test_the_test_hook_exposes_the_stage_and_reason(index):
         and "name" in r.headers["x-ask-reason"]
         or "support" in r.headers["x-ask-reason"]
     )
+
+
+def test_citation_markers_and_narrow_spaces_from_some_models_are_tolerated(index):
+    reply = "Sam works at Northwind Labs as a Data Engineer【1】 since Mar 2024 [2]. Ask me about his projects."
+    client, _ = app_with(index, [reply])
+    done, _ = done_of(ask(client))
+    assert done["fallback"] is None and "【" not in done["answer"] and "[2]" not in done["answer"]
+
+
+def test_adjacent_bold_runs_are_merged(index):
+    reply = (
+        "Sam works at **Northwind** **Labs** as a **Data** **Engineer**. Ask me about his projects."
+    )
+    client, _ = app_with(index, [reply])
+    done, _ = done_of(ask(client))
+    assert "**Northwind Labs**" in done["answer"] and "**Data Engineer**" in done["answer"]
