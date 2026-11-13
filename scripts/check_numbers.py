@@ -290,6 +290,27 @@ def claims(d: dict) -> list[tuple[str, bool]]:
         ("every generation file covers the same questions as the retrieval file",
          all(g["meta"]["questions"] == d["retrieval"]["meta"]["questions"] for g in d["gen"].values())),
     ]
+    g05 = d["gen"]["qwen2.5-0.5b-instruct_c500"]["configs"]
+    g15 = d["gen"]["qwen2.5-1.5b-instruct_c500"]["configs"]
+    g10 = d["gen"]["qwen2.5-0.5b-instruct_c1000"]["configs"]
+    ex = d["gen"]["extractive"]["configs"]["extractive"]["summary"]
+    ab = lambda g, n: g[n]["summary"]["abstained_on_unanswerable"]["rate"]  # noqa: E731
+    ok = lambda g, n: g[n]["summary"]["correct_on_answerable"]["rate"]  # noqa: E731
+    out += [
+        ("worked examples in the prompt lower the abstention rate on unanswerable questions for both models",
+         ab(g05, "rag_few_shot") < ab(g05, "rag") and ab(g15, "rag_few_shot") < ab(g15, "rag")),
+        ("the gate raises abstention on unanswerable questions but lowers correct answers, for both models",
+         all(ab(g, "rag_gate") > ab(g, "rag") and ok(g, "rag_gate") < ok(g, "rag") for g in (g05, g15))),
+        ("the reranker raises MRR at every chunk size, but lowers Recall@3 at 500 characters",
+         all(by[(s, "hybrid+rerank")]["mrr"] > by[(s, "hybrid")]["mrr"] for s in sizes)
+         and by[(500, "hybrid+rerank")]["recall"]["3"] < by[(500, "hybrid")]["recall"]["3"]),
+        ("the reranker does not raise 0.5B answer accuracy at 500 characters", ok(g05, "rag_rerank") <= ok(g05, "rag")),
+        ("the 1.5B model answers more correctly than the 0.5B model", ok(g15, "rag") > ok(g05, "rag")),
+        ("neither model abstains on more than 3 of 4 unanswerable questions", ab(g05, "rag") < 0.75 and ab(g15, "rag") < 0.75),
+        ("500-character chunks give the 0.5B model more correct answers than 1000-character chunks", ok(g05, "rag") > ok(g10, "rag")),
+        ("the 0.5B model beats the extractive baseline on correct answers", ok(g05, "rag") > ex["correct_on_answerable"]["rate"]),
+        ("the 0.5B model without retrieval answers almost nothing correctly (under 5%)", g05["closed_book"]["summary"]["correct_on_answerable"]["rate"] < 0.05),
+    ]
     demo = d["demo"]["meta"]
     corpus = d["retrieval"]["meta"]["corpus"]
     out.append(("the demo's corpus counts match the corpus on disk",

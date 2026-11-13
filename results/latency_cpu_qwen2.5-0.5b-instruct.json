@@ -1,0 +1,181 @@
+{
+ "meta": {
+  "date": "2026-11-13",
+  "device": "cpu",
+  "versions": {
+   "python": "3.13.15",
+   "platform": "Windows-11-10.0.26300-SP0",
+   "torch": "2.11.0+cpu",
+   "transformers": "5.7.0",
+   "sentence_transformers": "5.4.1",
+   "faiss": "1.13.2",
+   "langchain_core": "1.3.2",
+   "numpy": "2.4.4"
+  },
+  "corpus": {
+   "documents": 11,
+   "words": 5403,
+   "characters": 30830
+  },
+  "questions": {
+   "total": 100,
+   "answerable": 75,
+   "unanswerable": 25,
+   "direct": 42,
+   "paraphrase": 33,
+   "near_miss": 17,
+   "off_topic": 8
+  },
+  "llm": {
+   "model": "Qwen/Qwen2.5-0.5B-Instruct",
+   "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+   "dtype": "float32"
+  },
+  "embedder": {
+   "model": "sentence-transformers/all-MiniLM-L6-v2",
+   "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+  },
+  "retrieval": {
+   "chunk_size": 500,
+   "retriever": "hybrid",
+   "k": 4
+  },
+  "torch_threads": 4,
+  "logical_cpus": 12,
+  "cpu_load_percent_before": 7.0,
+  "cpu_load_percent_after": 14.0
+ },
+ "queries": 14,
+ "startup_seconds": {
+  "embedder_load": 0.4404733000001215,
+  "index_build": 1.6824233000006643,
+  "llm_load_and_first_call": 1.2068167999996149,
+  "chunks": 90
+ },
+ "retrieve_ms": {
+  "p50": 9.55,
+  "p95": 10.979999999999999
+ },
+ "generate_ms": {
+  "p50": 3329.5,
+  "p95": 4343.51
+ },
+ "total_ms": {
+  "p50": 3337.8028000001905,
+  "p95": 4354.187080000156
+ },
+ "rows": [
+  {
+   "id": "a01",
+   "answerable": true,
+   "retrieve_ms": 8.1,
+   "generate_ms": 4194.3,
+   "total_ms": 4203.229199999441,
+   "answer_tokens": 17
+  },
+  {
+   "id": "a09",
+   "answerable": true,
+   "retrieve_ms": 7.6,
+   "generate_ms": 3209.4,
+   "total_ms": 3217.461100000037,
+   "answer_tokens": 4
+  },
+  {
+   "id": "a17",
+   "answerable": true,
+   "retrieve_ms": 10.0,
+   "generate_ms": 4281.7,
+   "total_ms": 4292.411800000082,
+   "answer_tokens": 23
+  },
+  {
+   "id": "a25",
+   "answerable": true,
+   "retrieve_ms": 9.5,
+   "generate_ms": 3979.8,
+   "total_ms": 3990.4207999998107,
+   "answer_tokens": 13
+  },
+  {
+   "id": "a33",
+   "answerable": true,
+   "retrieve_ms": 9.7,
+   "generate_ms": 4458.3,
+   "total_ms": 4468.912600000294,
+   "answer_tokens": 26
+  },
+  {
+   "id": "a41",
+   "answerable": true,
+   "retrieve_ms": 9.7,
+   "generate_ms": 2820.8,
+   "total_ms": 2830.9407000006104,
+   "answer_tokens": 4
+  },
+  {
+   "id": "a49",
+   "answerable": true,
+   "retrieve_ms": 8.7,
+   "generate_ms": 2714.2,
+   "total_ms": 2723.31209999993,
+   "answer_tokens": 4
+  },
+  {
+   "id": "a57",
+   "answerable": true,
+   "retrieve_ms": 7.8,
+   "generate_ms": 3449.6,
+   "total_ms": 3458.144500000344,
+   "answer_tokens": 8
+  },
+  {
+   "id": "u01",
+   "answerable": false,
+   "retrieve_ms": 10.3,
+   "generate_ms": 3053.6,
+   "total_ms": 3064.388400000098,
+   "answer_tokens": 4
+  },
+  {
+   "id": "u05",
+   "answerable": false,
+   "retrieve_ms": 10.7,
+   "generate_ms": 3462.1,
+   "total_ms": 3473.612300000241,
+   "answer_tokens": 11
+  },
+  {
+   "id": "u09",
+   "answerable": false,
+   "retrieve_ms": 9.4,
+   "generate_ms": 3161.1,
+   "total_ms": 3170.968599999469,
+   "answer_tokens": 4
+  },
+  {
+   "id": "u13",
+   "answerable": false,
+   "retrieve_ms": 9.6,
+   "generate_ms": 2838.4,
+   "total_ms": 2848.465099999885,
+   "answer_tokens": 4
+  },
+  {
+   "id": "u17",
+   "answerable": false,
+   "retrieve_ms": 11.5,
+   "generate_ms": 4278.7,
+   "total_ms": 4291.087399999924,
+   "answer_tokens": 19
+  },
+  {
+   "id": "u21",
+   "answerable": false,
+   "retrieve_ms": 9.3,
+   "generate_ms": 3168.7,
+   "total_ms": 3178.4732000005533,
+   "answer_tokens": 4
+  }
+ ]
+}
