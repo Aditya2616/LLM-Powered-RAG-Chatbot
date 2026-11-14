@@ -2,6 +2,8 @@
 
 [![ci](https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot/actions/workflows/ci.yml) [![licence: MIT](https://img.shields.io/badge/licence-MIT-d7ff3f.svg)](LICENSE)
 
+By [Aditya Jain](https://adityajain16.vercel.app) and [Sneha Singh](https://github.com/snehasingh2608).
+
 <!-- BEGIN intro -->
 Question answering over your own documents, with the answer tied to the text it came from. It ingests PDF, TXT and DOCX files, splits them into chunks, embeds them into a FAISS index, retrieves the best chunks for a question (dense, BM25 or a fusion of both), and instructs a language model to answer from those chunks only and to say "I don't know" when they do not contain the answer (measured below: it does so on 56.0% to 72.0% of unanswerable questions, depending on the model). Python, LangChain, FAISS, FastAPI, Streamlit and Docker. It runs with no API key: the default embedder and generator are small open models that run on a laptop.
 <!-- END intro -->
@@ -469,4 +471,9 @@ Short version; the longer notes are in `docs/notes/DESIGN.md`.
 
 MIT, copyright Aditya Jain (see `LICENSE`). Models: `sentence-transformers/all-MiniLM-L6-v2`, `Qwen/Qwen2.5-0.5B-Instruct`, `Qwen/Qwen2.5-1.5B-Instruct` and `cross-encoder/ms-marco-MiniLM-L-6-v2`, all Apache-2.0 per their model cards; they are downloaded, not bundled. The corpus and questions are my own work, covered by the same MIT licence.
 
-Built by [Aditya Jain](https://adityajain16.vercel.app).
+## Authors
+
+- [Aditya Jain](https://github.com/Aditya2616)
+- [Sneha Singh](https://github.com/snehasingh2608)
+
+Built by [Aditya Jain](https://adityajain16.vercel.app) and [Sneha Singh](https://github.com/snehasingh2608).
