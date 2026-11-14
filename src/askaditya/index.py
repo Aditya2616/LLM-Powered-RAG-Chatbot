@@ -77,6 +77,19 @@ def named_project(query: str) -> str | None:
     return None
 
 
+_ASSISTANT_TALK = re.compile(
+    r"ask[- ]?aditya|ask my ai|portfolio (assistant|chatbot)|this (assistant|chatbot|bot)|the (assistant|chatbot)\b"
+    r"|placeholder|index build|rebuild\w* the index|private corpus|corpus version",
+    re.I,
+)
+
+
+def about_assistant(query: str) -> bool:
+    """True when a question is about the chatbot project or the assistant itself; only then may the README
+    sections that describe the assistant (marked ``meta`` in the index) be retrieved."""
+    return named_project(query) == "LLM-Powered-RAG-Chatbot" or bool(_ASSISTANT_TALK.search(query))
+
+
 _ANAPHORA = re.compile(
     r"\b(it|its|they|them|their|this|that|those|these|there|the same|too|also|and)\b|^(and|what about|how about)\b",
     re.I,
@@ -141,6 +154,7 @@ class AskIndex:
         # compete for "best / highest / lowest" questions about a named project (see ``search``)
         self._vocab: set[str] | None = None
         self._main_ids = [i for i, c in enumerate(chunks) if c.get("kind") != "table"]
+        self._meta_ids = [i for i, c in enumerate(chunks) if c.get("meta")]
         self._table_ids = [i for i, c in enumerate(chunks) if c.get("kind") == "table"]
         self._bm25 = BM25Index(
             [self._search_text(chunks[i]) for i in self._main_ids], tokenizer=ask_tokens
@@ -199,6 +213,11 @@ class AskIndex:
         scoring_query = expand_query(query) if heuristics else query
         scores = np.zeros(len(self.chunks), dtype=np.float32)
         scores[self._main_ids] = self._bm25.scores(scoring_query)
+        if not about_assistant(query):
+            for i in self._meta_ids:
+                scores[i] = (
+                    0.0  # text about the assistant itself never answers a question about him
+                )
         if proj and self._tables is not None and _SUPERLATIVE.search(query):
             table_scores = self._tables.scores(scoring_query)
             for j, i in enumerate(self._table_ids):

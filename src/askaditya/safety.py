@@ -191,6 +191,19 @@ _THIRD = re.compile(
     r"\b(his|aditya'?s|rag chatbot'?s?|evalbench'?s?|agentflow'?s?|promptlab'?s?|sft[- ]?forge'?s?|diffuselab'?s?|visionlens'?s?|voicescribe'?s?|sentinel'?s?|modelrouter'?s?)\b",
     re.I,
 )
+# A question that asks about him or a project in the third person ("does he...", "can it...", "did the study...")
+# and whose only trigger is a phrase that is also ordinary work vocabulary is a skills or project question.
+_ASKS_ABOUT = re.compile(
+    r"^\W*(?:does|did|has|have|had|can|could|is|was|were|will|would|what|which|how|when|where|who|why|do)\b"
+    r"(?:\W+\w+){0,5}?\W+(?:he|aditya|his|him|it|its|they|the (?:evaluation|benchmark|dataset|suite|project|repo|tool|"
+    r"pipeline|model|rubric|test|study|readme|agent|planner)|evalbench|agentflow|promptlab|sft[- ]?forge|diffuselab|"
+    r"visionlens|voicescribe|sentinel|modelrouter)\b",
+    re.I,
+)
+_BENIGN_PHRASE = re.compile(
+    r"act as|role-?play|roleplay|system (?:prompts?|messages?)|developer (?:messages?|prompts?|instructions?)",
+    re.I,
+)
 _LONG_TOKEN = re.compile(r"(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/]{24,}={0,2}(?![A-Za-z0-9+/])")
 
 
@@ -223,12 +236,17 @@ def screen_injection(text: str) -> str | None:
     spaced = re.sub(r"(?<=\b\w) (?=\w\b)", "", plain)  # "i g n o r e" -> "ignore"
     candidates.append(spaced)
     third = bool(_THIRD.search(plain)) and not _SECOND.search(plain)
+    about_him = bool(_ASKS_ABOUT.search(plain)) and not _SECOND.search(plain)
     for rule, pattern in _INJECTION:
         if third and rule == "reveal":
             continue  # about a project's own prompt or rules, not this assistant's
         for c in candidates:
-            if re.search(pattern, c, flags=re.I | re.M):
-                return rule
+            m = re.search(pattern, c, flags=re.I | re.M)
+            if not m:
+                continue
+            if about_him and _BENIGN_PHRASE.fullmatch(m.group(0).strip()):
+                continue  # "does he have experience designing a system prompt?", "can he act as a team lead?"
+            return rule
     if (
         len(re.findall(r"\b\w\b", plain)) >= 6
     ):  # letters spread out one by one: squash them and look again
@@ -305,7 +323,7 @@ _TOPICS = [
     ),
     (
         "grades",
-        r"\b(cgpa|gpa|grades?|marks|percentage|percentile|academic score|class rank|rank in (his )?(class|college)|scored in (his )?(exams?|college|semester)|semester (results?|scores?))\b",
+        r"\b(cgpa|gpa|grades|(his|final|overall|what|which|good|high|college|school) grade|marks|percentage|percentile|academic score|class rank|rank in (his )?(class|college)|scored in (his )?(exams?|college|semester)|semester (results?|scores?))\b",
     ),
     (
         "start",
@@ -325,7 +343,7 @@ _TOPICS = [
     ),
     (
         "paper",
-        r"\b(research paper|his paper|publications?|journal|conference paper|arxiv|co-?authors?|paper'?s? (title|topic|abstract|venue|result)|what is (his|the) (paper|research) (about|on))\b",
+        r"\b(research paper|his paper|publications?|journal|conference paper|arxiv|(paper|publication|research)\W+(\w+\W+){0,3}co-?authors?|paper'?s? (title|topic|abstract|venue|result)|what is (his|the) (paper|research) (about|on))\b",
     ),
     (
         "fifteenforteen",
@@ -338,8 +356,52 @@ _TOPICS = [
 ]
 
 
+# A question is about HIM when it says he, his, him, Aditya, you or your; about a PROJECT when it names one, or
+# (with no mention of him) uses the words projects are described in. The loose topic patterns ("percentage",
+# "transcript", "family", "available on", "phone", "paper") only count for a question about him; the strong ones
+# (CGPA, salary, notice period, visa, relocation, a phone number) are personal whatever else the question says.
+_PERSON = re.compile(r"\b(he|his|him|himself|aditya|aditya'?s|you|your|candidate|applicant)\b")
+_PROJECT_NAMES = re.compile(
+    r"evalbench|agent ?flow|prompt ?lab|sft[- ]?forge|diffuse ?lab|vision ?lens|voice ?scribe|sentinel|model ?router|"
+    r"rag[- ]chatbot|\bchatbot\b|routerbench|\bwhisper\b|\bd-fine\b|\blanggraph\b|\bfaiss\b|\bdolly\b"
+)
+_PROJECT_CONTEXT = re.compile(
+    r"\b(projects?|repos?|repositor\w+|readme|models?|pipelines?|datasets?|data|apis?|code|frameworks?|librar\w+|"
+    r"detect\w*|track\w*|agents?|tools?|benchmarks?|evaluat\w*|training|trained|inference|audio|speech|images?|video|"
+    r"text|prompts?|llms?|embedding\w*|retriev\w*|chunk\w*|tokens?|meetings?|attacks?|injections?|classifiers?|"
+    r"checkpoints?|samplers?|diffusion|rout\w+|latency|accuracy|f1|rules?|filters?|gates?|dedup\w*|files?|servers?|"
+    r"cpu|gpu|offline|outputs?|inputs?|requests?|notes?|scores?|decisions?|owners?|deadlines?|results?|figures?|"
+    r"rates?|errors?|words?|sentences?|frames?|objects?|scenes?|captions?|checks?|judges?|rubrics?|metrics?|"
+    r"layers?|weights?|parameters?|steps?|noise|schedules?|users?|queries|questions?|answers?|documents?|sources?|"
+    r"passages?|index(es)?|vectors?|stack|python|docker|fastapi|hardware|runs?|ran|run)\b"
+)
+_STRONG = re.compile(
+    r"\b(cgpa|gpa|salary|salaries|ctc|lpa|lakhs?|stipend|remuneration|notice period|visa|work permit|"
+    r"work authori[sz]ation|green card|h-?1b|relocat\w*|joining date|date of joining|"
+    r"(phone|mobile|cell|telephone|contact) ?(number|no)|whatsapp)\b"
+)
+
+
+def about_a_project(q: str) -> bool:
+    """True when a question that uses a loose personal-topic word is about a project, not about him."""
+    if _STRONG.search(q):
+        return False
+    if _PROJECT_NAMES.search(q):
+        return True
+    return not _PERSON.search(q) and bool(_PROJECT_CONTEXT.search(q))
+
+
+_ROLE_DATES = re.compile(
+    r"\b(ethara|genesis|15 ?forteen|internship|intern|co-?lead|founder'?s office|ggsipu|degree|role|job|position)\b"
+)
+_FUTURE_START = re.compile(
+    r"\b(can|could|will|would|should|notice|available|availability|immediate\w*|join us|asap|soon|next)\b"
+)
+
+
 def unpublished_topic(question: str) -> str | None:
     q = _normalise(question)
+    project = about_a_project(q)
     for topic, pattern in _TOPICS:
         if re.search(pattern, q, flags=re.I):
             if (
@@ -350,38 +412,86 @@ def unpublished_topic(question: str) -> str | None:
                 and not re.search(r"\b(salary|ctc|compensation|pay|paid|earn\w*)\b", q)
             ):
                 continue  # a software package, not a pay package
+            if project and not _STRONG.search(q):
+                continue  # a word from a project description, not a fact about him
+            if topic == "start" and _ROLE_DATES.search(q) and not _FUTURE_START.search(q):
+                continue  # when he started a role he holds or held: the dates are published
             return topic
     return None
 
 
+# What a generated answer must not assert about HIM. A sentence is replaced only when it names the topic as his
+# (his grades, he is open to remote work, his joining date) or uses a word that is personal by itself (CGPA,
+# salary, notice period, visa, relocation). Words that also appear in a project description ("transcript",
+# "grade", "scores", "remote API", "offline", "pay off", "deadlines", "owners") never count on their own.
+_HIM = r"(?:he|his|him|himself|aditya|aditya'?s)"
+_NEAR = r"[^.!?\n]{0,35}"  # a short stretch of the same sentence
+
+
+def _his(topic: str) -> str:
+    """The topic as his own: "his grades", "Aditya's notice", "the grades of him"."""
+    return rf"\b(?:his|aditya'?s)\s+(?:{topic})\b|\b(?:{topic})\s+(?:of|for)\s+(?:him|aditya)\b"
+
+
+def _he(topic: str) -> str:
+    """The topic in a sentence about him: "he is open to remote work", "he can start immediately"."""
+    return rf"\b{_HIM}\b{_NEAR}\b(?:{topic})\b"
+
+
 _OUTPUT_TOPICS = [
+    ("salary", r"\b(salary|salaries|ctc|lpa|lakhs?|stipend|remuneration)\b"),
     (
         "salary",
-        r"\b(salary|salaries|ctc|lpa|compensation|stipend|remuneration|pay (expectations?|range|band|scale)|expected pay|lakhs?)\b",
+        _his(r"pay|pay (?:expectations?|range|band|scale)|compensation|income|package")
+        + "|"
+        + _he(r"is paid|gets? paid|was paid|expected pay|pay expectations?|compensation"),
     ),
     (
         "start",
-        r"\b(notice period|joining date|start date|available (to|from|for) (join|start)|can (start|join)|earliest (start|joining)|immediate joiner)\b",
+        r"\b(notice period|joining date|date of joining|immediate joiner|earliest (?:start|joining))\b",
     ),
-    ("grades", r"\b(cgpa|gpa|report card|transcript)\b"),
+    (
+        "start",
+        _his(r"start date|availability")
+        + "|"
+        + _he(
+            r"can (?:start|join) (?:immediately|from|in|on|next|within)|available to (?:join|start)|available from"
+        ),
+    ),
+    ("grades", r"\b(cgpa|gpa)\b"),
+    (
+        "grades",
+        _his(
+            r"grades?|marks|percentage|percentile|class rank|transcripts?|report card|"
+            r"academic (?:record|results?|performance)"
+        ),
+    ),
+    ("location", r"\b(relocat\w*|willing to (?:move|travel))\b"),
     (
         "location",
-        r"\b(relocat\w*|remote (work|role|only|first)|hybrid (work|role|arrangement|setup)|on-?site (work|role|only)|work from home|wfh|willing to (move|travel))\b",
+        _he(
+            r"remote work|remote working|remote role|remote only|remote first|open to remote|prefers? remote|"
+            r"works? remotely|work remotely|fully remote|hybrid (?:work|role|arrangement|setup)|"
+            r"on-?site (?:work|role|only)|work from home|wfh"
+        ),
     ),
-    (
-        "visa",
-        r"\b(visa|work permit|work authori[sz]ation|citizenship|sponsorship|green card|h-?1b)\b",
-    ),
+    ("visa", r"\b(visa|work permit|work authori[sz]ation|citizenship|green card|h-?1b)\b"),
+    ("visa", _he(r"sponsorship")),
     (
         "personal",
-        r"\b(married|spouse|wife|girlfriend|boyfriend|date of birth|years old|religion|caste)\b",
+        _he(r"married|spouse|wife|girlfriend|boyfriend|date of birth|years old|religion|caste")
+        + "|"
+        + _his(r"age|religion|caste|spouse|wife|girlfriend|boyfriend|date of birth"),
     ),
 ]
 _PAPER_OK = re.compile(
     r"coming soon|once (it is |the paper is )?published|working on a research paper", re.I
 )
-_PAPER_ANY = re.compile(
-    r"\b(research paper|his paper|publications?|journal|arxiv|co-?authors?|submitted to|accepted (at|to))\b",
+_PAPER_HIM = re.compile(
+    _his(r"research papers?|papers?|publications?|journal")
+    + r"|\b(submitted|accepted) (?:to|at|in) (?:a |an |the )?(?:conference|journal|workshop|venue)\b"
+    + r"|"
+    + _he(r"research papers?|publications?|journals?"),
     re.I,
 )
 _FIFTEEN_DETAIL = re.compile(
@@ -391,16 +501,17 @@ _FIFTEEN_DETAIL = re.compile(
 
 
 def unpublished_in_answer(answer: str) -> str | None:
-    """The unpublished topic an answer talks about, whatever the question was: pay, joining date, grades,
-    relocation or work arrangement, visa, family or age, details of the paper, details of 15FORTEEN beyond the
-    role and dates. A model must not say these even if a passage seems to, so the caller replaces the answer."""
+    """The unpublished topic an answer asserts about HIM: pay, joining date, grades, relocation or work
+    arrangement, visa, family or age, details of the paper, details of 15FORTEEN beyond the role and dates. A
+    model must not say these even if a passage seems to, so the caller replaces the answer. A sentence about a
+    project that happens to use one of these words (a transcript, a grade of a model, a remote API) passes."""
     text = _normalise(answer)
     for topic, pattern in _OUTPUT_TOPICS:
         if re.search(pattern, text, flags=re.I):
             return topic
-    if _PAPER_ANY.search(text) and not _PAPER_OK.search(text):
-        return "paper"
     for sentence in re.split(r"(?<=[.!?])\s+", text):
+        if _PAPER_HIM.search(sentence) and not _PAPER_OK.search(sentence):
+            return "paper"
         if re.search(r"15 ?forteen", sentence) and _FIFTEEN_DETAIL.search(sentence):
             return "fifteenforteen"
     return None
@@ -438,7 +549,14 @@ _ABOUT_HIM = re.compile(
 
 
 _CONTACT = re.compile(
-    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download)|(portfolio|personal) (website|site|page|url|link)|his (website|site|homepage|portfolio)|where can i (find|see|view|read|browse) his (portfolio|work|code|projects?|repos?|repositories|source)|his (code|repos|repositories|source code)|link to his (code|repos|projects)|where is (his|the) code)\b",
+    r"\b(contact (him|aditya|info|details|information)|(how|where|best way)\b.{0,30}\b(contact|reach|email|e-?mail|message|get in touch|hire)\b|get in touch|reach (him|aditya|out)|(email|e-?mail|dm|message|write to) (him|aditya)\b|(does|do) (he|aditya) have (a |an )?(personal )?(website|portfolio|linkedin|github|r[ée]sum[ée]|cv|e-?mail|homepage)\b|his (email|e-?mail|linkedin|github( profile| account| page| link)?|r[ée]sum[ée]( link)?|cv)|(email|e-?mail) (address|id)|linkedin (profile|link|url)|github (profile|link|url|account)|(link|url) to (his )?(r[ée]sum[ée]|cv|linkedin|github)|download (his )?(r[ée]sum[ée]|cv)|r[ée]sum[ée] (link|pdf|download)|(portfolio|personal) (website|site|page|url|link)|his (website|site|homepage|portfolio)|where can i (find|see|view|read|browse) his (portfolio|work|code|projects?|repos?|repositories|source)|(show|see|view|open|browse|visit|read|send|give|share)( me)?( to)? his (code|repos|repositories|source code)|^his (code|repos|repositories|source code)\W*$|link to his (code|repos|projects)|where is (his|the) code)\b",
+    re.I,
+)
+
+
+_ABOUT_CONTENT = re.compile(
+    r"\b(say|says|said|mention\w*|contain\w*|includ\w*|list\w*|state\w*|cover\w*|describe\w*|highlight\w*|"
+    r"open[- ]source|licen[cs]\w*|written in|built (with|in|using)|made (with|in)|framework|tech(nology)? stack)\b",
     re.I,
 )
 
@@ -452,11 +570,27 @@ def is_contact_question(question: str) -> bool:
         r"\b(link|url|download|pdf|email|e-mail|linkedin|github|contact|website)\b", q
     ):
         return False
-    return bool(_CONTACT.search(question))
+    m = _CONTACT.search(question)
+    if not m:
+        return False
+    if _ABOUT_CONTENT.search(question) and not re.search(
+        r"\b(link|url|download|pdf|email|e-mail|linkedin|github|contact|reach|where)\b",
+        question,
+        re.I,
+    ):
+        return False  # "what does his résumé say about skills?" asks about its content, not for the link
+    # "how does the classifier reach its decision?" is about a project; "how can I reach him?" is not
+    if re.match(r"\s*(how|where|best way)", m.group(0), re.I) and not re.search(
+        r"\b(i|we|me|us|to|can|could|should|may|way|him|his|aditya|author|developer|owner|creator)\b",
+        m.group(0),
+        re.I,
+    ):
+        return False
+    return True
 
 
 _SUMMARY = re.compile(
-    r"\b(who is (aditya|he)\b|who'?s (aditya|he)\b|introduce (him|aditya)|(an? )?(short |quick |brief )?(bio|introduction|intro|elevator pitch)\b|summar(y|ise|ize) (of )?(him|aditya)|describe (him|aditya)|what (does|do) (aditya|he) do\b|(tell|say|give) me (something )?about (aditya|him)\b(?! ?(\'s|’s))(?!.{0,40}\b(project|experience|skills?|education|work|certif|contact|role|internship)))",
+    r"\b(who is (aditya|he)\b|who'?s (aditya|he)\b|introduce (him|aditya)|(an? )?(short |quick |brief )?(bio|introduction|intro|elevator pitch)\b|summar(y|ise|ize) (of )?(him|aditya)|describe (him|aditya)|what (does|do) (aditya|he) do\b(?!\s+(with|in|at|on|about|when|during|after|to|if|for (his|the|a project|an?\s\w+ (project|role))))|(tell|say|give) me (something )?about (aditya|him)\b(?! ?(\'s|’s))(?!.{0,40}\b(project|experience|skills?|education|work|certif|contact|role|internship)))",
     re.I,
 )
 _PROJECT_WORDS = re.compile(
@@ -466,7 +600,7 @@ _PROJECT_WORDS = re.compile(
 
 
 _SUMMARY2 = re.compile(
-    r"\b(summar(y|ise|ize|ised)|sum up|outline|overview|rundown)\b.{0,25}\b(him|aditya|his (background|profile|career|r[ée]sum[ée]|cv|story|journey))\b|\b(his|aditya'?s) (background|story|journey)\b|\b(describe|outline) (his|aditya'?s) (background|profile|career)\b|\bbackground (of|on) (him|aditya)\b|\bwho is this (person|guy)\b|\bwhat('s| is) he (like|about)\b",
+    r"\b(summar(y|ise|ize|ised)|sum up|outline|overview|rundown)\b.{0,25}\b(him|aditya|his (background|profile|career|r[ée]sum[ée]|cv|story|journey))\b|\b(his|aditya'?s) (background|story|journey)\b(?!\s+(in|with|on|at|of|for|around|regarding|about))|\b(describe|outline) (his|aditya'?s) (background|profile|career)\b|\bbackground (of|on) (him|aditya)\b|\bwho is this (person|guy)\b|\bwhat('s| is) he (like|about)\b",
     re.I,
 )
 

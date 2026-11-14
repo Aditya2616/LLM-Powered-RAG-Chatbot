@@ -1,10 +1,10 @@
 {
  "meta": {
   "tag": "live",
-  "note": "live Vercel deployment ask-aditya (Hobby), chain Groq primary, Groq backup, Gemini last; shared limiter on Upstash; client in India; one question every 10 s",
-  "date": "2026-11-13",
+  "note": "live Vercel deployment ask-aditya (Hobby), chain Groq primary, Groq backup, Gemini last; shared limiter on Upstash; client in India; one question every 10 s; fresh daily quota",
+  "date": "2026-11-14",
   "mode": "base url",
-  "corpus_version": "2026-11-13-e680087e",
+  "corpus_version": "2026-11-14-c05fb8e0",
   "n_questions": 86,
   "models": {},
   "server_env": {}
@@ -36,17 +36,17 @@
   "n": 86
  },
  "first_token_ms": {
-  "mean_all": 820.7616305883087,
-  "p95_all": 1504.4055400023353,
-  "mean_generated": 1087.4261200001374,
-  "p95_generated": 1800.625330000911,
+  "mean_all": 511.1766188235325,
+  "p95_all": 906.7292800001268,
+  "mean_generated": 612.8744218182046,
+  "p95_generated": 950.103509999917,
   "n_all": 85,
   "n_generated": 55,
   "first_request_excluded": true
  },
  "cold_start": {
-  "first_ask_ms": 680.6247999993502,
-  "first_ask_first_token_ms": 680.3854999998293
+  "first_ask_ms": 563.2799999998497,
+  "first_ask_first_token_ms": 546.9256999999743
  },
  "probes": {},
  "results": [
@@ -59,11 +59,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 680.3854999998293,
-   "total_ms": 680.6247999993502,
-   "provider": "groq",
+   "first_token_ms": 546.9256999999743,
+   "total_ms": 563.2799999998497,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "Aditya Jain is currently an **LLM Post-Training Intern** at **Ethara AI** in **Gurugram**. He works on supervised fine-tuning, RLHF workflows, prompt design, and evaluation.\n\nAsk me about his university.",
+   "answer": "LLM Post-Training Intern at Ethara AI, Feb 2026 to present (Gurugram). Contribute to post-training pipelines for large language models, including supervised fine-tuning (SFT) and reinforcement learning from human feedback (RLHF) workflows. Design and evaluate prompt-engineering strategies that target model accuracy, instruction-following and output quality across a range of task types. Analyse model outputs and run systematic evaluations to identify failure modes and guide the next fine-tuning cycle. Work with cross-functional teams to turn real-world requirements into structured training objectives. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -74,10 +74,6 @@
     {
      "title": "Résumé",
      "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
-     "title": "EvalBench README",
-     "url": "https://github.com/Aditya2616/EvalBench"
     }
    ]
   },
@@ -90,11 +86,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1223.7510999984806,
-   "total_ms": 1223.9324000001943,
-   "provider": "groq-backup",
+   "first_token_ms": 577.8788000000077,
+   "total_ms": 579.9325999998928,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He is a **LLM Post-Training Intern** at Ethara AI.  \nAsk me about his work on supervised fine‑tuning.",
+   "answer": "LLM Post-Training Intern at Ethara AI, Feb 2026 to present (Gurugram). Contribute to post-training pipelines for large language models, including supervised fine-tuning (SFT) and reinforcement learning from human feedback (RLHF) workflows. Design and evaluate prompt-engineering strategies that target model accuracy, instruction-following and output quality across a range of task types. Analyse model outputs and run systematic evaluations to identify failure modes and guide the next fine-tuning cycle. Work with cross-functional teams to turn real-world requirements into structured training objectives. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -117,21 +113,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1302.3912999997265,
-   "total_ms": 1302.5508999999147,
-   "provider": "groq-backup",
+   "first_token_ms": 321.2229999999181,
+   "total_ms": 335.2356000000327,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "His internship at Ethara AI began in **Feb 2026**. Ask me about his role responsibilities.",
+   "answer": "LLM Post-Training Intern at Ethara AI, Feb 2026 to present (Gurugram). Contribute to post-training pipelines for large language models, including supervised fine-tuning (SFT) and reinforcement learning from human feedback (RLHF) workflows. Design and evaluate prompt-engineering strategies that target model accuracy, instruction-following and output quality across a range of task types. Analyse model outputs and run systematic evaluations to identify failure modes and guide the next fine-tuning cycle. Work with cross-functional teams to turn real-world requirements into structured training objectives. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -144,11 +140,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1079.699999998411,
-   "total_ms": 1089.926699998614,
-   "provider": "groq-backup",
+   "first_token_ms": 403.67459999993116,
+   "total_ms": 403.94149999997353,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He co‑led Genesis from Oct 2025 to Feb 2026, leading a team of developers on AI‑driven projects, driving adoption of AI tools and automation workflows that cut manual repetitive work, and mentoring junior members on Python scripting, API integrations and machine‑learning fundamentals. **Ask me about** his open‑source projects.",
+   "answer": "Co-Lead at Genesis, Oct 2025 to Feb 2026 (New Delhi). Led a team of developers working on AI-driven projects. Drove adoption of AI tools and automation workflows within the team, reducing manual work on repetitive tasks. Mentored junior members on Python scripting, API integrations and machine-learning fundamentals. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -171,25 +167,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2333.4477999997034,
-   "total_ms": 2333.5759000001417,
-   "provider": "groq-backup",
+   "first_token_ms": 320.71369999994204,
+   "total_ms": 322.90489999991223,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He was Co‑Lead at Genesis from **Oct 2025 – Feb 2026**.  \nAsk me about his work on AgentFlow.",
+   "answer": "Co-Lead at Genesis, Oct 2025 to Feb 2026 (New Delhi). Led a team of developers working on AI-driven projects. Drove adoption of AI tools and automation workflows within the team, reducing manual work on repetitive tasks. Mentored junior members on Python scripting, API integrations and machine-learning fundamentals. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
     },
     {
-     "title": "LLM-Powered-RAG-Chatbot README",
-     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -202,21 +194,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 785.5966999995871,
-   "total_ms": 785.841499997332,
-   "provider": "groq-backup",
+   "first_token_ms": 308.09690000000955,
+   "total_ms": 308.3206999999675,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He is pursuing a B.Tech in Computer Science Engineering at Guru Gobind Singh Indraprastha University, New Delhi (Aug 2023 – Jun 2027). **Ask me about** his coursework.",
+   "answer": "B.Tech, Computer Science Engineering, GGSIPU, New Delhi, Aug 2023 to Jun 2027 (in progress). Coursework: Data Structures & Algorithms, Machine Learning, Database Systems, Computer Networks, Operating Systems. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -229,21 +221,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 844.2775000003166,
-   "total_ms": 844.4129999988945,
-   "provider": "groq-backup",
+   "first_token_ms": 323.8092999999935,
+   "total_ms": 324.1373000000749,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He studies at **Guru Gobind Singh Indraprastha University (GGSIPU)** in New Delhi. Ask me about his current internship.",
+   "answer": "B.Tech, Computer Science Engineering, GGSIPU, New Delhi, Aug 2023 to Jun 2027 (in progress). Coursework: Data Structures & Algorithms, Machine Learning, Database Systems, Computer Networks, Operating Systems. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -256,11 +248,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 979.6113999982481,
-   "total_ms": 979.7152999999525,
-   "provider": "groq-backup",
+   "first_token_ms": 326.99669999988146,
+   "total_ms": 327.2245999999086,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He is expected to graduate in Jun 2027. **Ask me about** his coursework.",
+   "answer": "B.Tech, Computer Science Engineering, GGSIPU, New Delhi, Aug 2023 to Jun 2027 (in progress). Coursework: Data Structures & Algorithms, Machine Learning, Database Systems, Computer Networks, Operating Systems. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -283,25 +275,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1509.9752000023727,
-   "total_ms": 1510.211500000878,
-   "provider": "groq-backup",
+   "first_token_ms": 317.9989000000205,
+   "total_ms": 318.1749000000309,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He is based in New Delhi, India (IST, UTC+5:30). **Ask me about** his current role.",
+   "answer": "He is based in New Delhi, India (IST, UTC+5:30). Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
-    },
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
-     "title": "LLM-Powered-RAG-Chatbot README",
-     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
     }
    ]
   },
@@ -314,11 +298,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 381.0144000017317,
-   "total_ms": 381.4302000027965,
+   "first_token_ms": 323.2997999998588,
+   "total_ms": 323.53519999992386,
    "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
+   "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His portfolio website is https://adityajain16.vercel.app. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -337,11 +321,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 330.48559999951976,
-   "total_ms": 330.7215000022552,
+   "first_token_ms": 333.4294000001137,
+   "total_ms": 333.7384999999813,
    "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
+   "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His portfolio website is https://adityajain16.vercel.app. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -360,11 +344,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 313.35309999849414,
-   "total_ms": 313.5841999974218,
+   "first_token_ms": 305.5928000003405,
+   "total_ms": 305.8229000002939,
    "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
+   "answer": "You can reach Aditya by email at **itsaditya1610@gmail.com** (preferred), on LinkedIn at https://www.linkedin.com/in/aditya-jain-91491a24a/, or on GitHub at https://github.com/Aditya2616. His portfolio website is https://adityajain16.vercel.app. His résumé is at https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -383,11 +367,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 882.3035999994318,
-   "total_ms": 882.4758000009751,
-   "provider": "groq-backup",
+   "first_token_ms": 327.7453000000605,
+   "total_ms": 335.2184999998826,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He has built ten projects. **Ask me about his flagship LLM‑Powered RAG Chatbot**.",
+   "answer": "He has 10 projects, all public on GitHub and MIT-licensed: LLM-Powered RAG Chatbot (flagship, open source); EvalBench (LLM evaluation harness); AgentFlow (tool-using agent); PromptLab (evolutionary prompt search); SFT Forge (fine-tuning data pipeline); DiffuseLab (diffusion, step by step); VisionLens (detection, tracking and scene description); VoiceScribe (speech to structured notes); Sentinel (prompt-injection guard); ModelRouter (cost-aware LLM routing). Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -406,21 +390,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1208.3257999984198,
-   "total_ms": 1208.5139999981038,
-   "provider": "groq-backup",
+   "first_token_ms": 325.51039999998466,
+   "total_ms": 325.7207000001472,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "His flagship project is the **LLM‑Powered RAG Chatbot** (flagship, open source). Ask me about his tool‑using agent.",
+   "answer": "His flagship project is the LLM-Powered RAG Chatbot, open source: it answers questions about your own documents, ties each answer to its source and says \"I don't know\" instead of guessing. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
-    },
-    {
-     "title": "LLM-Powered-RAG-Chatbot README",
-     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
     }
    ]
   },
@@ -433,11 +413,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1156.6228999981831,
-   "total_ms": 1159.4920999996248,
-   "provider": "groq-backup",
+   "first_token_ms": 911.1993000001348,
+   "total_ms": 918.4950999997454,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "His RAG chatbot answers **52/75 (69.3%)** of answerable questions correctly and says “I don’t know” on **14/25 (56.0%)** of unanswerable ones with the Qwen2.5‑0.5B‑Instruct model; with Qwen2.5‑1.5B‑Instruct it answers **70/75 (93.3%)** correctly and declines **18/25 (72.0%)** of unanswerable questions.  \nAsk me about the technologies it uses.",
+   "answer": "On the 100 bundled questions, **Qwen2.5-0.5B-Instruct** answers **52/75 (69.3%)** of answerable questions correctly and says \"I don't know\" on **14/25 (56.0%)** of unanswerable ones. **Qwen2.5-1.5B-Instruct** answers **70/75 (93.3%)** and declines **18/25 (72.0%)**.\n\nAsk me about the file formats the chatbot ingests",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -460,11 +440,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 928.7211999981082,
-   "total_ms": 929.0402999977232,
-   "provider": "groq-backup",
+   "first_token_ms": 826.5796000000591,
+   "total_ms": 826.8066999999064,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "His RAG chatbot says **“I don't know”** and points to his email when the sources do not support an answer. Ask me about the technologies it uses.",
+   "answer": "His RAG chatbot says \"I don't know\" when the retrieved chunks do not contain the answer. Ask me about how it handles unanswerable questions",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -487,21 +467,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 800.5960000009509,
-   "total_ms": 800.9239999992133,
-   "provider": "groq-backup",
+   "first_token_ms": 608.5604999998395,
+   "total_ms": 608.7176999999429,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He ran **408** prompts. It does not claim its rubric judge is highly reliable: exact-match and rule checks come first and the judge is used only where no rule exists. Ask me about how EvalBench scores outputs.",
+   "answer": "EvalBench ran **408** prompts across four sub-1B checkpoints.\n\nAsk me about the failure modes EvalBench detects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "EvalBench README",
-     "url": "https://github.com/Aditya2616/EvalBench"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "EvalBench README",
+     "url": "https://github.com/Aditya2616/EvalBench"
     }
    ]
   },
@@ -509,19 +489,16 @@
    "id": "f18",
    "group": "factual",
    "question": "What pass rates did EvalBench's checkpoints get?",
-   "pass": false,
-   "failures": [
-    "missing ['27.0']",
-    "missing ['44.6']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1034.2951999991783,
-   "total_ms": 1034.6303999976953,
-   "provider": "groq-backup",
+   "first_token_ms": 674.1257000003316,
+   "total_ms": 674.2983000003733,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "EvalBench reports that with 408 prompts the 95 % Wilson intervals on a checkpoint’s pass rate are about **plus or minus 4.3 to 4.8 points**.  \nAsk me about how the failures are clustered.",
+   "answer": "In the recorded run, four sub-1B checkpoints pass between 27.0% and 44.6% of 408 prompts.\n\nAsk me about how EvalBench assigns failure modes.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -540,11 +517,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1030.3853000004892,
-   "total_ms": 1030.8781000021554,
-   "provider": "groq-backup",
+   "first_token_ms": 828.4582000001137,
+   "total_ms": 833.0789999999979,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "EvalBench embeds failing answers, clusters them, and shows how well the clusters align with failure modes, letting users see where a model fails and target specific issues. **It also visualizes failing samples as they move to mode islands on a canvas.** Ask me about how the pass‑rate changes are reported. It does not claim its rubric judge is highly reliable: exact-match and rule checks come first and the judge is used only where no rule exists.",
+   "answer": "EvalBench assigns each failure a mode using deterministic detectors, such as hallucination or format break. It then embeds the failing answers, clusters them, and shows how well the clusters line up with the assigned modes. This process helps make the next fine-tuning cycle target something specific.\n\nAsk me about the specific failure modes detected.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -563,21 +540,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 782.4303000015789,
-   "total_ms": 782.9130999998597,
-   "provider": "groq-backup",
+   "first_token_ms": 771.2749000002077,
+   "total_ms": 771.4925000000221,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "ModelRouter keeps **95%** of the larger model’s quality while using only **37%** of the cost on the RouterBench dataset. These figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about how the routing decision is made.",
+   "answer": "On RouterBench, ModelRouter keeps **95%** of the big model's quality at **37%** of the cost.\n\nAsk me about the local Qwen pair results.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
-    {
      "title": "ModelRouter README",
      "url": "https://github.com/Aditya2616/ModelRouter"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -590,11 +567,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 941.1075999996683,
-   "total_ms": 941.3469000028272,
-   "provider": "groq-backup",
+   "first_token_ms": 696.2212000003092,
+   "total_ms": 700.4418000001351,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "ModelRouter’s RouterBench data includes outcomes for **11 LLMs** on **36,481 prompts**.  \nAsk me about how the router decides which model to use.",
+   "answer": "The RouterBench data used by ModelRouter contains recorded outcomes for **11 LLMs** across **36,481 prompts**. This offline lab setup allows the router to be scored without new API calls. Ask me about the specific model pairs tested in the results.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -613,21 +590,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1034.651899997698,
-   "total_ms": 1034.9055999977281,
-   "provider": "groq-backup",
+   "first_token_ms": 720.5847000000176,
+   "total_ms": 720.7930999998098,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "Sentinel checks **46 rules**. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his other projects.",
+   "answer": "Sentinel checks every incoming prompt against **46 rules** for known injection patterns.\n\nAsk me about how Sentinel handles suspicious prompts.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
-    },
-    {
-     "title": "SFT-Forge README",
-     "url": "https://github.com/Aditya2616/SFT-Forge"
     }
    ]
   },
@@ -640,21 +613,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 911.5669000020716,
-   "total_ms": 911.8168000022706,
-   "provider": "groq-backup",
+   "first_token_ms": 738.2857000002332,
+   "total_ms": 741.3817000001472,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He blocks **54%** of the deepset attacks. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his project goals.",
+   "answer": "Sentinel blocks **54%** of deepset attacks on datasets it was never trained on. If flagged prompts count, this figure rises to **72%**. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about the false-positive rate on hard-benign text.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
-    },
-    {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -667,11 +636,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1001.6551000007894,
-   "total_ms": 1005.7151000000886,
+   "first_token_ms": 798.6631999997371,
+   "total_ms": 802.3612999995748,
    "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "Sentinel's false-positive rate on hard-benign text is **1.1%** for the v2 set and **0.0%** for the v1 set. On two untrained datasets, it maintains a **1%** false-positive rate on hard-benign text. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about Sentinel's recall on deepset attacks",
+   "answer": "Sentinel's headline false-positive rate on hard-benign v2 text is **1.1%**. On hard-benign v1, the rate is **0.0%**. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about the 95% Wilson interval for these rates.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -690,11 +659,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1674.328000000969,
-   "total_ms": 1674.6117000002414,
-   "provider": "groq-backup",
+   "first_token_ms": 1207.35569999988,
+   "total_ms": 1207.5485999998818,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He uses three gates: **dedupe**, **quality** and **safety**. Its own experiment found no measurable benefit from the cleaned data at that scale. Ask me about his PromptLab project.",
+   "answer": "SFT Forge processes data through three gates: **dedupe**, **quality**, and **safety**. Survivors are balanced, split, and exported with an audit report. Ask me about the downstream test results.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -721,21 +690,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 851.9282000015664,
-   "total_ms": 852.4075999994238,
-   "provider": "groq-backup",
+   "first_token_ms": 849.9188000000686,
+   "total_ms": 850.2253000001474,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "PromptLab checks its winners **once on held‑out data against a random‑search baseline given the same budget**. On the two real tasks, CommonsenseQA and BoolQ, its evolutionary search ties random search at equal budget; it is ahead only on a synthetic task. Ask me about how PromptLab evolves prompts.",
+   "answer": "PromptLab scores its winners **once** on a held-out test split, next to a **random-search baseline** given exactly the same dev budget. On the two real tasks, CommonsenseQA and BoolQ, its evolutionary search ties random search at equal budget; it is ahead only on a synthetic task. Ask me about the specific tasks used in the comparison.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
-    {
      "title": "PromptLab README",
      "url": "https://github.com/Aditya2616/PromptLab"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     },
     {
      "title": "Résumé",
@@ -752,21 +721,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1096.3193000025058,
-   "total_ms": 1096.4912000017648,
-   "provider": "groq-backup",
+   "first_token_ms": 730.33630000009,
+   "total_ms": 730.503299999782,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He can call **search**, **Python**, **SQL**, **email**, and **documents**.  \nAsk me about his role at Genesis.",
+   "answer": "AgentFlow calls five tools: **search**, **Python**, **SQL**, **email**, and **documents**.\n\nAsk me about how AgentFlow verifies tool results.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
-    {
      "title": "AgentFlow README",
      "url": "https://github.com/Aditya2616/AgentFlow"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -779,11 +748,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 928.1740000005811,
-   "total_ms": 928.4053000010317,
-   "provider": "groq-backup",
+   "first_token_ms": 668.5750000001462,
+   "total_ms": 668.7627999999677,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He runs offline with the small open model **Qwen3-0.6B**.  \nAsk me about the AgentFlow verification loop.",
+   "answer": "AgentFlow runs fully offline with a small open model, **Qwen3-0.6B**, on a CPU or a GPU.\n\nAsk me about the tools available in the agent loop.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -802,25 +771,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1170.2694000014162,
-   "total_ms": 1170.5259000009391,
-   "provider": "groq-backup",
+   "first_token_ms": 751.9795000002887,
+   "total_ms": 752.1904000000177,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "DiffuseLab’s models are trained and evaluated on the **Fashion‑MNIST** image dataset.  \nAsk me about his work on fine‑tuning pipelines.",
+   "answer": "DiffuseLab's models use the **Fashion-MNIST** dataset. The training setup specifically references 55,000 training images and 5,000 held-out images from this source.\n\nAsk me about the UNet parameter count used in training.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
     {
      "title": "DiffuseLab README",
      "url": "https://github.com/Aditya2616/DiffuseLab"
     },
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -833,11 +798,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1322.0943000014813,
-   "total_ms": 1330.2528000021994,
-   "provider": "groq-backup",
+   "first_token_ms": 880.9575999998742,
+   "total_ms": 891.1137000000053,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "VisionLens is a multimodal pipeline that **sees, labels and describes a scene** by detecting objects frame‑by‑frame, tracking their identities, and turning the track history into a plain‑language description.  \n\nAsk me about its demo options.",
+   "answer": "VisionLens is a multimodal pipeline that **detects, tracks, and describes** scenes. A detection model finds objects frame by frame, a custom tracker keeps their identities stable, and the track history is converted into a plain-language description. It runs offline on a CPU or GPU without API keys.\n\nAsk me about how to run the static demo.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -860,11 +825,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 730.2095999984886,
-   "total_ms": 730.4084999996121,
-   "provider": "groq-backup",
+   "first_token_ms": 793.5523999999532,
+   "total_ms": 793.8452000003053,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "The demo meeting uses **synthetic speech** voiced with Kokoro‑82M. Ask me about how VoiceScribe extracts action items.",
+   "answer": "The demo meeting is **synthetic speech** voiced with **Kokoro-82M** (Apache-2.0) from a script Aditya wrote with invented names and a made-up company. It is not a real meeting.\n\nAsk me about the speech recognition results for the demo meeting.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -878,26 +843,26 @@
    "id": "f32",
    "group": "factual",
    "question": "What does VoiceScribe extract from meetings?",
-   "pass": true,
-   "failures": [],
+   "pass": false,
+   "failures": [
+    "fallback 'unknown', expected None",
+    "grounded False, expected True",
+    "missing ['action item', 'action items']"
+   ],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1215.5582000013965,
-   "total_ms": 1215.786200002185,
-   "provider": "groq-backup",
+   "first_token_ms": 659.4864000003327,
+   "total_ms": 659.7058000002107,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "VoiceScribe extracts decisions, owners and deadlines from meetings, turning them into structured action items. **Ask me about** how the timestamps are handled.",
-   "fallback": null,
-   "grounded": true,
+   "answer": "His grades and CGPA aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
+   "fallback": "unknown",
+   "grounded": false,
    "sources": [
     {
-     "title": "VoiceScribe README",
-     "url": "https://github.com/Aditya2616/VoiceScribe"
-    },
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -910,11 +875,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 856.6198000007716,
-   "total_ms": 856.8426000019826,
-   "provider": "groq-backup",
+   "first_token_ms": 336.45119999982853,
+   "total_ms": 336.536199999955,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He lists Python and SQL.  \nAsk me about his AI/ML expertise.",
+   "answer": "Languages: Python, SQL. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -937,11 +902,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 944.0223999990849,
-   "total_ms": 947.411999997712,
-   "provider": "groq-backup",
+   "first_token_ms": 323.55680000000575,
+   "total_ms": 329.96860000002926,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He holds certifications in **Machine Learning Specialization** (DeepLearning.AI / Coursera), **Prompt Engineering for Developers** (DeepLearning.AI), **Becoming an AI‑First Product Leader** (LinkedIn Learning), **Generative AI for Digital Marketers** (LinkedIn Learning), **Generative AI, Recruiting & Talent Acquisition** (LinkedIn Learning), **Introduction to Artificial Intelligence** (LinkedIn Learning), and **Technology Job Simulation** (Deloitte Australia). Ask me about his education.",
+   "answer": "He lists 7 certifications: 1. Machine Learning Specialization, DeepLearning.AI / Coursera; 2. Prompt Engineering for Developers, DeepLearning.AI; 3. Becoming an AI-First Product Leader, LinkedIn Learning; 4. Generative AI for Digital Marketers, LinkedIn Learning; 5. Generative AI, Recruiting & Talent Acquisition, LinkedIn Learning; 6. Introduction to Artificial Intelligence, LinkedIn Learning; 7. Technology Job Simulation, Deloitte Australia. His résumé lists five of the seven; the portfolio lists all of them. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -964,21 +929,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 959.5528999998351,
-   "total_ms": 959.8478000007162,
-   "provider": "groq-backup",
+   "first_token_ms": 312.1299999997973,
+   "total_ms": 312.2694999997293,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He was in the Founder’s Office at 15FORTEEN, Delhi from **Jun 2025 to Feb 2026**. Ask me about his current internship.",
+   "answer": "Founder's Office at 15FORTEEN, Jun 2025 to Feb 2026 (Delhi). Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -991,21 +956,17 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1293.0792000006477,
-   "total_ms": 1293.7473999991198,
-   "provider": "groq-backup",
+   "first_token_ms": 308.7832000001072,
+   "total_ms": 308.9804000001095,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He is open to AI/ML roles and collaborations **(see)**. Ask me about his current internship.",
+   "answer": "He is open to AI / ML roles and collaborations. For anything more specific, email him: itsaditya1610@gmail.com. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
-    },
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -1018,11 +979,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1226.850300001388,
-   "total_ms": 1227.1222000017588,
-   "provider": "groq-backup",
+   "first_token_ms": 311.9584000000941,
+   "total_ms": 312.21620000042094,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He uses FastAPI, Streamlit, Docker, Git, GitHub, Google Colab, VS Code, Codex and Workflow Automation. **Ask me about** his AI platform administration skills.",
+   "answer": "Tools & infra: FastAPI, Streamlit, Docker, Git, GitHub, Google Colab, VS Code, Codex, Workflow Automation. ML & data: PyTorch, Hugging Face Datasets & Diffusers, FAISS, OpenCV, Whisper, NumPy, Pandas, Scikit-learn. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1045,22 +1006,14 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1128.8749999985157,
-   "total_ms": 1129.0020999986154,
-   "provider": "groq-backup",
+   "first_token_ms": 325.7371999998213,
+   "total_ms": 325.94319999998334,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "All ten of his projects are public on GitHub and released under the MIT license, making them open‑source. **Ask me about** the technologies he used.",
+   "answer": "Yes. All 10 of his projects are public on GitHub and MIT-licensed, and the flagship, the LLM-Powered RAG Chatbot, is open source. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "LLM-Powered-RAG-Chatbot README",
-     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
-    },
-    {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
     {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
@@ -1071,18 +1024,16 @@
    "id": "f39",
    "group": "factual",
    "question": "What can his RAG chatbot run on without an API key?",
-   "pass": false,
-   "failures": [
-    "missing ['local', 'open model']"
-   ],
+   "pass": true,
+   "failures": [],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 765.8921999973245,
-   "total_ms": 766.1044999986188,
-   "provider": "groq-backup",
+   "first_token_ms": 747.0788000000539,
+   "total_ms": 747.3074999998062,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "His RAG chatbot can run on a laptop without needing an API key. **Ask me about** the technologies it uses.",
+   "answer": "His RAG chatbot runs on **small open models** that operate on a **laptop** without an API key. Ask me about the models used in the chatbot.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1105,11 +1056,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 826.2380999985908,
-   "total_ms": 826.4359999993758,
-   "provider": "groq-backup",
+   "first_token_ms": 325.01670000010563,
+   "total_ms": 335.5240999999296,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He lists **PyTorch** as a deep learning library. Ask me about his AI project experience.",
+   "answer": "AI / ML: Machine Learning, Deep Learning, Reinforcement Learning, Model Training, Fine-Tuning, Transfer Learning, Model Evaluation. ML & data: PyTorch, Hugging Face Datasets & Diffusers, FAISS, OpenCV, Whisper, NumPy, Pandas, Scikit-learn. Generative AI: LLMs, SFT, RLHF, Prompt Engineering, RAG, Agents, LangChain, Hugging Face Transformers, OpenAI API, Anthropic API. Tools & infra: FastAPI, Streamlit, Docker, Git, GitHub, Google Colab, VS Code, Codex, Workflow Automation. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1132,21 +1083,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 2095.319100000779,
-   "total_ms": 2095.5471000015677,
-   "provider": "groq-backup",
+   "first_token_ms": 981.8216999997276,
+   "total_ms": 982.0770999999695,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He found that cleaning the data did not produce a measurable benefit for model training; the experiment showed no practical improvement at that scale. **Ask me about** his other projects.",
+   "answer": "SFT Forge's own experiment found **no measurable benefit** from training on cleaned data at that scale. The downstream test used a 135M model across three seeds, and cleaning made no practical difference. The gates are measured against injected defects, not shown to improve models.\n\nAsk me about the specific injected defect types remaining in the cleaned dataset.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
-    {
      "title": "SFT-Forge README",
      "url": "https://github.com/Aditya2616/SFT-Forge"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -1159,18 +1110,14 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1194.1628999993554,
-   "total_ms": 1194.3351999980223,
-   "provider": "groq-backup",
+   "first_token_ms": 651.4932000000044,
+   "total_ms": 651.7457999998442,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He uses a lightweight classifier plus rules for known injection patterns. **Ask me about** his other projects.",
+   "answer": "Yes, Sentinel uses a **small fine-tuned classifier** to score prompts. This classifier works alongside 46 rules for known injection patterns to determine if a prompt is suspicious.\n\nAsk me about Sentinel's deployment options",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
@@ -1186,11 +1133,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1010.7865999998467,
-   "total_ms": 1010.9558999974979,
-   "provider": "groq-backup",
+   "first_token_ms": 649.939799999629,
+   "total_ms": 650.1002999998491,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He uses **46 rules**. It is one layer of defence, not a complete one: at its default setting it misses a large share of unseen attacks. Ask me about his other projects.",
+   "answer": "Sentinel checks every incoming prompt against **46 rules** for known injection patterns.\n\nAsk me about how Sentinel handles suspicious prompts.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1199,8 +1146,8 @@
      "url": "https://github.com/Aditya2616/Sentinel"
     },
     {
-     "title": "PromptLab README",
-     "url": "https://github.com/Aditya2616/PromptLab"
+     "title": "LLM-Powered-RAG-Chatbot README",
+     "url": "https://github.com/Aditya2616/LLM-Powered-RAG-Chatbot"
     }
    ]
   },
@@ -1213,21 +1160,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 819.1705000026559,
-   "total_ms": 819.4175000026007,
-   "provider": "groq-backup",
+   "first_token_ms": 611.1924000001636,
+   "total_ms": 611.4015000002837,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He ran **408** prompts. It does not claim its rubric judge is highly reliable: exact-match and rule checks come first and the judge is used only where no rule exists. Ask me about how EvalBench scores outputs.",
+   "answer": "EvalBench ran **408** prompts.\n\nAsk me about the model checkpoints used.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "EvalBench README",
-     "url": "https://github.com/Aditya2616/EvalBench"
-    },
-    {
      "title": "Portfolio",
      "url": "https://adityajain16.vercel.app"
+    },
+    {
+     "title": "EvalBench README",
+     "url": "https://github.com/Aditya2616/EvalBench"
     }
    ]
   },
@@ -1235,16 +1182,19 @@
    "id": "f45",
    "group": "factual",
    "question": "Does he have identity and access management skills?",
-   "pass": true,
-   "failures": [],
+   "pass": false,
+   "failures": [
+    "missing ['SSO']",
+    "missing ['SCIM']"
+   ],
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1168.5565000007045,
-   "total_ms": 1168.7867000000551,
-   "provider": "groq-backup",
+   "first_token_ms": 354.3402000000242,
+   "total_ms": 354.6425999998064,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He has identity and access skills, including Microsoft Entra ID, SSO, SAML, SCIM, Conditional Access, Group‑Based Access, Privileged Roles and Enterprise Applications. **Ask me about** his AI platform administration experience.",
+   "answer": "Co-Lead at Genesis, Oct 2025 to Feb 2026 (New Delhi). Led a team of developers working on AI-driven projects. Drove adoption of AI tools and automation workflows within the team, reducing manual work on repetitive tasks. Mentored junior members on Python scripting, API integrations and machine-learning fundamentals. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1255,10 +1205,6 @@
     {
      "title": "Résumé",
      "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
-     "title": "ModelRouter README",
-     "url": "https://github.com/Aditya2616/ModelRouter"
     }
    ]
   },
@@ -1271,11 +1217,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1084.0940000016417,
-   "total_ms": 1084.3201999996381,
-   "provider": "groq-backup",
+   "first_token_ms": 331.10290000013265,
+   "total_ms": 331.4271000003828,
+   "provider": "",
    "tokens_prompt_completion": null,
-   "answer": "He lists **AI platform admin: [PLATFORM] Team & Enterprise Administration (SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls)**. Ask me about his AI development tools.",
+   "answer": "AI platform admin: [PLATFORM] Team & Enterprise Administration (SSO, SCIM, Organization Settings, Connectors, Plugins, Skills, Usage & Cost Controls), MCP & Connector Integrations (Permissions, Data Flows, Privacy, Logging, Rollback, Support Models), Enterprise SaaS Platform Ownership. Platform operations: Platform Governance, Security & Adoption, Operational Support, Troubleshooting, Change Management, Vendor Management, Cross-Functional Communication. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1298,8 +1244,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 334.2234000010649,
-   "total_ms": 334.45299999948475,
+   "first_token_ms": 366.3120000001072,
+   "total_ms": 366.53260000002774,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Compensation isn't published, and it is best discussed with Aditya directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1321,8 +1267,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 336.7164999981469,
-   "total_ms": 336.89099999901373,
+   "first_token_ms": 336.45830000023125,
+   "total_ms": 336.6283000000294,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "Compensation isn't published, and it is best discussed with Aditya directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1344,8 +1290,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 315.8274000015808,
-   "total_ms": 316.1096000003454,
+   "first_token_ms": 352.6578999999401,
+   "total_ms": 352.88390000005165,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His grades and CGPA aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1367,8 +1313,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 319.27949999953853,
-   "total_ms": 319.47389999913867,
+   "first_token_ms": 333.1790999995974,
+   "total_ms": 333.33889999994426,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His grades and CGPA aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1390,8 +1336,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 351.9392999987758,
-   "total_ms": 352.1708000007493,
+   "first_token_ms": 322.28269999995973,
+   "total_ms": 322.4376000002849,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His notice period and start date aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1413,8 +1359,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 325.61400000122376,
-   "total_ms": 325.85720000133733,
+   "first_token_ms": 317.2325999998975,
+   "total_ms": 317.4364000001333,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His notice period and start date aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1436,8 +1382,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 323.77009999981965,
-   "total_ms": 324.0607000007003,
+   "first_token_ms": 311.8540000000394,
+   "total_ms": 312.02859999984867,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His relocation and remote-work preferences aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1459,8 +1405,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 323.3319000028132,
-   "total_ms": 323.57390000106534,
+   "first_token_ms": 372.5286999997479,
+   "total_ms": 372.6987999998528,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His relocation and remote-work preferences aren't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1482,8 +1428,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 340.29259999806527,
-   "total_ms": 340.4402999985905,
+   "first_token_ms": 383.90479999998206,
+   "total_ms": 384.12330000028305,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "His visa or work-authorisation status isn't published. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1505,8 +1451,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 314.9330000014743,
-   "total_ms": 315.1733000013337,
+   "first_token_ms": 326.6798999998173,
+   "total_ms": 326.87339999984033,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I don't share a phone number. The way to reach Aditya is email: itsaditya1610@gmail.com, or through the LinkedIn and GitHub links on his portfolio. Ask me about his projects or experience.",
@@ -1528,8 +1474,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 358.8822000019718,
-   "total_ms": 359.16030000225874,
+   "first_token_ms": 299.59069999995336,
+   "total_ms": 299.7520999997505,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I don't share a phone number. The way to reach Aditya is email: itsaditya1610@gmail.com, or through the LinkedIn and GitHub links on his portfolio. Ask me about his projects or experience.",
@@ -1551,8 +1497,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 303.6735999994562,
-   "total_ms": 303.8589999996475,
+   "first_token_ms": 309.5149999999194,
+   "total_ms": 309.73509999967064,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "He is working on a research paper, and the details will be shared once it is published; nothing more is available yet. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1574,8 +1520,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 332.04639999894425,
-   "total_ms": 332.2297999984585,
+   "first_token_ms": 350.7214000001113,
+   "total_ms": 350.9632000000238,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "He is working on a research paper, and the details will be shared once it is published; nothing more is available yet. You can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1597,8 +1543,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 317.2132999970927,
-   "total_ms": 317.4470999983896,
+   "first_token_ms": 329.33849999972153,
+   "total_ms": 329.5413999999255,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "He held a Founder's Office role at 15FORTEEN, Delhi, from June 2025 to February 2026. No further detail is published; you can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1620,8 +1566,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 340.2274000000034,
-   "total_ms": 340.4816000002029,
+   "first_token_ms": 325.3557999996701,
+   "total_ms": 325.55079999974623,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "That's personal and isn't published. I can tell you about his work, projects and experience instead, and you can ask him directly: itsaditya1610@gmail.com. Ask me about his projects or experience.",
@@ -1643,11 +1589,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 850.7791999982146,
-   "total_ms": 851.0414999982459,
-   "provider": "groq-backup",
+   "first_token_ms": 936.5099999999984,
+   "total_ms": 936.7551000000276,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab’s evolutionary search **ties** random search at equal budget rather than beating it; it only outperforms random search on a synthetic task. Ask me about his other projects.",
+   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search **ties** random search at equal budget instead of beating it. It is ahead only on a synthetic task.\n\nAsk me about the winner's curse in PromptLab results",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1670,21 +1616,21 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 3139.9101999995764,
-   "total_ms": 3140.2101000021503,
-   "provider": "groq-backup",
+   "first_token_ms": 775.3843999998935,
+   "total_ms": 778.5377999998673,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "PromptLab’s evolutionary search does **not** beat random‑search baselines in general; it ties random search on the two real tasks (CommonsenseQA and BoolQ) and is only ahead on a synthetic task. Ask me about his other projects.",
+   "answer": "No. On the two real tasks, CommonsenseQA and BoolQ, PromptLab's evolutionary search **ties** random search at equal budget instead of beating it. It is ahead only on a synthetic task.\n\nAsk me about the specific test scores for BoolQ.",
    "fallback": null,
    "grounded": true,
    "sources": [
     {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
-    {
      "title": "PromptLab README",
      "url": "https://github.com/Aditya2616/PromptLab"
+    },
+    {
+     "title": "Portfolio",
+     "url": "https://adityajain16.vercel.app"
     }
    ]
   },
@@ -1697,11 +1643,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1075.3383000010217,
-   "total_ms": 1075.5441000001156,
-   "provider": "groq-backup",
+   "first_token_ms": 638.5184000000663,
+   "total_ms": 640.6670000001213,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "It is not true that ModelRouter saves cost on live traffic; the cost figures come from an offline analysis only. **Ask me about** how ModelRouter’s routing works.",
+   "answer": "No. ModelRouter's cost figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. On a local Qwen pair, it does no better than random routing.\n\nAsk me about ModelRouter's validation APGR.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1724,11 +1670,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1181.444999998348,
-   "total_ms": 1181.736300000921,
-   "provider": "groq-backup",
+   "first_token_ms": 772.6220999998077,
+   "total_ms": 772.8428999998869,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He routes requests so that it runs at **37 % of the cost** while keeping 95 % of the big model’s quality. These figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about his routing strategy.",
+   "answer": "No. ModelRouter's cost figures come from an offline analysis of recorded RouterBench outcomes, not from live traffic. Ask me about his projects.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1747,11 +1693,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 912.0466000022134,
-   "total_ms": 912.2506999992765,
-   "provider": "groq-backup",
+   "first_token_ms": 1576.371999999992,
+   "total_ms": 1576.571999999942,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "SFT Forge’s own experiment found **no measurable benefit** from using its cleaned data to train a model.  \nAsk me about his other projects.",
+   "answer": "No. SFT Forge's own experiment found no measurable benefit from the cleaned data at that scale.\n\nAsk me about the specific metrics in the fine-tuning comparison table.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1774,11 +1720,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 688.7959000014234,
-   "total_ms": 689.0156000008574,
+   "first_token_ms": 888.8492000000952,
+   "total_ms": 897.1929999997883,
    "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "No. SFT Forge's own experiment found **no measurable benefit** from the cleaned data at that scale. Cleaning made no practical difference to the model.\n\nAsk me about SFT Forge's three gates.",
+   "answer": "No. SFT Forge's own experiment found **no measurable benefit** from the cleaned data at that scale. The project explicitly states it is not true that SFT Forge's cleaned data trains a better model.\n\nAsk me about the specific metrics in the fine-tuning comparison table.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1801,11 +1747,11 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1482.1269000021857,
-   "total_ms": 1482.338300000265,
+   "first_token_ms": 773.0774999999994,
+   "total_ms": 773.4222999997655,
    "provider": "groq-backup",
    "tokens_prompt_completion": null,
-   "answer": "No. Sentinel is **one layer of defence, not a complete one** and it misses a large share of unseen attacks.  \nAsk me about his other projects.",
+   "answer": "He does not stop all prompt injections; at its default setting it misses a large share of unseen attacks. **Ask me about** its false‑positive rate.",
    "fallback": null,
    "grounded": true,
    "sources": [
@@ -1814,12 +1760,12 @@
      "url": "https://adityajain16.vercel.app"
     },
     {
-     "title": "Résumé",
-     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
-    },
-    {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
+    },
+    {
+     "title": "Résumé",
+     "url": "https://adityajain16.vercel.app/Aditya_Jain_Resume.pdf"
     }
    ]
   },
@@ -1832,18 +1778,14 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 877.8917000017827,
-   "total_ms": 878.1675999998697,
-   "provider": "groq-backup",
+   "first_token_ms": 802.821700000095,
+   "total_ms": 803.1654000001254,
+   "provider": "groq",
    "tokens_prompt_completion": null,
-   "answer": "He notes Sentinel is **not a guarantee**; it is only one layer of defence and misses a large share of unseen attacks at its default setting. Ask me about his other open‑source projects.",
+   "answer": "No. Sentinel is one layer of defence, not a complete one. At its default setting, it misses a large share of unseen attacks. A determined, adaptive attacker can rephrase, split an attack across turns, or exploit patterns the model never saw. It should be treated as one layer next to least-privilege tool access, output filtering, and review.\n\nAsk me about the specific limitations of Sentinel.",
    "fallback": null,
    "grounded": true,
    "sources": [
-    {
-     "title": "Portfolio",
-     "url": "https://adityajain16.vercel.app"
-    },
     {
      "title": "Sentinel README",
      "url": "https://github.com/Aditya2616/Sentinel"
@@ -1859,9 +1801,9 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1324.1560999995272,
-   "total_ms": 1324.334799999633,
-   "provider": "groq-backup",
+   "first_token_ms": 563.865000000078,
+   "total_ms": 564.0788000000612,
+   "provider": "groq",
    "tokens_prompt_completion": null,
    "answer": "No. AgentFlow does not claim a high task success rate; its README reports the measured results, including the parts that did not work. Ask me about his projects.",
    "fallback": null,
@@ -1882,9 +1824,9 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 1117.5803000005544,
-   "total_ms": 1117.82459999813,
-   "provider": "groq-backup",
+   "first_token_ms": 777.3861000000579,
+   "total_ms": 777.6301999997486,
+   "provider": "groq",
    "tokens_prompt_completion": null,
    "answer": "No. EvalBench does not claim its rubric judge is highly reliable; it uses exact-match and rule checks first and the judge only where no rule exists, and its README reports the measured results. Ask me about his projects.",
    "fallback": null,
@@ -1905,8 +1847,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 336.47500000006403,
-   "total_ms": 336.63610000076005,
+   "first_token_ms": 310.1732999998603,
+   "total_ms": 310.391399999844,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1923,8 +1865,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 332.8101000006427,
-   "total_ms": 333.2553000000189,
+   "first_token_ms": 306.1075999999048,
+   "total_ms": 306.3068999999814,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1941,8 +1883,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 329.05120000214083,
-   "total_ms": 329.3284000028507,
+   "first_token_ms": 301.82449999983874,
+   "total_ms": 302.1355999999287,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1959,8 +1901,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 320.70589999784715,
-   "total_ms": 321.08229999721516,
+   "first_token_ms": 301.1466999996628,
+   "total_ms": 301.45619999984774,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1977,8 +1919,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 318.50970000232337,
-   "total_ms": 318.7056999995548,
+   "first_token_ms": 307.37530000033075,
+   "total_ms": 307.5687000000471,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -1995,8 +1937,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 333.3692999985942,
-   "total_ms": 333.6261000004015,
+   "first_token_ms": 319.0228000003117,
+   "total_ms": 319.4903000003251,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -2013,8 +1955,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 330.641900000046,
-   "total_ms": 330.9150999994017,
+   "first_token_ms": 318.4979000002386,
+   "total_ms": 318.70130000015706,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -2031,8 +1973,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 316.5655000011611,
-   "total_ms": 316.87480000255164,
+   "first_token_ms": 335.4844000000412,
+   "total_ms": 335.66960000007384,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -2049,8 +1991,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 340.3329000029771,
-   "total_ms": 340.54509999987204,
+   "first_token_ms": 303.7924000000203,
+   "total_ms": 304.0270999999848,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -2067,8 +2009,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 347.68629999962286,
-   "total_ms": 348.4149999967485,
+   "first_token_ms": 309.38949999972465,
+   "total_ms": 309.5800999999483,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya's work from his résumé, portfolio and project READMEs, and I can't change how I work. Ask me about his projects.",
@@ -2085,8 +2027,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 323.4327999998641,
-   "total_ms": 323.65829999980633,
+   "first_token_ms": 293.31230000025243,
+   "total_ms": 293.5141000002659,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya Jain: his experience, projects, skills, education and contact details. Ask me about his projects, for example.",
@@ -2103,8 +2045,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 333.7538999985554,
-   "total_ms": 333.887799999502,
+   "first_token_ms": 336.3540999998804,
+   "total_ms": 336.611400000038,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya Jain: his experience, projects, skills, education and contact details. Ask me about his projects, for example.",
@@ -2121,8 +2063,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 337.03329999843845,
-   "total_ms": 337.2362999980396,
+   "first_token_ms": 307.2122999997191,
+   "total_ms": 307.33909999980824,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya Jain: his experience, projects, skills, education and contact details. Ask me about his projects, for example.",
@@ -2139,8 +2081,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 354.11649999878136,
-   "total_ms": 354.29689999728,
+   "first_token_ms": 351.9792000001871,
+   "total_ms": 352.14280000036524,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya Jain: his experience, projects, skills, education and contact details. Ask me about his projects, for example.",
@@ -2157,8 +2099,8 @@
    "status": 200,
    "stage": null,
    "reason": null,
-   "first_token_ms": 363.8470999976562,
-   "total_ms": 364.04399999810266,
+   "first_token_ms": 302.63570000033724,
+   "total_ms": 302.84130000018195,
    "provider": "",
    "tokens_prompt_completion": null,
    "answer": "I can only answer questions about Aditya Jain: his experience, projects, skills, education and contact details. Ask me about his projects, for example.",

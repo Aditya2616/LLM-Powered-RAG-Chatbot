@@ -19,8 +19,18 @@ _GLOSSARY = re.compile(
 )
 _HE = r"(he|aditya|his|him)"
 
+# Leadership means leading or managing PEOPLE. "Access management", "change management", "vendor management" and
+# "platform governance" are skills, so a bare "manag..." never counts.
+_PEOPLE = r"(?:team|teams|people|developers?|engineers?|interns?|juniors?|members|staff|group|squad|others|colleagues)"
 _LEAD = re.compile(
-    r"\b(led|lead|leads|leader|leadership|manag\w*|mentor\w*|supervis\w*|team lead|co-?lead)\b",
+    r"\b(?:leadership|team lead(?:er)?s?|co-?lead|leaders?|people[- ]manage\w*|team[- ]manage\w*"
+    r"|(?:led|lead|leads|leading|manag(?:ed|es|ing|e)|mentor(?:ed|s|ing)?|supervis(?:ed|es|ing|e)|"
+    r"head(?:ed|s|ing)?|run(?:s|ning)?|ran)\s+(?:a |an |the |his |any |some |other |of |several |multiple )?"
+    r"(?:[\w-]+ ){0,2}" + _PEOPLE + r"\b"
+    r"|(?:led|lead|leads|mentor(?:ed|s)?|supervis(?:ed|es))\b"
+    # a bare "management experience" (after have/any/his...) means managing people; "access management" does not
+    r"|(?:have|has|had|any|some|his|prior|previous|with|a)\s+(?:people |team )?management\s+"
+    r"(?:experience|roles?|positions?|background|skills?|responsibilit\w+))",
     re.I,
 )
 _CERT = re.compile(
@@ -38,7 +48,8 @@ _CERT_STOP = set(
     """a an the is are was were be been he his him aditya does do did have has had any which what who how many
     much list all of in on at for from with about to and or certification certifications certified certificate
     certificates certify credential credentials course courses taken take took hold holds got get earned earn
-    completed complete done licence license licences licenses training program programs some anything""".split()
+    completed complete done licence license licences licenses training program programs some anything
+    show tell give me please display see view name names mention share""".split()
 )
 _STUDENT = re.compile(
     r"\b(is|are|was) (he|aditya)\b.{0,15}\b(a |an )?(student|undergrad\w*|studying|pursuing|enrolled)\b|\bis (he|aditya) (still )?(in|at) (college|university|school)\b",
@@ -54,7 +65,7 @@ _COMPANY = [
     ("15FORTEEN", re.compile(r"\b15 ?forteen\b|\bfounder'?s office\b", re.I)),
 ]
 _EXPERIENCE = re.compile(
-    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?|positions?|jobs?|held|titles?|employed|latest|most recent|newest|before|previous(ly)?|earlier|past|formerly|company|employer|organi[sz]ation|firm|work(s|ing)? (for|at))\b",
+    r"\b(experience|work history|career|employment|employer|worked|work (now|currently|right now)|currently|right now|current (role|job|position)|internship|intern|where does (he|aditya) work|what does (he|aditya) do at|roles?(?![- ]?play)|positions?|jobs?|held|titles?|employed|latest|most recent|newest|before|previous(ly)?|earlier|past|formerly|company|employer|organi[sz]ation|firm|work(s|ing)? (for|at))\b",
     re.I,
 )
 _SKILLS = re.compile(
@@ -66,7 +77,17 @@ _KNOWS2 = re.compile(
     re.I,
 )
 _KNOWS = re.compile(
-    r"\b(know|knows|code in|codes in|program in|programs in|write code in|develop in|build with|script in|use|uses|using|used|work(ed|s)? (with|on)|experience (with|in|of)|experienced (with|in|at)|familiar (with)?|proficient (in|with)|skilled (in|at|with)|knowledge of|expertise in|comfortable with|tried|touched|handled?)\s+(?:the |any |of |in |with )?(?P<term>[\w .+#&/-]{2,40}?)\s*[?.!]*$",
+    r"\b(know|knows|code in|codes in|program in|programs in|write code in|develop in|build with|script in|use|uses|using|used|work(ed|s)? (with|on)|experience (with|in|of)|experienced (with|in|at)|familiar (with)?|proficient (in|with)|skilled (in|at|with)|knowledge of|expertise in|comfortable with|tried|touched|handled?)\s+(?:the |any |of |in |with |about |regarding )?(?P<term>[\w .+#&/-]{2,40}?)\s*[?.!]*$",
+    re.I,
+)
+_FLAGSHIP = re.compile(
+    r"\bflagship\b|\bmain project\b|\bbest project\b|\bmost (important|impressive) (project|work)\b",
+    re.I,
+)
+# "which of his projects ...", "any project that ...": a question that asks WHICH project, not what one does
+_WHICH_PROJECTS = re.compile(
+    r"\b(which|what|any)\b(?: of)?(?: (?:his|the|these|those))?(?: other)? projects?\b"
+    r"|\bare there (?:any )?projects?\b|\bprojects? (?:that|which|about|on|for|related to|dealing|involving|covering)\b",
     re.I,
 )
 _PROJECTS_SHORT = re.compile(r"\bprojects?\b(?:\W+\w+){0,4}\W*$", re.I)
@@ -144,7 +165,11 @@ _STOP_TOPIC = set(
     """which what any are there the and for from with that this does did has have his him aditya built build work
     working worked projects project deal deals dealing about related around involving involve involves cover covers
     use uses using like kind kinds type types anything something where who how can could would should into onto over
-    show tell give list name his its our your one some many much more most""".split()
+    show tell give list name his its our your one some many much more most deals handles handle focus focuses focused
+    all main top best key notable major recent latest biggest favourite favorite every complete full other another
+    different various several overview portfolio were was been being ever also please pls had made make makes
+    created create built number count total public github git open source sources mit licence license licenced
+    licensed licences licenses repo repos repository repositories out through each per own""".split()
 )
 _GENERIC_TOPIC = {
     "llm",
@@ -157,6 +182,92 @@ _GENERIC_TOPIC = {
     "language",
     "large",
 }
+
+
+# Words a visitor uses for a topic -> the start of the project names whose one-line description covers it
+_TOPIC_SYNONYMS = {
+    "speech": ("voicescribe",),
+    "voice": ("voicescribe",),
+    "audio": ("voicescribe",),
+    "meeting": ("voicescribe",),
+    "transcri": ("voicescribe",),
+    "spoken": ("voicescribe",),
+    "image": ("diffuselab", "visionlens"),
+    "diffusion": ("diffuselab",),
+    "generative": ("diffuselab",),
+    "video": ("visionlens",),
+    "vision": ("visionlens",),
+    "detect": ("visionlens",),
+    "track": ("visionlens",),
+    "camera": ("visionlens",),
+    "object": ("visionlens",),
+    "evaluat": ("evalbench",),
+    "benchmark": ("evalbench",),
+    "testing": ("evalbench",),
+    "agent": ("agentflow",),
+    "tool": ("agentflow",),
+    "planner": ("agentflow",),
+    "langgraph": ("agentflow",),
+    "prompt": ("promptlab", "sentinel"),
+    "optimi": ("promptlab",),
+    "evolution": ("promptlab",),
+    "fine-tun": ("sft",),
+    "finetun": ("sft",),
+    "tuning": ("sft",),
+    "training": ("sft",),
+    "dataset": ("sft",),
+    "data": ("sft",),
+    "safety": ("sentinel",),
+    "security": ("sentinel",),
+    "secure": ("sentinel",),
+    "injection": ("sentinel",),
+    "guard": ("sentinel",),
+    "attack": ("sentinel",),
+    "cost": ("modelrouter",),
+    "routing": ("modelrouter",),
+    "router": ("modelrouter",),
+    "cheap": ("modelrouter",),
+    "rag": ("llm-powered",),
+    "retriev": ("llm-powered",),
+    "search": ("llm-powered",),
+    "question": ("llm-powered",),
+    "document": ("llm-powered",),
+    "chatbot": ("llm-powered",),
+}
+
+
+def _stem(word: str) -> str:
+    """A crude stem, so "evaluating", "evaluation" and "evaluate" meet; two words must have the same stem to match."""
+    w = word.lower()
+    for suffix in (
+        "ations",
+        "ation",
+        "ings",
+        "ing",
+        "ions",
+        "ion",
+        "ers",
+        "er",
+        "ed",
+        "es",
+        "s",
+        "ly",
+        "e",
+    ):
+        if w.endswith(suffix) and len(w) - len(suffix) >= 4:
+            w = w[: -len(suffix)]
+            break
+    return w[:-2] if w.endswith("at") and len(w) > 6 else w
+
+
+def topic_words(question: str) -> list[str]:
+    """The words of a question that name a topic: what is left once the question words, "projects", "his" and the
+    like are removed."""
+    return [
+        w
+        for w in re.findall(r"[a-z0-9+#.-]+", question.lower())
+        if w.strip(".-") and w not in _STOP_TOPIC and len(w) > 2
+    ]
 
 
 class Profile:
@@ -402,6 +513,18 @@ class Profile:
                 lines.append((cat.strip(), items.strip()))
         return lines
 
+    def named_skill_categories(self, question: str) -> list[str]:
+        """The skill categories whose items the question names ("change management", "enterprise applications")."""
+        q = re.sub(r"\s+", " ", question.lower().replace("&", " and "))
+        out: list[str] = []
+        for cat, items in self._skill_lines():
+            for item in re.split(r",\s*(?![^()]*\))", items):
+                name = re.sub(r"\s*\(.*", "", item).strip().lower().replace("&", "and")
+                if len(name) > 4 and re.search(rf"(?<![\w-]){re.escape(name)}(?![\w])", q):
+                    if cat not in out:
+                        out.append(cat)
+        return out
+
     def skills(self, question: str) -> str | None:
         lines = self._skill_lines()
         if not lines:
@@ -411,6 +534,11 @@ class Profile:
             if re.search(rx, question, re.I):
                 wanted += [c for c in cats if c not in wanted]
         by_name = dict(lines)
+        for cat in self.named_skill_categories(
+            question
+        ):  # a skill the question names points at its category
+            if cat not in wanted:
+                wanted.append(cat)
         picked = [(c, by_name[c]) for c in wanted if c in by_name] or lines
         parts = []
         for c, items in picked:
@@ -424,6 +552,8 @@ class Profile:
         the term is too vague to test."""
         t = term.strip(" .?!").lower()
         t = re.sub(r"^(the|any|a|an)\s+", "", t)
+        if re.match(r"(how|what|why|whether|if|when|where)\b", t) or len(t.split()) > 6:
+            return None  # a clause, not a skill name
         if len(t) < 2 or t in {
             "ai",
             "it",
@@ -438,7 +568,7 @@ class Profile:
             return None
         forms = {t, t.rstrip("s")} if len(t) > 3 else {t}
         for form in forms:
-            pat = rf"(?<![\w-]){re.escape(form)}(?![\w])"
+            pat = rf"(?<![\w-]){re.escape(form)}s?(?![\w])"
             for cat, items in self._skill_lines():
                 if re.search(pat, items, re.I):
                     return f"under {cat}: {items}"
@@ -452,11 +582,22 @@ class Profile:
             ]
             if stacks:
                 return f"in the stack of {', '.join(stacks[:4])}"
+        if self._in_readmes(t):
+            return None  # not a listed skill, but his READMEs discuss it: let the passages answer
         return ""  # a passing mention in README prose is not a skill
+
+    def _in_readmes(self, term: str) -> bool:
+        pat = re.compile(rf"(?<![\w-]){re.escape(term)}s?(?![\w])", re.I)
+        return any(
+            pat.search(c["text"])
+            for c in self.chunks
+            if c["title"].endswith(" README") and not c.get("meta")
+        )
 
     def knows(self, term: str) -> str | None:
         """Yes/no for "does he know X": from the skills list, then the project stacks."""
         name = term.strip(" .?!")
+        name = name[:1].upper() + name[1:] if name[:1].islower() and not name.isupper() else name
         where = self._where(term)
         if where is None:
             return None
@@ -474,7 +615,16 @@ class Profile:
         yes = [f"{n} ({w.split(':')[0]})" for n, w in wheres if w]
         no = [n for n, w in wheres if not w]
         parts = []
-        if yes:
+        if yes and not no:
+            cats = {w.split(":")[0] for _, w in wheres if w}
+            count = "both" if len(yes) == 2 else f"all {len(yes)}"
+            names = [n for n, _ in wheres]
+            if len(cats) == 1 and next(iter(cats)).startswith("under"):
+                joined = ", ".join(names[:-1]) + f" and {names[-1]}"
+                parts.append(f"Yes, {count} are in his skills list {next(iter(cats))}: {joined}.")
+            else:
+                parts.append(f"Yes, {count} are listed: " + ", ".join(yes) + ".")
+        elif yes:
             parts.append("Listed: " + ", ".join(yes) + ".")
         if no:
             joined = ", ".join(no)
@@ -528,20 +678,21 @@ class Profile:
 
     def projects_about(self, question: str) -> str | None:
         """ "Which projects deal with LLM evaluation or routing?": the projects whose entry mentions the topic words."""
-        words = [
-            w
-            for w in re.findall(r"[a-z0-9+#.-]+", question.lower())
-            if w not in _STOP_TOPIC and len(w) > 2
-        ]
+        words = topic_words(question)
         specific = [w for w in words if w not in _GENERIC_TOPIC] or words
         if not specific:
             return None
         scored = []
         for name, desc, block in self._project_entries():
-            low = block.lower()
-            score = sum(
-                bool(re.search(r"(?<![a-z0-9])" + re.escape(w[:5]), low)) for w in set(specific)
-            )
+            # the one-line description (name, tagline, stack) and the first line of the entry: not the whole text,
+            # so "production ready" or "strongest" cannot match a passing word of a long entry
+            low = re.sub(r"https?://\S+", " ", " ".join(block.split("\n")[:2]).lower())
+            stems = {_stem(t) for t in re.findall(r"[a-z0-9+#]+", low)}
+            score = 0
+            for w in set(specific):
+                extra = next((e for k, e in _TOPIC_SYNONYMS.items() if w.startswith(k)), ())
+                if _stem(w) in stems or any(name.lower().startswith(x) for x in extra):
+                    score += 1
             if score:
                 scored.append((score, f"{name} ({desc})" if desc else name))
         if not scored:
@@ -558,6 +709,31 @@ class Profile:
             f"Yes. All {len(entries)} of his projects are public on GitHub and MIT-licensed, and the "
             f"flagship, the {entries[0][0]}, is open source."
         )
+
+    def licence(self) -> str | None:
+        entries = self._project_entries()
+        if not entries:
+            return None
+        return f"All {len(entries)} of his projects are public on GitHub and MIT-licensed."
+
+    def platform_admin(self) -> str | None:
+        """The skill line about administering an AI platform, as it is indexed."""
+        for cat, items in self._skill_lines():
+            if re.search(r"\bplatform admin", cat, re.I):
+                names = [
+                    re.sub(r"\s+", " ", x).strip() for x in re.split(r",\s*(?![^()]*\))", items)
+                ]
+                return _fit([f"From his skills list, {cat}: " + ", ".join(names) + "."])
+        return None
+
+    def category_known(self, term: str) -> str | None:
+        """ "Does he know identity and access management?": the term names a whole skill category."""
+        t = re.sub(r"\s+", " ", term.lower().replace("&", " and ")).strip(" .?!")
+        t = re.sub(r"\s+(management|skills?|administration)$", "", t)
+        for cat, items in self._skill_lines():
+            if t and t == re.sub(r"\s+", " ", cat.lower().replace("&", " and ")):
+                return f"Yes. {cat} is in his skills list: {items}."
+        return None
 
     def location(self) -> str | None:
         m = re.search(r"Based in ([^.]+(?:\([^)]*\))?[^.]*)\.", self._section("About"))
@@ -582,11 +758,20 @@ class Profile:
             return a, "student"
         if _CERT.search(q) and not _COURSEWORK.search(q) and (a := self.certifications(q)):
             return a, "certifications"
+        if re.search(
+            r"\b(administer\w*|administrat\w*|platform admin\w*)\b", q, re.I
+        ) and re.search(rf"\b{_HE}\b|\bplatform\b", q, re.I):
+            if a := self.platform_admin():
+                return a, "platform_admin"
         m = _KNOWS.search(q) or _KNOWS2.search(q)
+        if m and re.search(r"\b(which|what|any)\b.{0,30}\bprojects?\b", q, re.I):
+            m = None  # "which of his projects works with images?" is about projects, not a skill
         if m and re.match(
             rf"\s*(does|do|did|has|have|is|can|could|what|which)\b.*\b{_HE}\b", q, re.I
         ):
             term = m.group("term")
+            if a := self.category_known(term):
+                return a, "skill"
             parts = [x for x in re.split(r"\s*(?:,|\band\b|\bor\b|/)\s*", term) if x]
             if len(parts) > 1 and (a := self.knows_many(parts)):
                 return a, "skill"
@@ -594,6 +779,11 @@ class Profile:
                 return a, "skill"
         if any(rx.search(q) for _, rx in _COMPANY) and (a := self.experience(q)):
             return a, "experience"
+        if re.search(r"\blicen[cs](e|es|ed)\b|\bunder (the |an? )?mit\b", q, re.I) and re.search(
+            rf"\bprojects?\b|\brepos?\b|\brepositories\b|\bcode\b|\b{_HE}\b", q, re.I
+        ):
+            if a := self.licence():
+                return a, "licence"
         if re.search(r"open[- ]?source", q, re.I) and re.search(rf"\b{_HE}\b", q, re.I):
             if a := self.open_source():
                 return a, "open_source"
@@ -611,13 +801,16 @@ class Profile:
             and (a := self.in_period(q))
         ):
             return a, "period"
-        if (
-            re.search(r"\bprojects?\b", q, re.I)
-            and re.search(r"\b(which|what|any|are there)\b", q, re.I)
-            and not _PROJECTS_SHORT.search(q)
-            and (a := self.projects_about(q))
-        ):
+        flagship = bool(_FLAGSHIP.search(q))
+        topic = bool(topic_words(q)) and not flagship
+        if topic and _WHICH_PROJECTS.search(q) and (a := self.projects_about(q)):
             return a, "projects"
+        if (  # "vendor management experience" asks about a listed skill, not about his roles
+            re.search(rf"\b{_HE}\b|\bskills?\b", q, re.I)
+            and self.named_skill_categories(q)
+            and (a := self.skills(q))
+        ):
+            return a, "skills"
         if (
             _EXPERIENCE.search(q)
             and re.search(rf"\b{_HE}\b", q, re.I)
@@ -634,7 +827,8 @@ class Profile:
             return a, "skills"
         if (
             _PROJECTS.search(q)
-            and (_PROJECTS_SHORT.search(q) or re.search(r"\bflagship\b", q, re.I))
+            and not topic  # a question about a topic that no project covers goes to the passages
+            and (_PROJECTS_SHORT.search(q) or flagship)
             and (a := self.projects(q))
         ):
             return a, "projects"

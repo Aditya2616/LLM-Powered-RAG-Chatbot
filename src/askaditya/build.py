@@ -59,6 +59,16 @@ class Section:
     text: str
 
 
+# Sections of a README that describe the assistant itself (the placeholder text, the index build, the private
+# corpus). They are kept in the index but marked ``meta``: retrieval leaves them out unless the visitor asks about
+# the chatbot project or the assistant, so they never answer a question about Aditya's skills or experience.
+ASSISTANT_META = re.compile(r"Ask-Aditya|portfolio assistant|Ask my AI", re.I)
+
+
+def is_assistant_meta(title: str, section: str) -> bool:
+    return title.endswith(" README") and bool(ASSISTANT_META.search(section))
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -345,6 +355,11 @@ def build(
             "url": c.metadata["url"],
             "section": c.metadata["section"],
             "text": c.page_content.strip(),
+            **(
+                {"meta": True}
+                if is_assistant_meta(c.metadata["title"], c.metadata["section"])
+                else {}
+            ),
         }
         for n, c in enumerate(chunks)
         if c.page_content.strip()

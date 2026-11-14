@@ -201,3 +201,36 @@ declined), and gave an ablation figure next to the headline one. Changes:
   row). It sits in its own small BM25 index and competes only for superlative questions (best, highest, lowest) about a
   named project, so it does not disturb the ranking of ordinary questions (retrieval stays at 45/46).
 - The system prompt asks for the headline figure first and no ablation rows unless asked.
+
+## Precision of the deterministic stages (2026-11-14)
+
+The live run on real models passed the formal bar, but its misses and three more answers were false positives of the
+deterministic rules, which fired on questions they should not touch. Triggers and fixes:
+
+- "What does VoiceScribe extract from meetings?" got the grades deflection because the output-side check replaced the
+  model's answer: it looked for the word "transcript" (and "grade", "remote", "paper"...) anywhere in the answer.
+  Output-side checks now replace an answer only when it asserts something about him (his grades, he is open to remote
+  work, his notice period) or uses a word that is personal by itself (CGPA, salary, visa, relocation). On the question
+  side, loose patterns ("percentage", "transcript", "family", "available on", "phone", "paper") only count when the
+  question is about him: it names no project, or says he, his, you or Aditya (`safety.about_a_project`).
+- "Does he have identity and access management skills?" got the Genesis entry because the leadership intent matched any
+  word starting "manag". It now needs people-management wording (led or managed a team, team lead, leadership,
+  "management experience" on its own); "X management skills" goes to the Skills section, by category or by the item it names.
+- "Which of his projects deals with speech?" returned the whole list because a short question counted as a list
+  request. A list is now returned only when the question has no topic word left after the question words, "projects",
+  "his" and the like are removed; otherwise the projects whose one-line description, stack or first line match the
+  topic (stemmed words and a small synonym table) are returned, and a topic that matches nothing goes to the model.
+- "What licence are his projects under?" is answered directly (public on GitHub, MIT-licensed).
+- "Which AI assistant platform does he administer?" is answered from the "AI platform admin" skill line. README sections
+  about the assistant itself (the Ask-Aditya section of the chatbot README) are marked `meta` in the index and are only
+  retrieved for questions about the chatbot project or the assistant.
+- "Does he know Docker and FastAPI?" is a sentence: "Yes, both are in his skills list under Tools & infra: ...".
+
+Also found while probing with unseen phrasings and fixed in the same way: contact answers for "how does the classifier
+reach its decision?" and "what does his résumé say about skills?"; the summary for "what does he do with Docker?"; the
+injection screen on "can he act as a team lead?" and "does he have experience designing a system prompt?"; a paper
+deflection for "who is the co-author on his projects?"; "not listed" for a term his READMEs do discuss.
+
+`tests/test_ask_precision.py` holds the precision tests: 88 project questions from the READMEs that must reach the
+model stage, 31 skills and experience questions with risky words, 40 realistic model answers that must not be replaced,
+and the recall counterparts. The tests that need the private sources are skipped where those files are absent.
