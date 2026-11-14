@@ -124,6 +124,18 @@ _SUPERLATIVE = re.compile(
     r"\b(best|worst|highest|lowest|top|most|least|fastest|slowest|better|largest|smallest|rank\w*|compare|comparison)\b",
     re.I,
 )
+# "What F1 did X reach?", "what is X's recall on unseen attacks?": a question for one measured figure
+METRIC_QUESTION = re.compile(
+    r"\b(f1|recall|precision|accuracy|pass rates?|scores?|scored|reach(?:ed)?|achiev\w*|got|get|wer|"
+    r"word error rate|cost|share|percent\w*|rate|best|highest|lowest|how (?:much|many|well|high))\b|%",
+    re.I,
+)
+HEADLINE_ROW_BOOST = 1.6  # a README row marked default / headline
+HELD_OUT_BOOST = 1.2
+VARIANT_FACTOR = (
+    0.7  # optional variants (verifier, ablation) and the dev set, unless the question names them
+)
+_VARIANT = re.compile(r"\b(verifier|ablation|optional|variant|dev|0\.5b|1\.5b)\b", re.I)
 ACRONYM_BOOST = (
     1.4  # a chunk that spells an upper-case term of the question the same way (RLHF, WER, SFT)
 )
@@ -224,6 +236,17 @@ class AskIndex:
                 if self.chunks[i]["title"].startswith(proj):
                     scores[i] = table_scores[j] * TABLE_BOOST
         acronyms = set(_ACRONYM.findall(query)) if heuristics else set()
+        if heuristics and proj and METRIC_QUESTION.search(query):
+            for i, c in enumerate(self.chunks):
+                if scores[i] <= 0 or not c["title"].startswith(proj):
+                    continue
+                low = c["text"].lower()
+                if "(default / headline row)" in low:
+                    scores[i] *= HEADLINE_ROW_BOOST
+                if "held-out" in low or "held out" in low:
+                    scores[i] *= HELD_OUT_BOOST
+                if _VARIANT.search(low) and not _VARIANT.search(query):
+                    scores[i] *= VARIANT_FACTOR
         if heuristics:
             for i, c in enumerate(self.chunks):
                 if acronyms and acronyms & set(_ACRONYM.findall(c["text"])):
