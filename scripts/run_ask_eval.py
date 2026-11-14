@@ -192,14 +192,28 @@ def _platform_names() -> list[str]:
     return [n for n in names if n]
 
 
+_NEIGHBOUR = re.compile(r"\b[\w-]+(?=\s+Team\s+(?:&|and)\s+Enterprise\s+Administration)", re.I)
+_warned = False
+
+
 def scrub(value):
-    """Replace the private product name in any string inside ``value`` (case-insensitively)."""
+    """Redact the private product name from every string inside ``value`` (case-insensitively): the configured name,
+    the word before "Team & Enterprise Administration" (when no name is configured, with a warning) and the
+    forbidden name itself. Expectations are judged on the unredacted text before this runs."""
+    global _warned
     names = _platform_names()
-    if not names or value is None:
+    if not names and not _warned:
+        _warned = True
+        print(
+            "warning: no platform name in the environment; redacting by the neighbouring words only",
+            file=sys.stderr,
+        )
+    if value is None:
         return value
     if isinstance(value, str):
-        for n in names:
-            value = re.sub(re.escape(n), "[PLATFORM]", value, flags=re.I)
+        value = _NEIGHBOUR.sub("[platform]", value)
+        for n in [*names, FORBIDDEN]:
+            value = re.sub(re.escape(n), "[platform]", value, flags=re.I)
         return value
     if isinstance(value, list):
         return [scrub(v) for v in value]
