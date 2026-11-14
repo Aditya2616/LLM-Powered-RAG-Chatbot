@@ -692,3 +692,34 @@ def test_the_assistant_sections_of_the_chatbot_readme_are_marked_and_left_out(tm
     assert any(
         h.chunk.get("meta") for h in ix.search("How does the RAG chatbot build its index?", 5)
     )
+
+
+def test_unicode_spaces_in_the_sources_are_plain_spaces_in_the_index(tmp_path):
+    from askaditya.build import normalise_spaces
+    from tests.ask_fakes import PERSONA, make_resume_pdf
+
+    assert normalise_spaces("OpenAI API, Workflow　Automation​") == (
+        "OpenAI API, Workflow Automation"
+    )
+    corpus = (PERSONA / "corpus.md").read_text(encoding="utf-8")
+    corpus = corpus.replace(
+        "- Languages: Python, SQL",
+        "- Languages: Python, SQL\n- Generative AI: OpenAI API, Workflow Automation",
+    )
+    assert " " in corpus
+    (tmp_path / "corpus.md").write_text(corpus, encoding="utf-8")
+    pdf = tmp_path / "resume.pdf"
+    make_resume_pdf(pdf)
+    build(
+        pdf,
+        tmp_path / "corpus.md",
+        [PERSONA / "projects"],
+        tmp_path / "idx",
+        today=dt.date(2026, 1, 2),
+    )
+    ix = AskIndex.load(tmp_path / "idx")
+    assert not any(" " in s["text"] for s in ix.profile)
+    assert not any(" " in c["text"] for c in ix.chunks)
+    prof = Profile(ix.profile, ix.chunks, EMAIL)
+    found = prof.answer("Does he know OpenAI API?", False)
+    assert found and found[0].startswith("Yes") and "Generative AI" in found[0]

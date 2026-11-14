@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import re
+import unicodedata
 from dataclasses import dataclass
 from itertools import zip_longest
 from pathlib import Path
@@ -67,6 +68,13 @@ ASSISTANT_META = re.compile(r"Ask-Aditya|portfolio assistant|Ask my AI", re.I)
 
 def is_assistant_meta(title: str, section: str) -> bool:
     return title.endswith(" README") and bool(ASSISTANT_META.search(section))
+
+
+def normalise_spaces(text: str) -> str:
+    """Every Unicode space (no-break, thin, ideographic...) becomes a plain space and zero-width characters are
+    dropped, so "OpenAI API" typed with a no-break space still matches a search for "OpenAI API"."""
+    text = re.sub("[\u200b\u200c\u200d\u2060\ufeff]", "", text)
+    return "".join(" " if ch != "\n" and unicodedata.category(ch) == "Zs" else ch for ch in text)
 
 
 def sha256(path: Path) -> str:
@@ -247,7 +255,7 @@ def split_sections(md: str, doc_title: str) -> list[tuple[str, str]]:
 def read_resume(pdf: Path) -> list[Section]:
     from pypdf import PdfReader
 
-    text = "\n".join(p.extract_text() or "" for p in PdfReader(str(pdf)).pages)
+    text = normalise_spaces("\n".join(p.extract_text() or "" for p in PdfReader(str(pdf)).pages))
     text = strip_phones(text)
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\|\s*\|", "|", text).replace(" |  |", " |")
@@ -258,7 +266,7 @@ FALSE_CLAIM = re.compile(r"^- (?P<claim>.+?) \((?P<truth>[^()]*)\)\.?\s*$")
 
 
 def read_corpus(md_path: Path, platform: str) -> tuple[list[Section], list[dict]]:
-    raw = md_path.read_text(encoding="utf-8")
+    raw = normalise_spaces(md_path.read_text(encoding="utf-8"))
     # the file starts with a note to the maintainer and carries one parenthetical about the placeholder:
     raw = raw.split("\n## ", 1)[1]
     raw = "## " + raw
@@ -302,7 +310,7 @@ def project_dirs(paths: list[Path]) -> list[Path]:
 
 def read_readme(project: Path) -> list[Section]:
     name = project.name
-    md = clean_markdown((project / "README.md").read_text(encoding="utf-8"))
+    md = clean_markdown(normalise_spaces((project / "README.md").read_text(encoding="utf-8")))
     title = f"{name} README"
     return [Section(title, f"{GITHUB}/{name}", h, b) for h, b in split_sections(md, name)]
 
@@ -345,7 +353,7 @@ def build(
     chunks = split_documents(docs, chunk_size, overlap)
     whole_tables = []
     for p in projects:
-        raw = (p / "README.md").read_text(encoding="utf-8")
+        raw = normalise_spaces((p / "README.md").read_text(encoding="utf-8"))
         for heading, text in table_sections(raw, p.name):
             whole_tables.append((f"{p.name} README", f"{GITHUB}/{p.name}", heading, text))
     items = [
