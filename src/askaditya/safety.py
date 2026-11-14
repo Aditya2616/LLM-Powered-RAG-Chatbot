@@ -470,7 +470,7 @@ def about_a_project(q: str) -> bool:
 
 
 _ROLE_DATES = re.compile(
-    r"\b(ethara|genesis|15 ?forteen|internship|intern|co-?lead|founder'?s office|ggsipu|degree|role|job|position)\b"
+    r"\b(ethara|genesis|15 ?forteen|internship|intern|co-?lead|founder'?s office|ggsipu|jemtec|degree|role|job|position)\b"
 )
 _FUTURE_START = re.compile(
     r"\b(can|could|will|would|should|notice|available|availability|immediate\w*|join us|asap|soon|next)\b"
@@ -621,7 +621,7 @@ _OFFTOPIC = re.compile(
     re.I,
 )
 _ABOUT_HIM = re.compile(
-    r"\b(aditya|he|his|him|resume|résumé|cv|portfolio|projects?|experience|skills?|education|certif\w*|contact|email|linkedin|github|ethara|genesis|ggsipu|university|intern\w*|co-?lead|evalbench|agentflow|promptlab|sft ?forge|diffuselab|visionlens|voicescribe|sentinel|modelrouter|rag|post-?training)\b",
+    r"\b(aditya|he|his|him|resume|résumé|cv|portfolio|projects?|experience|skills?|education|certif\w*|contact|email|linkedin|github|ethara|genesis|ggsipu|jemtec|university|intern\w*|co-?lead|evalbench|agentflow|promptlab|sft ?forge|diffuselab|visionlens|voicescribe|sentinel|modelrouter|rag|post-?training)\b",
     re.I,
 )
 
@@ -691,7 +691,7 @@ def is_summary_question(question: str) -> bool:
 
 
 _ENTITY_WORDS = re.compile(
-    r"\b(ethara|genesis|15 ?forteen|ggsipu|universit\w*|college|degree)\b", re.I
+    r"\b(ethara|genesis|15 ?forteen|ggsipu|jemtec|universit\w*|college|degree)\b", re.I
 )
 _FABRICATE = re.compile(
     r"\b(add|insert|include|say|state|claim|write|mention|append|pretend|assert)\b.{0,40}\b(that )?(he|aditya|his)\b.{0,40}\b(has|have|is|was|won|holds?|graduated|worked|got|earned|achieved|speaks?|knows?)\b|\b(add|say|claim|state|write|include|mention|insert)\b.{0,40}\b\d+\+? (years?|yrs)\b",

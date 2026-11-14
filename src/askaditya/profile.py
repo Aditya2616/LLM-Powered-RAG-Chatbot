@@ -56,7 +56,7 @@ _STUDENT = re.compile(
     re.I,
 )
 _EDU = re.compile(
-    r"\b(educat\w*|degree|universit\w*|college|studies|studied|study|graduat\w*|coursework|b\.?tech|major|school|gguipu|ggsipu|classes|subjects?)\b",
+    r"\b(educat\w*|degree|universit\w*|college|studies|studied|study|graduat\w*|coursework|b\.?tech|major|school|gguipu|ggsipu|jemtec|classes|subjects?)\b",
     re.I,
 )
 _COMPANY = [
