@@ -270,6 +270,24 @@ def topic_words(question: str) -> list[str]:
     ]
 
 
+_SNEHA = re.compile(r"\b(sneha|snehasingh\w*)\b", re.I)
+_SNEHA_ID = re.compile(
+    r"\bwho (is|was)\b|\bwho'?s\b|\btell me about\b|\bwhat do you know about\b|\bintroduce\b|\babout (sneha|her)\b"
+    r"|^\W*(sneha( singh)?|snehasingh\w*)\W*$|\b(is|was) (sneha|she) (a |the |an )?(contributor|co-?author|author|"
+    r"collaborator)|\bdid (sneha|she) (contribute|work|help)\b|^\W*(sneha singh|snehasingh\w*)\W*$",
+    re.I,
+)
+_TEAM = re.compile(
+    r"\bwho else\b|\b(did|has|have) (he|aditya) (build|built|make|made|do|done|write|wrote|create|created)\b.{0,25}"
+    r"\b(alone|by himself|on his own|solo|single-?handedly)\b|\b(who (are|is)|any|name)\b.{0,15}\b(the |his |these )?"
+    r"(authors?|contributors?|co-?authors?|collaborators?)\b|\bis (this|it|that|each|every) (a )?team (project|effort)\b|"
+    r"\bteam project\b|\b(authors?|contributors?|co-?authors?|collaborators?)\b.{0,20}\b(of|on|for) (his|the|these|all)"
+    r"( \w+)? projects\b",
+    re.I,
+)
+NOTHING_MORE = "Nothing else about her is published."
+
+
 class Profile:
     """The portfolio sections as kept in the index, and the answers built from them."""
 
@@ -710,6 +728,35 @@ class Profile:
             f"flagship, the {entries[0][0]}, is open source."
         )
 
+    def _contributor(self) -> tuple[str, str, str] | None:
+        """(name, GitHub link, what the corpus says she is) from the Contributors entry of the corpus."""
+        for k, v in self.sections.items():
+            if k.endswith("Contributors"):
+                m = re.search(
+                    r"^- (?P<n>[^(\n]+?) \((?P<u>https?://[^)\s]+)\) is (?P<w>[^.]+)\.", v, re.M
+                )
+                if m:
+                    return m.group("n"), m.group("u"), m.group("w")
+        return None
+
+    def contributor(self, question: str, project_named: bool) -> tuple[str, str] | None:
+        """Who the co-author is, and only that; any further question about her gets "nothing else is published"."""
+        named = bool(_SNEHA.search(question))
+        if not named and (project_named or not _TEAM.search(question)):
+            return None
+        c = self._contributor()
+        if not c:
+            return None
+        name, url, what = c
+        if named and not _SNEHA_ID.search(question):
+            return f"{NOTHING_MORE} You can ask Aditya directly: {self.email}.", "contributor_more"
+        if named:
+            return f"{name} is {what} ({url}).", "contributor"
+        return (
+            f"The projects list Aditya Jain and {name} as authors; {name} is {what} ({url}).",
+            "contributor",
+        )
+
     def licence(self) -> str | None:
         entries = self._project_entries()
         if not entries:
@@ -749,6 +796,8 @@ class Profile:
     def answer(self, question: str, project_named: bool) -> tuple[str, str] | None:
         """(answer text, kind) for a structured question, or None to let the normal pipeline handle it."""
         q = question.strip()
+        if a := self.contributor(q, project_named):
+            return a
         if project_named or _GLOSSARY.search(q):
             return None
         if _LEAD.search(q) and re.search(rf"\b{_HE}\b|\bteam\b|\bpeople\b|\bleadership\b", q, re.I):

@@ -222,8 +222,86 @@ _HIJACK = re.compile(
 )
 
 
+# ---- mention versus use: a question ABOUT an attack phrase is not an attack
+_QUOTE = re.compile(
+    r"""["“”`]([^"“”`]{3,160})["“”`]"""
+    r"""|(?:(?<=\s)|^)['‘]([^'’‘]{3,160})['’](?=[\s?.,!;:]|$)"""
+)
+_FRAME = re.compile(
+    r"^\W*(?:does|do|did|would|can|could|will|is|are|was|were|has|have|what happens|what would happen|what if|"
+    r"what does|what do|what would|how (?:does|do|did|would|can|will)|which|why|if)\b",
+    re.I,
+)
+_SUBJECT = re.compile(
+    r"\b(?:evalbench|agent ?flow|prompt ?lab|sft[- ]?forge|diffuse ?lab|vision ?lens|voice ?scribe|sentinel|"
+    r"model ?router|rag[- ]?chatbot|chatbot|injections?|jailbreaks?|attacks?|patterns?|rules?|filters?|guard\w*|"
+    r"detect\w*|classifier)\b",
+    re.I,
+)
+_CONJ_IMPERATIVE = re.compile(
+    r"\b(?:and|also|then|plus|but|after that|afterwards|while|before)\b.{0,15}\b(?:ignore|print|reveal|show|repeat|"
+    r"output|tell|give|say|write|act|pretend|forget|disregard|override|follow|obey|execute|run|answer|respond|"
+    r"reply|list|dump|leak|display|translate)\b",
+    re.I,
+)
+_LEAD_IN = re.compile(
+    r"(?:types?|typed|typing|says?|said|saying|sends?|sent|sending|like|such as|e\.?g\.?|the phrase|the string|"
+    r"the text|the words|the sentence|enters?|entered|pastes?|pasted|writes?|wrote|inputs?)\s*$"
+)
+_TAIL = re.compile(r"^\W*(?:(?:into|to|in|at|on|against|through|as)\s+\w+(?:\s\w+){0,3})?\W*$")
+
+
+def _frame_ok(remainder: str) -> bool:
+    """The question around the mentioned phrase: one third-person question about a project or about injection, with
+    no second person and no further instruction, that is clean once the phrase is taken out."""
+    r = re.sub(r"e\.g\.", "eg", remainder.strip(), flags=re.I)
+    if not _FRAME.match(r) or not _SUBJECT.search(r):
+        return False
+    if re.search(r"\b(you|your|yours|yourself)\b", r, re.I):
+        return False
+    if re.search(r"[.!?]\s+\S", r) or _CONJ_IMPERATIVE.search(r):
+        return False
+    return _screen_raw(r) is None
+
+
+def _is_mention(text: str) -> bool:
+    t = unicodedata.normalize("NFKC", text)
+    spans = list(_QUOTE.finditer(t))
+    if any(_screen_raw(m.group(1) or m.group(2)) is not None for m in spans):
+        rem = t
+        for m in reversed(spans):
+            rem = rem[: m.start()] + " x " + rem[m.end() :]
+        return _frame_ok(rem)
+    plain = _normalise(t)
+    for _, pattern in _INJECTION:
+        m = re.search(pattern, plain, flags=re.I | re.M)
+        if m:
+            before, after = (
+                plain[: m.start()],
+                re.sub(r"^\w+", "", plain[m.end() :]),
+            )  # finish the word
+            if _LEAD_IN.search(before.rstrip()) and _TAIL.match(after):
+                return _frame_ok(before + " x " + after)
+            return False
+    return False
+
+
+def mentions_attack_phrase(text: str) -> bool:
+    """True when the text quotes or names an attack phrase only as the subject of a question about it."""
+    rule = _screen_raw(text)
+    return bool(rule and rule != "encoded" and _is_mention(text))
+
+
 def screen_injection(text: str) -> str | None:
-    """The id of the first rule that matches the text, or None. User text and history are screened alike."""
+    """The id of the first rule that matches the text, or None. User text and history are screened alike. A
+    question that merely mentions an attack phrase ("does Sentinel block 'ignore previous instructions'?") passes."""
+    rule = _screen_raw(text)
+    if rule and rule != "encoded" and _is_mention(text):
+        return None
+    return rule
+
+
+def _screen_raw(text: str) -> str | None:
     if _encoded_blob(unicodedata.normalize("NFKC", text)):
         return "encoded"
     plain = _normalise(text)
